@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Houses Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Store house descriptions
+        const houseDescriptions = {};
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let allHouses = [];
+        let filteredHouses = [];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Initialize house data
+                const housesData = {{ houses|tojson }};
+                allHouses = housesData;
+                filteredHouses = [...allHouses];
+
+                // Initialize house descriptions
+                housesData.forEach(house => {
+                    houseDescriptions[house.Name] = {
+                        title: house.Name,
+                        description: house.Description || 'No description available'
+                    };
+                });
+
+                // Initialize pagination
+                updatePagination();
+                displayHouses();
+
+                // Initialize search
+                const searchInput = document.querySelector('input[type="text"]');
+                if (searchInput) {
+                    searchInput.addEventListener('input', function(e) {
+                        filterHouses(e.target.value);
+                    });
+                }
+
+                // Close modal when clicking outside
+                const modal = document.getElementById('descriptionModal');
+                if (modal) {
+                    modal.addEventListener('click', function(e) {
+                        if (e.target === this) {
+                            closeModal();
+                        }
+                    });
+                }
+
+                // Close modal on escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        closeModal();
+                    }
+                });
+            } catch (error) {
+                console.error('Error initializing:', error);
+            }
+        });
+
+        function filterHouses(searchTerm) {
+            searchTerm = searchTerm.toLowerCase();
+            filteredHouses = allHouses.filter(house => 
+                house.Name.toLowerCase().includes(searchTerm) ||
+                house.Zone.toLowerCase().includes(searchTerm) ||
+                house.Description?.toLowerCase().includes(searchTerm)
+            );
+            currentPage = 1;
+            updatePagination();
+            displayHouses();
+        }
+
+        function displayHouses() {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const displayedHouses = filteredHouses.slice(startIndex, endIndex);
+
+            // Update desktop table
+            const desktopTableBody = document.querySelector('.desktop-table tbody');
+            if (desktopTableBody) {
+                desktopTableBody.innerHTML = displayedHouses.map(house => `
+                    <tr class="border-b border-gray-800 hover:bg-[#1a1a1a] transition-colors" data-house-name="${house.Name}">
+                        <td class="px-6 py-4 text-sm">${house.Name}</td>
+                        <td class="px-6 py-4 text-sm">${house.Zone}</td>
+                        <td class="px-6 py-4 text-sm">$${house.Price.toLocaleString()}</td>
+                        <td class="px-6 py-4 text-sm">${house.Bedrooms}</td>
+                        <td class="px-6 py-4 text-sm">${house.Area}</td>
+                        <td class="px-6 py-4 text-sm">${house.Floor}</td>
+                        <td class="px-6 py-4 text-sm">
+                            ${house.Description 
+                                ? `<button onclick="openModal('${house.Name}')" class="text-blue-400 hover:text-blue-300 transition-colors">View Description</button>`
+                                : `<span class="text-gray-500">No description</span>`}
+                        </td>
+                        <td class="px-6 py-4 text-sm">
+                            <a href="${house.URL}" target="_blank" class="text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-1">
+                                Visit
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                </svg>
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 text-sm">${house.Source || 'N/A'}</td>
+                        <td class="px-6 py-4 text-sm">${formatDate(house.Scraped_At) || 'N/A'}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" 
+                                       class="custom-checkbox w-5 h-5"
+                                       ${house.contacted ? 'checked' : ''}
+                                       data-house-name="${house.Name}"
+                                       onchange="toggleContacted('${house.Name}')">
+                                <button onclick="toggleDiscarded('${house.Name}')"
+                                        class="text-red-400 hover:text-red-300 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            // Update mobile cards
+            const mobileCards = document.querySelector('.mobile-cards');
+            if (mobileCards) {
+                mobileCards.innerHTML = displayedHouses.map(house => `
+                    <div class="bg-[#111111] rounded-lg border border-gray-800 p-4 mb-4" data-house-name="${house.Name}">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-white font-medium text-base leading-tight">${house.Name}</h3>
+                            <div class="flex items-center ml-3 flex-shrink-0 gap-2">
+                                <input type="checkbox" 
+                                       class="custom-checkbox w-5 h-5"
+                                       ${house.contacted ? 'checked' : ''}
+                                       data-house-name="${house.Name}"
+                                       onchange="toggleContacted('${house.Name}')">
+                                <button onclick="toggleDiscarded('${house.Name}')"
+                                        class="text-red-400 hover:text-red-300 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="space-y-2.5">
+                            <div class="flex flex-col">
+                                <span class="text-gray-400 text-sm mb-1">Zone</span>
+                                <span class="text-white text-sm">${house.Zone}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400 text-sm">Price</span>
+                                <span class="text-white text-sm font-medium">$${house.Price.toLocaleString()}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400 text-sm">Bedrooms</span>
+                                <span class="text-white text-sm">${house.Bedrooms}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400 text-sm">Area</span>
+                                <span class="text-white text-sm">${house.Area} m²</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400 text-sm">Floor</span>
+                                <span class="text-white text-sm">${house.Floor || 'N/A'}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400 text-sm">Source</span>
+                                <span class="text-white text-sm">${house.Source || 'N/A'}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400 text-sm">Scraped At</span>
+                                <span class="text-white text-sm">${formatDate(house.Scraped_At) || 'N/A'}</span>
+                            </div>
+                            <div class="flex gap-2 mt-4">
+                                ${house.Description ? `
+                                    <button onclick="openModal('${house.Name}')" 
+                                            class="flex-1 text-blue-400 hover:text-blue-300 transition-colors py-2 text-center border border-gray-800 rounded-lg text-sm">
+                                        View Description
+                                    </button>
+                                ` : ''}
+                                <a href="${house.URL}" 
+                                   target="_blank"
+                                   class="${!house.Description ? 'flex-1' : ''} text-blue-400 hover:text-blue-300 transition-colors py-2 text-center border border-gray-800 rounded-lg inline-flex items-center justify-center gap-1 text-sm">
+                                    Visit Property
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Update showing entries text
+            const showingText = document.querySelector('.showing-entries');
+            if (showingText) {
+                const start = startIndex + 1;
+                const end = Math.min(endIndex, filteredHouses.length);
+                const total = filteredHouses.length;
+                showingText.textContent = `Showing ${start} to ${end} of ${total} entries`;
+            }
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredHouses.length / itemsPerPage);
+            const paginationContainer = document.querySelector('.pagination-numbers');
+            if (paginationContainer) {
+                let paginationHTML = '';
+                
+                // Always show first page
+                paginationHTML += `
+                    <button onclick="changePage(1)"
+                            class="px-3 py-1 rounded-md ${1 === currentPage ? 'bg-blue-600 text-white' : 'bg-[#111111] text-gray-400 hover:bg-[#1a1a1a]'} transition-colors">
+                        1
+                    </button>
+                `;
+
+                // Add ellipsis and some pages before current page
+                if (currentPage > 3) {
+                    paginationHTML += '<span class="text-gray-400">...</span>';
+                }
+
+                // Show pages around current page
+                for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+                    if (i === 1 || i === totalPages) continue; // Skip first and last pages as they're handled separately
+                    paginationHTML += `
+                        <button onclick="changePage(${i})"
+                                class="px-3 py-1 rounded-md ${i === currentPage ? 'bg-blue-600 text-white' : 'bg-[#111111] text-gray-400 hover:bg-[#1a1a1a]'} transition-colors">
+                            ${i}
+                        </button>
+                    `;
+                }
+
+                // Add ellipsis and last page
+                if (currentPage < totalPages - 2) {
+                    paginationHTML += '<span class="text-gray-400">...</span>';
+                }
+
+                // Always show last page if there is more than one page
+                if (totalPages > 1) {
+                    paginationHTML += `
+                        <button onclick="changePage(${totalPages})"
+                                class="px-3 py-1 rounded-md ${totalPages === currentPage ? 'bg-blue-600 text-white' : 'bg-[#111111] text-gray-400 hover:bg-[#1a1a1a]'} transition-colors">
+                            ${totalPages}
+                        </button>
+                    `;
+                }
+
+                paginationContainer.innerHTML = paginationHTML;
+            }
+
+            // Update prev/next buttons
+            const prevButton = document.querySelector('.prev-page');
+            const nextButton = document.querySelector('.next-page');
+            if (prevButton) prevButton.disabled = currentPage <= 1;
+            if (nextButton) nextButton.disabled = currentPage >= totalPages;
+        }
+
+        function changePage(newPage) {
+            currentPage = newPage;
+            updatePagination();
+            displayHouses();
+        }
+
+        function sortHouses(column) {
+            try {
+                if (!column) return; // Skip if no column selected
+                
+                const currentOrder = filteredHouses[0] && 
+                    filteredHouses[0][column] > filteredHouses[filteredHouses.length - 1][column] ? 'desc' : 'asc';
+                
+                filteredHouses.sort((a, b) => {
+                    let valueA = a[column];
+                    let valueB = b[column];
+                    
+                    // Handle numeric values
+                    if (column === 'Price' || column === 'Area') {
+                        valueA = parseFloat(valueA) || 0;
+                        valueB = parseFloat(valueB) || 0;
+                    } else if (typeof valueA === 'string') {
+                        valueA = valueA.toLowerCase();
+                        valueB = valueB.toLowerCase();
+                    }
+                    
+                    if (currentOrder === 'asc') {
+                        return valueA > valueB ? -1 : 1;
+                    } else {
+                        return valueA < valueB ? -1 : 1;
+                    }
+                });
+                
+                displayHouses();
+            } catch (error) {
+                console.error('Error sorting houses:', error);
+            }
+        }
+
+        function openModal(houseName) {
+            try {
+                const modal = document.getElementById('descriptionModal');
+                const title = document.getElementById('modalTitle');
+                const description = document.getElementById('modalDescription');
+                
+                if (!modal || !title || !description) {
+                    console.error('Modal elements not found');
+                    return;
+                }
+
+                const houseData = houseDescriptions[houseName];
+                if (!houseData || !houseData.description) {
+                    console.error('House data or description not found for:', houseName);
+                    return;
+                }
+
+                title.textContent = houseData.title;
+                description.textContent = houseData.description;
+                
+                document.body.style.overflow = 'hidden';
+                modal.classList.remove('closing');
+                modal.classList.add('show');
+            } catch (error) {
+                console.error('Error opening modal:', error);
+            }
+        }
+
+        function closeModal() {
+            try {
+                const modal = document.getElementById('descriptionModal');
+                if (!modal) return;
+                
+                modal.classList.add('closing');
+                document.body.style.overflow = '';
+                
+                // Remove classes after animation completes
+                setTimeout(() => {
+                    modal.classList.remove('show', 'closing');
+                }, 300);
+            } catch (error) {
+                console.error('Error closing modal:', error);
+            }
+        }
+
+        async function toggleContacted(houseName) {
+            try {
+                const checkbox = event.target;
+                const originalState = checkbox.checked;
+                
+                const response = await fetch(`/toggle-contacted/${encodeURIComponent(houseName)}`, {
+                    method: 'POST',
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const data = await response.json();
+                console.log(`House ${houseName} contacted status: ${data.contacted}`);
+            } catch (error) {
+                console.error('Error toggling contacted status:', error);
+                // Revert checkbox state on error
+                checkbox.checked = !checkbox.checked;
+            }
+        }
+
+        async function toggleDiscarded(houseName) {
+            try {
+                const response = await fetch(`/toggle-discarded/${encodeURIComponent(houseName)}`, {
+                    method: 'POST',
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const data = await response.json();
+                console.log(`House ${houseName} discarded status: ${data.discarded}`);
+                
+                // Remove the house from the view if it was discarded
+                if (data.discarded) {
+                    // Find the house elements
+                    const desktopRow = document.querySelector(`.desktop-table tr[data-house-name="${houseName}"]`);
+                    const mobileCard = document.querySelector(`.mobile-cards [data-house-name="${houseName}"]`);
+
+                    // Add animation class to the elements
+                    if (desktopRow) {
+                        desktopRow.classList.add('fade-out-delete');
+                    }
+                    if (mobileCard) {
+                        mobileCard.classList.add('fade-out-delete');
+                    }
+
+                    // Wait for animation to complete before removing
+                    setTimeout(() => {
+                        // Find and remove the house from filteredHouses
+                        const index = filteredHouses.findIndex(h => h.Name === houseName);
+                        if (index !== -1) {
+                            filteredHouses.splice(index, 1);
+                            // Update the display
+                            updatePagination();
+                            displayHouses();
+                        }
+                    }, 500); // Match this with the animation duration
+                }
+            } catch (error) {
+                console.error('Error toggling discarded status:', error);
+            }
+        }
+
+        // Add date formatting function
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return dateStr;
+            
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0a0a0a;
+        }
+        .custom-table th {
+            font-weight: 500;
+            color: #9ca3af;
+        }
+        .custom-table td {
+            color: #e5e7eb;
+        }
+        .custom-checkbox {
+            appearance: none;
+            background-color: transparent;
+            border: 2px solid #374151;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+        }
+        .custom-checkbox:checked {
+            background-color: #374151;
+            border-color: #374151;
+        }
+        .custom-checkbox:checked::after {
+            content: "✓";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 0.8rem;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.5s ease-in-out;
+        }
+        .modal.show {
+            display: flex;
+            animation: modalFadeIn 0.5s ease-in-out forwards;
+        }
+        .modal-content {
+            transform: translateY(50px);
+            opacity: 0;
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                        opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            max-width: 500px;
+            width: 90%;
+            pointer-events: none;
+            will-change: transform, opacity;
+        }
+        .modal.show .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        @keyframes modalFadeIn {
+            0% {
+                background-color: rgba(0, 0, 0, 0);
+            }
+            100% {
+                background-color: rgba(0, 0, 0, 0.7);
+            }
+        }
+        .modal.closing {
+            animation: modalFadeOut 0.5s ease-in-out forwards;
+        }
+        .modal.closing .modal-content {
+            transform: translateY(30px);
+            opacity: 0;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes modalFadeOut {
+            0% {
+                background-color: rgba(0, 0, 0, 0.7);
+            }
+            100% {
+                background-color: rgba(0, 0, 0, 0);
+            }
+        }
+        @media (max-width: 768px) {
+            .desktop-table {
+                display: none;
+            }
+        }
+        @media (min-width: 769px) {
+            .mobile-cards {
+                display: none;
+            }
+        }
+        /* Add these animation styles */
+        @keyframes fadeOutAndSlideUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        .fade-out-delete {
+            animation: fadeOutAndSlideUp 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-6 md:p-8 bg-[#0a0a0a]">
+    <div class="max-w-[90rem] mx-auto">
+        <!-- Search and Export Section -->
+        <div class="flex flex-col gap-4 mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6">
+                <div class="relative w-full sm:w-72">
+                    <input type="text" 
+                           placeholder="Search properties..." 
+                           class="w-full bg-[#111111] text-gray-300 px-4 py-2 rounded-lg pl-10 border border-gray-800 focus:outline-none focus:border-gray-700">
+                    <svg class="w-4 h-4 absolute left-3 top-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+                <button class="w-full sm:w-auto bg-white hover:bg-gray-100 text-black px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm font-medium transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Export CSV
+                </button>
+            </div>
+            <!-- Mobile Sort Dropdown -->
+            <div class="block sm:hidden w-full">
+                <select onchange="sortHouses(this.value)" class="w-full bg-[#111111] text-gray-300 px-4 py-2 rounded-lg border border-gray-800 focus:outline-none focus:border-gray-700">
+                    <option value="">Sort by...</option>
+                    <option value="Price">Price</option>
+                    <option value="Bedrooms">Bedrooms</option>
+                    <option value="Area">Area</option>
+                    <option value="Zone">Zone</option>
+                    <option value="Source">Source</option>
+                    <option value="Scraped_At">Scraped At</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Sort text -->
+        <div class="text-sm text-gray-500 mb-4">Sort by property price</div>
+
+        <!-- Desktop Table -->
+        <div class="desktop-table bg-[#111111] rounded-lg overflow-hidden border border-gray-800">
+            <table class="w-full custom-table">
+                <thead>
+                    <tr class="border-b border-gray-800">
+                        {% for header in ['Name', 'Zone', 'Price', 'Bedrooms', 'Area', 'Floor', 'Description', 'URL', 'Source', 'Scraped At', 'Contacted'] %}
+                        <th class="px-6 py-4 text-left">
+                            <div class="flex items-center gap-1 cursor-pointer" onclick="sortHouses('{{ header }}')">
+                                {{ header }}
+                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                </svg>
+                            </div>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for house in houses %}
+                    <tr class="border-b border-gray-800 hover:bg-[#1a1a1a] transition-colors" data-house-name="{{ house.Name }}">
+                        <td class="px-6 py-4 text-sm">{{ house.Name }}</td>
+                        <td class="px-6 py-4 text-sm">{{ house.Zone }}</td>
+                        <td class="px-6 py-4 text-sm">${{ "{:,}".format(house.Price) }}</td>
+                        <td class="px-6 py-4 text-sm">{{ house.Bedrooms }}</td>
+                        <td class="px-6 py-4 text-sm">{{ house.Area }}</td>
+                        <td class="px-6 py-4 text-sm">{{ house.Floor }}</td>
+                        <td class="px-6 py-4 text-sm">
+                            {% if house.Description %}
+                            <button onclick="openModal('{{ house.Name }}')" 
+                                    class="text-blue-400 hover:text-blue-300 transition-colors">
+                                View Description
+                            </button>
+                            {% else %}
+                            <span class="text-gray-500">No description</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm">
+                            <a href="{{ house.URL }}" 
+                               target="_blank" 
+                               class="text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-1">
+                                Visit
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                </svg>
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 text-sm">{{ house.Source }}</td>
+                        <td class="px-6 py-4 text-sm">{{ house.Scraped_At }}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" 
+                                       class="custom-checkbox w-5 h-5"
+                                       {% if house.contacted %}checked{% endif %}
+                                       data-house-name="{{ house.Name }}"
+                                       onchange="toggleContacted('{{ house.Name }}')">
+                                <button onclick="toggleDiscarded('{{ house.Name }}')"
+                                        class="text-red-400 hover:text-red-300 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="mobile-cards space-y-4">
+            {% for house in houses %}
+            <div class="bg-[#111111] rounded-lg border border-gray-800 p-4 mb-4" data-house-name="{{ house.Name }}">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="text-white font-medium">{{ house.Name }}</h3>
+                    <div class="flex items-center">
+                        <label class="text-sm text-gray-400 mr-2">Contacted</label>
+                        <input type="checkbox" 
+                               class="custom-checkbox w-5 h-5"
+                               {% if house.contacted %}checked{% endif %}
+                               data-house-name="{{ house.Name }}"
+                               onchange="toggleContacted('{{ house.Name }}')">
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Zone</span>
+                        <span class="text-white">{{ house.Zone }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Price</span>
+                        <span class="text-white">${{ "{:,}".format(house.Price) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Bedrooms</span>
+                        <span class="text-white">{{ house.Bedrooms }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Area</span>
+                        <span class="text-white">{{ house.Area }} m²</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Floor</span>
+                        <span class="text-white">{{ house.Floor }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Source</span>
+                        <span class="text-white">{{ house.Source }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Scraped At</span>
+                        <span class="text-white">{{ house.Scraped_At }}</span>
+                    </div>
+                    <div class="flex gap-2 mt-4">
+                        {% if house.Description %}
+                        <button onclick="openModal('{{ house.Name }}')" 
+                                class="flex-1 text-blue-400 hover:text-blue-300 transition-colors py-2 text-center border border-gray-800 rounded-lg">
+                            View Description
+                        </button>
+                        {% endif %}
+                        <a href="{{ house.URL }}" 
+                           target="_blank"
+                           class="{% if not house.Description %}flex-1{% endif %} text-blue-400 hover:text-blue-300 transition-colors py-2 text-center border border-gray-800 rounded-lg inline-flex items-center justify-center gap-1">
+                            Visit Property
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Description Modal -->
+        <div id="descriptionModal" class="modal">
+            <div class="modal-content bg-[#111111] mx-4 rounded-lg border border-gray-800">
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-3">
+                        <h2 id="modalTitle" class="text-lg font-medium text-white"></h2>
+                        <button onclick="closeModal()" class="text-gray-400 hover:text-white p-1">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="modalDescription" class="text-gray-300 text-sm leading-relaxed"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-4 bg-[#111111] p-4 rounded-lg border border-gray-800">
+            <div class="text-sm text-gray-400 showing-entries">
+                Showing 1 to 10 of 0 entries
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="changePage(currentPage - 1)" 
+                        class="prev-page px-3 py-1 rounded-md bg-[#111111] text-gray-400 hover:bg-[#1a1a1a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    Previous
+                </button>
+                <div class="pagination-numbers flex items-center gap-2">
+                    <!-- Pagination numbers will be inserted here by JavaScript -->
+                </div>
+                <button onclick="changePage(currentPage + 1)"
+                        class="next-page px-3 py-1 rounded-md bg-[#111111] text-gray-400 hover:bg-[#1a1a1a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    Next
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

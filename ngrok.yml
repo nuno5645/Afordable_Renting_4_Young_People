@@ -1,0 +1,11 @@
+version: "2"
+authtoken: 2hzAzrQSxoF66VanuaNc8TCv3AE_5nM4S6xDYeawNUC3HEr7a
+web_addr: 0.0.0.0:4040
+update: false
+log: stdout
+
+tunnels:
+  app-foo:
+    addr: api:8080
+    proto: http
+    hostname: trusty-plainly-boar.ngrok-free.app

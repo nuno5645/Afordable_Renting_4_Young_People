@@ -10,8 +10,7 @@ IMOVIRTUAL_URLS = [
 ]
 
 REMAX_URLS = [
-    'https://www.remax.pt/comprar?searchQueryState=%7B%22regionName%22:%22cascais%22,%22businessType%22:1,%22page%22:1,%22regionID%22:%22%22,%22regionType%22:%22%22,%22sort%22:%7B%22fieldToSort%22:%22PublishDate%22,%22order%22:1%7D,%22mapIsOpen%22:false,%22price%22:%7B%22min%22:null,%22max%22:240000%7D,%22mapScroll%22:false,%22rooms%22:2%7D',
-    'https://www.remax.pt/comprar?searchQueryState=%7B%22regionName%22:%22Oeiras%22,%22businessType%22:1,%22page%22:1,%22regionID%22:%22541%22,%22regionType%22:%22Region2ID%22,%22sort%22:%7B%22fieldToSort%22:%22PublishDate%22,%22order%22:1%7D,%22mapIsOpen%22:false,%22listingClass%22:1,%22price%22:%7B%22min%22:null,%22max%22:240000%7D,%22mapScroll%22:false,%22rooms%22:2,%22listingTypes%22:%5B%5D,%22prn%22:%22Oeiras,%20Lisboa%22,%22regionCoordinates%22:%7B%22latitude%22:38.7170951617666,%22longitude%22:-9.269621200241543%7D,%22regionZoom%22:12%7D'
+    'https://www.remax.pt/pt/arrendar/imoveis/habitacao/lisboa/lisboa/r/t,preco__1200?s=%7B%22rg%22%3A%22Lisboa%22%7D&p=1&o=-PublishDate'
 ]
 
 IDEALISTA_URLS = [
@@ -27,7 +26,7 @@ IDEALISTA_URLS = [
 ERA_URL = 'https://www.era.pt/arrendar?ob=2&tp=1,2&sp=mwbkFn}hx@gm[_mEujLinc@cjG}re@xk[~lEjkL|zKbvJh`]gjB~d_@&page=1&ord=3'
 
 # API Keys
-SCRAPER_API_KEY = 'e0c9203edd30d2e5c624f841b9c4e0b4'  # For Idealista scraping
+SCRAPER_API_KEY = '59592949eae6a709781746fc0aaec447'  # For Idealista scraping
 
 # Excel Settings
 EXCEL_FILENAME = 'houses.xlsx'
@@ -41,3 +40,6 @@ BETWEEN_REQUESTS_WAIT = 10  # Seconds to wait between requests
 # WhatsApp Settings
 WHATSAPP_GROUP_ID = "ByBvbZbZImiIGrL8nlpvQX"  # Group ID for house notifications
 WHATSAPP_NOTIFICATION_ENABLED = False
+
+# Idealista Settings
+IDEALISTA_MAX_REQUESTS_PER_HOUR = 15  # Maximum number of requests per hour for Idealista scraper

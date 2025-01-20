@@ -33,19 +33,60 @@ def run_scraper(scraper_name, scraper_instance):
         logger.error(f"Error in {scraper_name} scraper: {str(e)}", exc_info=True)
         return 0, 0
 
-def main():
-    try:
+def get_scraper_selection():
+    """Display menu and get user selection of scrapers to run"""
+    available_scrapers = {
+        1: ('ImoVirtual', ImoVirtualScraper, IMOVIRTUAL_URLS, None),
+        2: ('Idealista', IdealistaScraper, IDEALISTA_URLS, SCRAPER_API_KEY),
+        3: ('Remax', RemaxScraper, REMAX_URLS, None),
+        4: ('ERA', EraScraper, ERA_URL, None)
+    }
+    
+    print("\nAvailable scrapers:")
+    for num, (name, _, _, _) in available_scrapers.items():
+        print(f"{num}. {name}")
+    print("Enter numbers separated by spaces (e.g., '1 2 4') or 'all' for all scrapers:")
+    
+    while True:
+        choice = input("> ").strip().lower()
+        if choice == 'all':
+            return available_scrapers
+        
+        try:
+            selected_nums = [int(x) for x in choice.split()]
+            selected_scrapers = {num: data for num, data in available_scrapers.items() if num in selected_nums}
+            if not selected_scrapers:
+                print("Please select at least one scraper")
+                continue
+            if any(num not in available_scrapers for num in selected_nums):
+                print("Invalid selection. Please try again")
+                continue
+            return selected_scrapers
+        except ValueError:
+            print("Invalid input. Please enter numbers or 'all'")
 
-        # Initialize scrapers
+def main(use_menu=True):
+    try:
         logger.info("Starting house scraping process", extra={'action': 'PROCESSING'})
         
+        # Initialize scrapers based on menu selection or all scrapers
+        if use_menu:
+            selected_scrapers = get_scraper_selection()
+        else:
+            selected_scrapers = {
+                1: ('ImoVirtual', ImoVirtualScraper, IMOVIRTUAL_URLS, None),
+                2: ('Idealista', IdealistaScraper, IDEALISTA_URLS, SCRAPER_API_KEY),
+                3: ('Remax', RemaxScraper, REMAX_URLS, None),
+                4: ('ERA', EraScraper, ERA_URL, None)
+            }
+        
         # Create scraper instances
-        scrapers = {
-            'ImoVirtual': ImoVirtualScraper(logger, IMOVIRTUAL_URLS),
-            # 'Remax': RemaxScraper(logger, REMAX_URLS),
-            'Idealista': IdealistaScraper(logger, IDEALISTA_URLS, SCRAPER_API_KEY),
-            # 'ERA': EraScraper(logger, ERA_URL)
-        }
+        scrapers = {}
+        for _, (name, scraper_class, urls, api_key) in selected_scrapers.items():
+            if api_key:
+                scrapers[name] = scraper_class(logger, urls, api_key)
+            else:
+                scrapers[name] = scraper_class(logger, urls)
 
         # Store statistics
         stats = {}

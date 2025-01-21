@@ -6,6 +6,6 @@ log: stdout
 
 tunnels:
   app-foo:
-    addr: api:8080
+    addr: frontend:5173
     proto: http
     hostname: trusty-plainly-boar.ngrok-free.app

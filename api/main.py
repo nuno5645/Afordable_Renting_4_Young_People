@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import json
 from pathlib import Path
@@ -8,6 +9,16 @@ from typing import Optional
 import csv
 
 app = FastAPI(title="Houses API")
+
+# Setup CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins including ngrok
+    allow_credentials=False,  # Must be False when using "*" for origins
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"]
+)
 
 # Setup templates directory
 templates = Jinja2Templates(directory="api/templates")

@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import os
+import sys
 from openpyxl import Workbook
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from src.utils.logger import setup_logger
@@ -70,6 +71,9 @@ def main(use_menu=True):
         logger.info("Starting house scraping process", extra={'action': 'PROCESSING'})
         
         # Initialize scrapers based on menu selection or all scrapers
+        if len(sys.argv) > 1 and sys.argv[1] == '--all':
+            use_menu = False
+            
         if use_menu:
             selected_scrapers = get_scraper_selection()
         else:

@@ -35,4 +35,4 @@ RUN apt-get update && \
     mkdir -p /app/logs && \
     touch /app/logs/cron.log && \
     chmod 0644 /app/logs/cron.log && \
-    (crontab -l 2>/dev/null; echo '* * * * * cd /app && PYTHONPATH=/app /usr/local/bin/python /app/src/main.py >> /app/logs/cron.log 2>&1') | crontab - 
+    (crontab -l 2>/dev/null; echo '0 * * * * cd /app && PYTHONPATH=/app /usr/local/bin/python /app/src/main.py --all >> /app/logs/cron.log 2>&1') | crontab - 

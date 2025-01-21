@@ -148,6 +148,24 @@ Popular areas included in the search:
 - Alert frequency
 - Priority zones for faster notifications
 
+## Roadmap & Tasks 📋
+
+- [ ] Fix filters not working
+- [ ] Implement pagination in listings homepage
+- [ ] Restructure data and start using postgres(split 'zona' column into concelho/freguesia when possible)
+- [ ] Update ngrok configuration to avoid using same domain
+- [ ] Complete telegram notification logic
+- [ ] Update deleted and viewed properties logic with ID (from database)
+- [ ] Add property detail page (`/anuncio/{id}`)
+- [ ] Add Casa Sapo scraper integration
+- [ ] Display property location in listings
+- [ ] Add favorites feature
+- [ ] Maintain import history in database
+- [ ] Remove duplicate listings
+- [ ] Show import timestamp with green bubble notification for recent items
+- [ ] Implement analytics/favorites/search pages
+- [ ] Sort by most recent by default
+
 ## Contributing 🤝
 
 Contributions are welcome! Feel free to:

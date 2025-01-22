@@ -99,7 +99,6 @@ class ImoVirtualScraper(BaseScraper):
                     except Exception as e:
                         self.logger.warning(f"Error processing article: {str(e)}")
                         selenium_descriptions.append("N/A")
-                2
                 # Wait a bit for all descriptions to be fully expanded
                 time.sleep(2)
             except Exception as e:

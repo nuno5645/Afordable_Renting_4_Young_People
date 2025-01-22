@@ -10,11 +10,13 @@ from src.scrapers.imovirtual import ImoVirtualScraper
 from src.scrapers.idealista import IdealistaScraper
 from src.scrapers.remax import RemaxScraper
 from src.scrapers.era import EraScraper
+from src.scrapers.casa_sapo import CasaSapoScraper
 from config.settings import (
     IMOVIRTUAL_URLS,
     REMAX_URLS,
     IDEALISTA_URLS,
     ERA_URL,
+    CASA_SAPO_URLS,
     SCRAPER_API_KEY,
     EXCEL_FILENAME,
     EXCEL_HEADERS
@@ -40,13 +42,14 @@ def get_scraper_selection():
         1: ('ImoVirtual', ImoVirtualScraper, IMOVIRTUAL_URLS, None),
         2: ('Idealista', IdealistaScraper, IDEALISTA_URLS, SCRAPER_API_KEY),
         3: ('Remax', RemaxScraper, REMAX_URLS, None),
-        4: ('ERA', EraScraper, ERA_URL, None)
+        4: ('ERA', EraScraper, ERA_URL, None),
+        5: ('Casa SAPO', CasaSapoScraper, CASA_SAPO_URLS, None)
     }
     
     print("\nAvailable scrapers:")
     for num, (name, _, _, _) in available_scrapers.items():
         print(f"{num}. {name}")
-    print("Enter numbers separated by spaces (e.g., '1 2 4') or 'all' for all scrapers:")
+    print("Enter numbers separated by spaces (e.g., '1 2 3 4 5') or 'all' for all scrapers:")
     
     while True:
         choice = input("> ").strip().lower()
@@ -81,7 +84,8 @@ def main(use_menu=True):
                 1: ('ImoVirtual', ImoVirtualScraper, IMOVIRTUAL_URLS, None),
                 2: ('Idealista', IdealistaScraper, IDEALISTA_URLS, SCRAPER_API_KEY),
                 3: ('Remax', RemaxScraper, REMAX_URLS, None),
-                4: ('ERA', EraScraper, ERA_URL, None)
+                4: ('ERA', EraScraper, ERA_URL, None),
+                5: ('Casa SAPO', CasaSapoScraper, CASA_SAPO_URLS, None)
             }
         
         # Create scraper instances

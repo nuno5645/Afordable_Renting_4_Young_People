@@ -53,7 +53,7 @@ class BaseScraper(ABC):
             self.houses_processed += 1
             
             # Check if house already exists (case-insensitive)
-            if not df['URL'].str.lower().str.contains(url.lower(), na=False).any():
+            if not any(existing_url.lower() == url.lower() for existing_url in df['URL'].fillna('')):
                 self.houses_found += 1
                 
                 # Create a clean dictionary with all expected fields

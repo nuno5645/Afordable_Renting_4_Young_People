@@ -25,6 +25,16 @@ IDEALISTA_URLS = [
 
 ERA_URL = 'https://www.era.pt/arrendar?ob=2&tp=1,2&sp=mwbkFn}hx@gm[_mEujLinc@cjG}re@xk[~lEjkL|zKbvJh`]gjB~d_@&page=1&ord=3'
 
+CASA_SAPO_URLS = [
+    'https://casa.sapo.pt/alugar-apartamentos/t2,t3,t4,t5,t6-ou-superior/mais-recentes/lisboa/?gp=1200',
+    'https://casa.sapo.pt/alugar-apartamentos/t2,t3,t4,t5,t6-ou-superior/mais-recentes/amadora/?gp=1200',
+    'https://casa.sapo.pt/alugar-apartamentos/t2,t3,t4,t5,t6-ou-superior/mais-recentes/cascais/?gp=1200',
+    'https://casa.sapo.pt/alugar-apartamentos/t2,t3,t4,t5,t6-ou-superior/mais-recentes/oeiras/?gp=1200',
+    'https://casa.sapo.pt/alugar-apartamentos/t2,t3,t4,t5,t6-ou-superior/mais-recentes/sintra/?gp=1200',
+    'https://casa.sapo.pt/alugar-apartamentos/t2,t3,t4,t5,t6-ou-superior/mais-recentes/loures/?gp=1200',
+    'https://casa.sapo.pt/alugar-apartamentos/t2,t3,t4,t5,t6-ou-superior/mais-recentes/odivelas/?gp=1200',
+]
+
 # API Keys
 SCRAPER_API_KEY = '59592949eae6a709781746fc0aaec447'  # For Idealista scraping
 

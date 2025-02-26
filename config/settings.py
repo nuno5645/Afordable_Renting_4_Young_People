@@ -26,21 +26,21 @@ IDEALISTA_URLS = [
 ERA_URL = 'https://www.era.pt/arrendar?ob=2&tp=1,2&sp=mwbkFn}hx@gm[_mEujLinc@cjG}re@xk[~lEjkL|zKbvJh`]gjB~d_@&page=1&ord=3'
 
 CASA_SAPO_URLS = [
-    'https://casa.sapo.pt/alugar-apartamentos/t2,t3,t4,t5,t6-ou-superior/mais-recentes/lisboa/?gp=1200',
-    'https://casa.sapo.pt/alugar-apartamentos/t2,t3,t4,t5,t6-ou-superior/mais-recentes/amadora/?gp=1200',
-    'https://casa.sapo.pt/alugar-apartamentos/t2,t3,t4,t5,t6-ou-superior/mais-recentes/cascais/?gp=1200',
-    'https://casa.sapo.pt/alugar-apartamentos/t2,t3,t4,t5,t6-ou-superior/mais-recentes/oeiras/?gp=1200',
-    'https://casa.sapo.pt/alugar-apartamentos/t2,t3,t4,t5,t6-ou-superior/mais-recentes/sintra/?gp=1200',
-    'https://casa.sapo.pt/alugar-apartamentos/t2,t3,t4,t5,t6-ou-superior/mais-recentes/loures/?gp=1200',
-    'https://casa.sapo.pt/alugar-apartamentos/t2,t3,t4,t5,t6-ou-superior/mais-recentes/odivelas/?gp=1200',
+    'https://casa.sapo.pt/alugar-apartamentos/t1,t2,t3,t4,t5,t6-ou-superior/mais-recentes/lisboa/?gp=1200',
+    'https://casa.sapo.pt/alugar-apartamentos/t1,t2,t3,t4,t5,t6-ou-superior/mais-recentes/amadora/?gp=1200',
+    'https://casa.sapo.pt/alugar-apartamentos/t1,t2,t3,t4,t5,t6-ou-superior/mais-recentes/cascais/?gp=1200',
+    'https://casa.sapo.pt/alugar-apartamentos/t1,t2,t3,t4,t5,t6-ou-superior/mais-recentes/oeiras/?gp=1200',
+    'https://casa.sapo.pt/alugar-apartamentos/t1,t2,t3,t4,t5,t6-ou-superior/mais-recentes/sintra/?gp=1200',
+    'https://casa.sapo.pt/alugar-apartamentos/t1,t2,t3,t4,t5,t6-ou-superior/mais-recentes/loures/?gp=1200',
+    'https://casa.sapo.pt/alugar-apartamentos/t1,t2,t3,t4,t5,t6-ou-superior/mais-recentes/odivelas/?gp=1200',
 ]
 
 # API Keys
-SCRAPER_API_KEY = '59592949eae6a709781746fc0aaec447'  # For Idealista scraping
+SCRAPER_API_KEY = 'e0c9203edd30d2e5c624f841b9c4e0b4'  # For Idealista scraping
 
 # Excel Settings
 EXCEL_FILENAME = 'houses.xlsx'
-EXCEL_HEADERS = ['Name', 'Zone', 'Price', 'URL', 'Bedrooms', 'Area', 'Floor', 'Description', 'Source', 'Scraped At']
+EXCEL_HEADERS = ['Name', 'Zone', 'Price', 'URL', 'Bedrooms', 'Area', 'Floor', 'Description', 'Freguesia', 'Concelho', 'Source', 'Scraped At', 'Image URLs']
 
 # Scraping Settings
 MAX_PAGES = 2  # Maximum number of pages to scrape for paginated sites
@@ -51,5 +51,28 @@ BETWEEN_REQUESTS_WAIT = 10  # Seconds to wait between requests
 WHATSAPP_GROUP_ID = "ByBvbZbZImiIGrL8nlpvQX"  # Group ID for house notifications
 WHATSAPP_NOTIFICATION_ENABLED = False
 
+# Ntfy.sh Settings
+NTFY_TOPIC = "Casas"  # Topic for ntfy.sh notifications
+NTFY_NOTIFICATION_ENABLED = True
+NTFY_PRICE_THRESHOLD = 850  # Maximum price for notifications
+NTFY_FILTER_ROOM_RENTALS = True  # Skip notifications for room rentals
+
+# Room rental filter settings
+ROOM_RENTAL_TITLE_TERMS = [
+    "QUARTO", 
+    "ROOM", 
+    "ALUGA-SE QUARTO", 
+    "ALUGO QUARTO", 
+    "QUARTO PARA ALUGAR"
+]
+
+ROOM_RENTAL_DESCRIPTION_TERMS = [
+    "QUARTO EM APARTAMENTO", 
+    "QUARTO PARTILHADO", 
+    "SHARED ROOM", 
+    "ROOM IN APARTMENT",
+    "ALUGAM-SE QUARTOS"
+]
+
 # Idealista Settings
-IDEALISTA_MAX_REQUESTS_PER_HOUR = 15  # Maximum number of requests per hour for Idealista scraper
+IDEALISTA_MAX_REQUESTS_PER_HOUR = 50  # Maximum number of requests per hour for Idealista scraper

@@ -11,6 +11,28 @@ export function FavoritesPage() {
     fetchFavorites();
   }, []);
 
+  // Add effect to refetch favorites when page becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchFavorites();
+      }
+    };
+
+    // Refetch when the page gets focus
+    const handleFocus = () => {
+      fetchFavorites();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
+
   const fetchFavorites = async () => {
     setIsLoading(true);
     const houses = await api.getHouses();
@@ -18,18 +40,34 @@ export function FavoritesPage() {
     setIsLoading(false);
   };
 
-  const handleDelete = async (name: string) => {
-    await api.toggleDiscarded(name);
-    setFavorites((prev) => prev.filter((prop) => prop.Name !== name));
+  const handleDelete = async (houseId: string) => {
+    // The API call is already made in PropertyCard component, so we don't need to call it again here
+    // Just update the local state to remove the property
+    setFavorites((prev) => prev.filter((prop) => prop.house_id !== houseId));
   };
 
-  const handleContactedChange = async (name: string, contacted: boolean) => {
-    const newState = await api.toggleContacted(name);
+  const handleContactedChange = async (houseId: string, contacted: boolean) => {
+    // The API call is already made in PropertyCard component
+    // Just update the local state with the new status
     setFavorites((prev) =>
       prev.map((prop) =>
-        prop.Name === name ? { ...prop, contacted: newState } : prop
+        prop.house_id === houseId ? { ...prop, contacted } : prop
       )
     );
+  };
+
+  const handleFavoriteChange = async (houseId: string, favorite: boolean) => {
+    // If favorite is set to false, remove from the list
+    if (!favorite) {
+      setFavorites((prev) => prev.filter((prop) => prop.house_id !== houseId));
+    } else {
+      // Update the favorite status (this shouldn't happen in this view but adding for completeness)
+      setFavorites((prev) =>
+        prev.map((prop) =>
+          prop.house_id === houseId ? { ...prop, favorite } : prop
+        )
+      );
+    }
   };
 
   return (
@@ -57,8 +95,9 @@ export function FavoritesPage() {
             <PropertyCard
               key={property.Name}
               house={property}
-              onDelete={() => handleDelete(property.Name)}
-              onContactedChange={(contacted) => handleContactedChange(property.Name, contacted)}
+              onDelete={() => handleDelete(property.house_id)}
+              onContactedChange={(contacted) => handleContactedChange(property.house_id, contacted)}
+              onFavoriteChange={(favorite) => handleFavoriteChange(property.house_id, favorite)}
             />
           ))
         ) : (

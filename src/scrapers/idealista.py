@@ -5,16 +5,20 @@ import json
 import os
 from datetime import datetime, timedelta
 from src.utils.base_scraper import BaseScraper
+from src.utils.location_manager import LocationManager
 from config.settings import IDEALISTA_MAX_REQUESTS_PER_HOUR
 
 
 class IdealistaScraper(BaseScraper):
     def __init__(self, logger, url, api_key):
         super().__init__(logger)
-        self.url = url
+        # Convert single URL to list if needed
+        self.url = [url] if isinstance(url, str) else url
         self.api_key = api_key
         self.source = "Idealista"
         self.last_run_file = "data/last_run_times.json"
+        self.location_manager = LocationManager()
+        self._initialize_status()
         self._load_request_history()
 
     def _load_request_history(self):
@@ -33,7 +37,7 @@ class IdealistaScraper(BaseScraper):
             else:
                 self.request_history = []
         except Exception as e:
-            self.logger.error(f"Error loading request history: {str(e)}")
+            self._log('error', f"Error loading request history: {str(e)}")
             self.request_history = []
 
     def _save_request_history(self):
@@ -54,7 +58,7 @@ class IdealistaScraper(BaseScraper):
             with open(self.last_run_file, 'w') as f:
                 json.dump(data, f, indent=2)
         except Exception as e:
-            self.logger.error(f"Error saving request history: {str(e)}")
+            self._log('error', f"Error saving request history: {str(e)}")
 
     def can_make_request(self):
         """Check if we can make another request within the hourly limit"""
@@ -75,16 +79,10 @@ class IdealistaScraper(BaseScraper):
 
         for url_index, base_url in enumerate(self.url, 1):
             if not self.can_make_request():
-                self.logger.info(
-                    f"Reached maximum requests per hour ({IDEALISTA_MAX_REQUESTS_PER_HOUR}), waiting for next hour",
-                    extra={"action": "PROCESSING"},
-                )
+                self._log('info', f"Reached maximum requests per hour ({IDEALISTA_MAX_REQUESTS_PER_HOUR}), waiting for next hour")
                 break
 
-            self.logger.info(
-                f"Processing URL {url_index}: {base_url}",
-                extra={"action": "PROCESSING"},
-            )
+            self._log('info', f"Processing URL {url_index}: {base_url}")
             
             # Process first page
             processed, new_listings = self._process_page(1, base_url)
@@ -94,36 +92,19 @@ class IdealistaScraper(BaseScraper):
             # Only continue to page 2 if we found more than 30 listings on page 1
             # and we haven't hit the request limit
             if processed > 30 and self.can_make_request():
-                self.logger.info(
-                    "Found more than 30 listings, processing page 2",
-                    extra={"action": "PROCESSING"},
-                )
+                self._log('info', "Found more than 30 listings, processing page 2")
                 processed_page2, new_listings_page2 = self._process_page(2, base_url)
                 total_processed += processed_page2
                 total_new_listings += new_listings_page2
             else:
                 if not self.can_make_request():
-                    self.logger.info(
-                        "Request limit reached, skipping page 2",
-                        extra={"action": "PROCESSING"},
-                    )
+                    self._log('info', "Request limit reached, skipping page 2")
                 else:
-                    self.logger.info(
-                        f"Only found {processed} listings, skipping page 2",
-                        extra={"action": "PROCESSING"},
-                    )
+                    self._log('info', f"Only found {processed} listings, skipping page 2")
 
-        self.logger.info(
-            f"Finished processing all URLs for Idealista",
-            extra={"action": "PROCESSING"},
-        )
-        self.logger.info(
-            f"Total houses processed: {total_processed}", extra={"action": "PROCESSING"}
-        )
-        self.logger.info(
-            f"Total new listings found: {total_new_listings}",
-            extra={"action": "PROCESSING"},
-        )
+        self._log('info', "Finished processing all URLs")
+        self._log('info', f"Total houses processed: {total_processed}")
+        self._log('info', f"Total new listings found: {total_new_listings}")
 
     def _process_page(self, page_num, base_url):
         """Process a single page of listings"""
@@ -143,63 +124,36 @@ class IdealistaScraper(BaseScraper):
                     f"pagina-{page_num-1}", f"pagina-{page_num}"
                 )
 
-        self.logger.info(
-            f"Constructed URL for page {page_num}: {current_url}",
-            extra={"action": "PROCESSING"},
-        )
+        self._log('info', f"Constructed URL for page {page_num}: {current_url}")
 
         try:
-            self.logger.info(
-                f"Processing page {page_num}...", extra={"action": "SCRAPING"}
-            )
+            self._log('info', f"Processing page {page_num}...")
             if page_num > 1:
-                self.logger.info(
-                    "Waiting 10 seconds before next request...",
-                    extra={"action": "PROCESSING"},
-                )
+                self._log('info', "Waiting 10 seconds before next request...")
                 time.sleep(10)  # Wait between pages
 
             payload = {"api_key": self.api_key, "url": current_url, "autoparse": "true"}
-            self.logger.info(
-                "Making request to ScraperAPI...", extra={"action": "SCRAPING"}
-            )
+            self._log('info', "Making request to ScraperAPI...")
             
             # Track the request before making it
             self.track_request()
             r = requests.get("https://api.scraperapi.com/", params=payload)
             
-            self.logger.info(
-                f"ScraperAPI response status code: {r.status_code}",
-                extra={"action": "PROCESSING"},
-            )
+            self._log('info', f"ScraperAPI response status code: {r.status_code}")
 
             if r.status_code != 200:
-                self.logger.error(
-                    f"Failed to get page. Status code: {r.status_code}",
-                    extra={"action": "SCRAPING"},
-                )
-                self.logger.error(
-                    f"Response content: {r.text[:500]}...", extra={"action": "SCRAPING"}
-                )
+                self._log('error', f"Failed to get page. Status code: {r.status_code}")
+                self._log('error', f"Response content: {r.text[:500]}...")
                 return 0, 0
 
             soup = BeautifulSoup(r.text, "html.parser")
-            self.logger.info(
-                "Successfully parsed page content with BeautifulSoup",
-                extra={"action": "PROCESSING"},
-            )
+            self._log('info', "Successfully parsed page content with BeautifulSoup")
 
             houses = soup.find_all("article", class_="item")
-            self.logger.info(
-                f"Found {len(houses)} house listings on page {page_num}",
-                extra={"action": "PROCESSING"},
-            )
+            self._log('info', f"Found {len(houses)} house listings on page {page_num}")
 
             if not houses:
-                self.logger.warning(
-                    f"No houses found on page {page_num}",
-                    extra={"action": "PROCESSING"},
-                )
+                self._log('warning', f"No houses found on page {page_num}")
                 return 0, 0
 
             processed = 0
@@ -234,6 +188,23 @@ class IdealistaScraper(BaseScraper):
                             floor = detail.text.strip()
                             break
 
+                    # Extract image URLs
+                    image_urls = []
+                    picture_elem = house.find('picture')
+                    if picture_elem:
+                        # Try to get webp source first
+                        webp_source = picture_elem.find('source', type='image/webp')
+                        if webp_source and webp_source.get('srcset'):
+                            image_urls.append(webp_source.get('srcset'))
+                        # Fallback to jpg source
+                        jpg_source = picture_elem.find('source', type='image/jpeg')
+                        if jpg_source and jpg_source.get('srcset'):
+                            image_urls.append(jpg_source.get('srcset'))
+                        # Final fallback to img tag
+                        img = picture_elem.find('img')
+                        if img and img.get('src') and not img.get('src').endswith('.gif'):
+                            image_urls.append(img.get('src'))
+
                     zone_elem = house.find("a", class_="item-link")
                     if zone_elem and zone_elem.get("title"):
                         zone_words = zone_elem["title"].split()
@@ -249,24 +220,38 @@ class IdealistaScraper(BaseScraper):
                     else:
                         zone = "N/A"
 
-                    desc_elem = house.find("div", class_="item-description")
-                    description = desc_elem.text.strip() if desc_elem else "N/A"
+                    # Get description (not available in list view)
+                    description = "N/A"  # We would need to visit each listing page
 
-                    info_list = [name, zone, price, url, bedrooms, area, floor, description]
+                    # Extract freguesia and concelho
+                    freguesia, concelho = self.location_manager.extract_location(zone)
+                    
+                    # Order: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Freguesia, Concelho, Source, ScrapedAt, Image URLs
+                    info_list = [
+                        name,
+                        zone,
+                        price,
+                        url,
+                        bedrooms,
+                        area,
+                        floor,
+                        description,
+                        freguesia if freguesia else "N/A",
+                        concelho if concelho else "N/A",
+                        "Idealista",
+                        None,  # ScrapedAt will be filled by save_to_excel
+                        json.dumps(image_urls)  # Add image URLs as the last column
+                    ]
 
                     if self.save_to_excel(info_list):
                         new_listings += 1
 
                 except Exception as e:
-                    self.logger.error(
-                        f"Error processing house: {str(e)}", exc_info=True
-                    )
+                    self._log('error', f"Error processing house: {str(e)}", exc_info=True)
                     continue
 
             return processed, new_listings
 
         except Exception as e:
-            self.logger.error(
-                f"Error processing page {page_num}: {str(e)}", exc_info=True
-            )
+            self._log('error', f"Error processing page {page_num}: {str(e)}", exc_info=True)
             return 0, 0

@@ -18,8 +18,6 @@ from config.settings import (
     ERA_URL,
     CASA_SAPO_URLS,
     SCRAPER_API_KEY,
-    EXCEL_FILENAME,
-    EXCEL_HEADERS
 )
 
 # Setup logger
@@ -28,12 +26,12 @@ logger = setup_logger(__name__)
 def run_scraper(scraper_name, scraper_instance):
     """Run a scraper and handle any exceptions"""
     try:
-        logger.info(f"Starting {scraper_name} scraper...", extra={'action': 'SCRAPING'})
-        scraper_instance.scrape()
-        logger.info(f"Finished {scraper_name} scraper - Processed: {scraper_instance.houses_processed}, Found: {scraper_instance.houses_found}", extra={'action': 'PROCESSING'})
+        logger.info(f"[{scraper_name}] Starting scraper...")
+        scraper_instance.run()
+        logger.info(f"[{scraper_name}] Finished scraper - Processed: {scraper_instance.houses_processed}, Found: {scraper_instance.houses_found}")
         return scraper_instance.houses_processed, scraper_instance.houses_found
     except Exception as e:
-        logger.error(f"Error in {scraper_name} scraper: {str(e)}", exc_info=True)
+        logger.error(f"[{scraper_name}] Error in scraper: {str(e)}", exc_info=True)
         return 0, 0
 
 def get_scraper_selection():
@@ -45,7 +43,7 @@ def get_scraper_selection():
         4: ('ERA', EraScraper, ERA_URL, None),
         5: ('Casa SAPO', CasaSapoScraper, CASA_SAPO_URLS, None)
     }
-    
+
     print("\nAvailable scrapers:")
     for num, (name, _, _, _) in available_scrapers.items():
         print(f"{num}. {name}")
@@ -71,7 +69,7 @@ def get_scraper_selection():
 
 def main(use_menu=True):
     try:
-        logger.info("Starting house scraping process", extra={'action': 'PROCESSING'})
+        logger.info("[MAIN] Starting house scraping process")
         
         # Initialize scrapers based on menu selection or all scrapers
         if len(sys.argv) > 1 and sys.argv[1] == '--all':
@@ -114,19 +112,19 @@ def main(use_menu=True):
                     processed, found = future.result()
                     stats[scraper_name] = {'processed': processed, 'found': found}
                 except Exception as e:
-                    logger.error(f"Scraper {scraper_name} generated an exception: {str(e)}", exc_info=True)
+                    logger.error(f"[{scraper_name}] Scraper generated an exception: {str(e)}", exc_info=True)
                     stats[scraper_name] = {'processed': 0, 'found': 0}
 
         # Display final statistics
         total_processed = sum(s['processed'] for s in stats.values())
         total_found = sum(s['found'] for s in stats.values())
-        logger.info("=== Scraping Statistics ===", extra={'action': 'SUMMARY'})
+        logger.info("[SUMMARY] === Scraping Statistics ===")
         for scraper_name, stat in stats.items():
-            logger.info(f"{scraper_name}: Processed {stat['processed']} houses, Found {stat['found']} new listings", extra={'action': 'SUMMARY'})
-        logger.info(f"Total: Processed {total_processed} houses, Found {total_found} new listings", extra={'action': 'SUMMARY'})
-        logger.info("House scraping process completed", extra={'action': 'PROCESSING'})
+            logger.info(f"[{scraper_name}] Processed {stat['processed']} houses, Found {stat['found']} new listings")
+        logger.info(f"[SUMMARY] Total: Processed {total_processed} houses, Found {total_found} new listings")
+        logger.info("[MAIN] House scraping process completed")
     except Exception as e:
-        logger.error(f"An error occurred in the main process: {str(e)}", exc_info=True)
+        logger.error(f"[MAIN] An error occurred in the main process: {str(e)}", exc_info=True)
         raise
 
 if __name__ == "__main__":

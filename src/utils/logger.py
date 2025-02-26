@@ -1,5 +1,7 @@
 import logging
+import os
 from datetime import datetime
+from glob import glob
 
 class Colors:
     HEADER = '\033[95m'
@@ -40,6 +42,16 @@ class ColoredFormatter(logging.Formatter):
         record.msg = f"{color}{record.msg}{Colors.ENDC}"
         return super().format(record)
 
+def cleanup_old_logs(max_logs=5):
+    """Keep only the most recent log files"""
+    log_files = glob('logs/house_scraper_*.log')
+    log_files.sort(reverse=True)
+    for old_log in log_files[max_logs:]:
+        try:
+            os.remove(old_log)
+        except OSError:
+            pass
+
 def setup_logger(name):
     """Setup and return a logger instance with both file and console handlers"""
     logger = logging.getLogger(name)
@@ -47,6 +59,9 @@ def setup_logger(name):
 
     # Remove any existing handlers
     logger.handlers = []
+
+    # Clean up old logs before creating new one
+    cleanup_old_logs()
 
     # File handler (without colors)
     file_handler = logging.FileHandler(f'logs/house_scraper_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')

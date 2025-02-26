@@ -5,7 +5,8 @@ services:
       - "8080:8080"
     volumes:
       - .:/app
-      - ./data:/app/data
+      - ./data:/app/data:rw
+    user: "1000:1000"
     command: uvicorn api.main:app --host 0.0.0.0 --port 8080 --reload
     environment:
       - PYTHONPATH=/app
@@ -22,8 +23,9 @@ services:
     build: .
     volumes:
       - .:/app
-      - ./data:/app/data
-    command: cron -f
+      - ./data:/app/data:rw
+    user: "1000:1000"
+    command: /usr/local/bin/run_scraper.sh
     environment:
       - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
@@ -33,24 +35,24 @@ services:
       api:
         condition: service_healthy
 
-  ngrok:
-    image: wernight/ngrok
-    ports:
-      - "4040:4040"
-    command:
-      - /bin/sh
-      - -c
-      - |
-        ngrok start --all
-    volumes:
-      - .:/home/ngrok/.ngrok2/
-    environment:
-      - NGROK_AUTH_TOKEN=2hzAzrQSxoF66VanuaNc8TCv3AE_5nM4S6xDYeawNUC3HEr7a
-    networks:
-      - house_network
-    depends_on:
-      api:
-        condition: service_healthy
+  # ngrok:
+  #   image: wernight/ngrok
+  #   ports:
+  #     - "4040:4040"
+  #   command:
+  #     - /bin/sh
+  #     - -c
+  #     - |
+  #       ngrok start --all
+  #   volumes:
+  #     - .:/home/ngrok/.ngrok2/
+  #   environment:
+  #     - NGROK_AUTH_TOKEN=2hzAzrQSxoF66VanuaNc8TCv3AE_5nM4S6xDYeawNUC3HEr7a
+  #   networks:
+  #     - house_network
+  #   depends_on:
+  #     api:
+  #       condition: service_healthy
 
   frontend:
     build:
@@ -76,4 +78,5 @@ networks:
     driver: bridge
 
 volumes:
-  data: 
+  data:
+    driver: local 

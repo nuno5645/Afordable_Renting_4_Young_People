@@ -40,15 +40,21 @@ export function BottomNav() {
     <motion.nav
       className="fixed bottom-0 w-full bg-black/80 backdrop-blur-xl border-t border-white/5"
       initial={{
-        y: 100,
+        y: 50,
       }}
       animate={{
         y: 0,
       }}
       transition={{
-        type: "spring",
-        stiffness: 300,
-        damping: 30,
+        type: "tween",
+        duration: 0.2,
+      }}
+      style={{
+        willChange: 'transform',
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden',
+        transform: 'translateZ(0)',
+        WebkitTransform: 'translateZ(0)',
       }}
     >
       <div className="flex justify-around items-center h-16 px-2 max-w-lg mx-auto">
@@ -58,15 +64,10 @@ export function BottomNav() {
             className={`flex flex-col items-center justify-center w-16 h-16 relative ${location.pathname === path ? "text-white" : "text-zinc-500"}`}
             onClick={() => handleNavigation(path)}
             whileTap={{
-              scale: 0.9,
-            }}
-            whileHover={{
-              scale: 1.1,
+              scale: 0.95,
             }}
             transition={{
-              type: "spring",
-              stiffness: 400,
-              damping: 17,
+              duration: 0.1,
             }}
           >
             {location.pathname === path && (
@@ -74,9 +75,8 @@ export function BottomNav() {
                 className="absolute inset-0 bg-white/5 rounded-xl"
                 layoutId="navBackground"
                 transition={{
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 30,
+                  type: "tween",
+                  duration: 0.2,
                 }}
               />
             )}

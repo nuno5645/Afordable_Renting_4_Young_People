@@ -37,8 +37,44 @@ The tool automatically scrapes multiple Portuguese real estate websites (Idealis
 - Automated data collection and processing
 - Web interface to view listings
 - WhatsApp notifications for new listings
+- Ntfy.sh notifications for affordable houses (under €850)
 - Docker support for easy deployment
 - Detailed logging system
+- Robust CSV handling with automatic error detection and fixing
+
+## Notifications 📱
+
+### WhatsApp Notifications
+
+The system can send WhatsApp notifications for new listings through the WhatsApp Business API. This feature is disabled by default and requires additional setup.
+
+### Ntfy.sh Notifications
+
+The system can send instant notifications for affordable houses (under €850 by default) using [ntfy.sh](https://ntfy.sh/), a simple HTTP-based pub-sub notification service.
+
+To receive notifications:
+1. Install the ntfy app on your smartphone ([Android](https://play.google.com/store/apps/details?id=io.heckel.ntfy) or [iOS](https://apps.apple.com/us/app/ntfy/id1625396347))
+2. Subscribe to the topic "Casas" (or your custom topic configured in settings.py)
+3. Make sure `NTFY_NOTIFICATION_ENABLED` is set to `True` in `config/settings.py`
+
+You can customize the notification settings in `config/settings.py`:
+```python
+# Ntfy.sh Settings
+NTFY_TOPIC = "Casas"  # Topic for ntfy.sh notifications
+NTFY_NOTIFICATION_ENABLED = True
+NTFY_PRICE_THRESHOLD = 850  # Maximum price for notifications
+NTFY_FILTER_ROOM_RENTALS = True  # Skip notifications for room rentals
+
+# Room rental filter settings
+ROOM_RENTAL_TITLE_TERMS = [
+    "QUARTO", 
+    "ROOM", 
+    "ALUGA-SE QUARTO", 
+    # ... other terms
+]
+```
+
+The system automatically filters out room rentals (as opposed to full apartments) by checking for common room rental terms in the listing title and description. You can customize the filter terms or disable this feature by setting `NTFY_FILTER_ROOM_RENTALS = False`.
 
 ## Prerequisites 📋
 
@@ -72,17 +108,48 @@ pip install -r requirements.txt
 
 ## Usage 🚀
 
-### Running with Python
+### Running the Scraper
 
 ```bash
+# Run with interactive menu
 python run.py
+
+# Run all scrapers without menu
+python run.py --less
 ```
 
-### Running with Docker
+### CSV Data Management
+
+The scraper saves all housing data to a CSV file in the `data` directory. To ensure data integrity, several tools are provided:
+
+#### Automatic CSV Fixing
+
+The scraper automatically runs the CSV fix script after each scraping session to ensure data integrity. If you need to manually fix the CSV file:
 
 ```bash
-docker-compose up --build
+# Run only the CSV fix script
+python run.py --fix-csv-only
+
+# Or run the fix script directly
+python fix_csv.py
 ```
+
+#### Continuous CSV Integrity Checking
+
+For long-running deployments, you can use the CSV checker to periodically validate and fix the CSV file:
+
+```bash
+# Start the CSV checker (checks every 30 minutes by default)
+./run_csv_checker.sh
+
+# Start with custom interval (in minutes)
+./run_csv_checker.sh 15  # Check every 15 minutes
+
+# Stop the CSV checker
+./stop_csv_checker.sh
+```
+
+The CSV checker logs are stored in the `logs` directory.
 
 ## Project Structure 📁
 

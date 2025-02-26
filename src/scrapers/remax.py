@@ -7,12 +7,15 @@ from bs4 import BeautifulSoup
 import time
 import random
 from src.utils.base_scraper import BaseScraper
+from src.utils.location_manager import LocationManager
 
 class RemaxScraper(BaseScraper):
     def __init__(self, logger, urls):
         super().__init__(logger)
         self.urls = urls if isinstance(urls, list) else [urls]
         self.source = "Remax"
+        self.location_manager = LocationManager()
+        self._initialize_status()
 
     def scrape(self):
         """Scrape houses from Remax website"""
@@ -24,13 +27,13 @@ class RemaxScraper(BaseScraper):
             total_processed += processed
             total_new_listings += new_listings
 
-        self.logger.info(f"Finished processing all Remax URLs", extra={'action': 'PROCESSING'})
-        self.logger.info(f"Total houses processed: {total_processed}", extra={'action': 'PROCESSING'})
-        self.logger.info(f"Total new listings found: {total_new_listings}", extra={'action': 'PROCESSING'})
+        self._log('info', "Finished processing all URLs")
+        self._log('info', f"Total houses processed: {total_processed}")
+        self._log('info', f"Total new listings found: {total_new_listings}")
 
     def _process_url(self, url):
         """Process a single Remax URL"""
-        self.logger.info(f"Starting scrape for Remax URL: {url}", extra={'action': 'SCRAPING'})
+        self._log('info', f"Starting scrape for URL: {url}")
         
         try:
             # Configure Chrome with anti-bot detection
@@ -46,7 +49,7 @@ class RemaxScraper(BaseScraper):
             driver = webdriver.Chrome(options=chrome_options)
             driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
             
-            self.logger.info("Accessing website...", extra={'action': 'SCRAPING'})
+            self._log('info', "Accessing website...")
             driver.get(url)
             time.sleep(30)  # Fixed 30-second wait for page load
 
@@ -56,23 +59,23 @@ class RemaxScraper(BaseScraper):
                     EC.presence_of_element_located((By.CSS_SELECTOR, "div[data-id='listing-card-container']"))
                 )
             except Exception as e:
-                self.logger.warning(f"Timeout waiting for listings container: {str(e)}")
+                self._log('warning', f"Timeout waiting for listings container: {str(e)}")
                 driver.quit()
                 return 0, 0
 
             page_content = driver.page_source
             soup = BeautifulSoup(page_content, 'html.parser')
-            self.logger.info("Successfully retrieved page content", extra={'action': 'PROCESSING'})
+            self._log('info', "Successfully retrieved page content")
 
             driver.quit()
 
             # Find all divs that have an ID starting with 'listing-list-card-'
             house_divs = soup.find_all(lambda tag: tag.name == 'div' and tag.get('id', '').startswith('listing-list-card-'))
             
-            self.logger.info(f"Found {len(house_divs)} houses to process", extra={'action': 'PROCESSING'})
+            self._log('info', f"Found {len(house_divs)} houses to process")
             
             if not house_divs:
-                self.logger.warning("No houses found. The website structure might have changed.")
+                self._log('warning', "No houses found. The website structure might have changed.")
                 return 0, 0
 
             processed = 0
@@ -81,12 +84,12 @@ class RemaxScraper(BaseScraper):
             for house_container in house_divs:
                 try:
                     processed += 1
-                    self.logger.debug(f"Processing house with ID: {house_container.get('id')}", extra={'action': 'DEBUG'})
+                    self._log('debug', f"Processing house with ID: {house_container.get('id')}")
                     
                     # Find the actual listing container inside the card
                     house = house_container.find('div', attrs={'data-id': 'listing-card-container'})
                     if not house:
-                        self.logger.warning(f"Could not find listing card container for ID: {house_container.get('id')}", extra={'action': 'DEBUG'})
+                        self._log('warning', f"Could not find listing card container for ID: {house_container.get('id')}")
                         continue
 
                     # Extract house information with updated selectors
@@ -99,7 +102,7 @@ class RemaxScraper(BaseScraper):
                         type_elem = house.find("div", class_="bg-lighter-blue").find("b")
                         if type_elem and type_elem.text.strip() != "":
                             name = f"{type_elem.text.strip()} Remax"
-                    self.logger.info(f"Found property type: {name}", extra={'action': 'DEBUG'})
+                    self._log('debug', f"Found property type: {name}")
 
                     zone = "N/A"
                     location_elem = house.find("div", class_="w-full relative leading-[170%]")
@@ -110,7 +113,7 @@ class RemaxScraper(BaseScraper):
                         location_elem = house.find("p", class_="w-full overflow-hidden text-ellipsis whitespace-nowrap")
                         if location_elem:
                             zone = location_elem.text.strip()
-                    self.logger.info(f"Found location: {zone}", extra={'action': 'DEBUG'})
+                    self._log('debug', f"Found location: {zone}")
 
                     price = "N/A"
                     price_elem = house.find("b", class_="relative leading-[140%]")
@@ -124,7 +127,7 @@ class RemaxScraper(BaseScraper):
                         price_elem = house.find("span", class_="")
                         if price_elem and "€" in price_elem.text:
                             price = price_elem.text.strip().split("/")[0].strip().replace(" ", "")
-                    self.logger.info(f"Found price: {price}", extra={'action': 'DEBUG'})
+                    self._log('debug', f"Found price: {price}")
 
                     url = "N/A"
                     # First try finding the link in the immediate parent
@@ -137,7 +140,7 @@ class RemaxScraper(BaseScraper):
                             link_elem = house.find_parent("a", href=True)
                     if link_elem and 'href' in link_elem.attrs:
                         url = f"https://www.remax.pt{link_elem['href']}"
-                    self.logger.info(f"Found URL: {url}", extra={'action': 'DEBUG'})
+                    self._log('debug', f"Found URL: {url}")
 
                     bedrooms = "N/A"
                     area = "N/A"
@@ -176,16 +179,19 @@ class RemaxScraper(BaseScraper):
                                 elif value.isdigit():
                                     bedrooms = f"T{value}"
                     
-                    self.logger.info(f"Found bedrooms: {bedrooms}, area: {area}", extra={'action': 'DEBUG'})
+                    self._log('debug', f"Found bedrooms: {bedrooms}, area: {area}")
 
                     description = "N/A"  # Remax doesn't show description in listing cards
                     
                     # Skip listings with no location or price (likely ads or invalid listings)
                     if zone in ["N/A", "-"] or price in ["N/A", "0", "-"] or name in ["- Remax", "N/A"]:
-                        self.logger.warning(f"Skipping invalid listing - name: {name}, zone: {zone}, price: {price}", extra={'action': 'DEBUG'})
+                        self._log('warning', f"Skipping invalid listing - name: {name}, zone: {zone}, price: {price}")
                         continue
                     
-                    # Order: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Source, ScrapedAt
+                    # Extract freguesia and concelho
+                    freguesia, concelho = self.location_manager.extract_location(zone)
+                    
+                    # Order: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Freguesia, Concelho, Source, ScrapedAt
                     info_list = [
                         name,           # Name
                         zone,           # Zone
@@ -195,26 +201,38 @@ class RemaxScraper(BaseScraper):
                         area,           # Area
                         "0",            # Floor (default to "0" as we don't have this info)
                         description,    # Description
+                        freguesia if freguesia else "N/A",
+                        concelho if concelho else "N/A",
                         "Remax",        # Source
                         None           # ScrapedAt (will be filled by save_to_excel)
                     ]
                     
-                    self.logger.info(f"Attempting to save listing: {info_list}", extra={'action': 'DEBUG'})
+                    self._log('debug', f"Attempting to save listing: {info_list}")
                     save_result = self.save_to_excel(info_list)
-                    self.logger.info(f"Save result: {save_result}", extra={'action': 'DEBUG'})
+                    self._log('debug', f"Save result: {save_result}")
                     
                     if save_result:
                         new_listings += 1
-                        self.logger.info(f"Successfully saved new listing", extra={'action': 'DEBUG'})
+                        self._log('debug', "Successfully saved new listing")
                     else:
-                        self.logger.info(f"Listing was not saved (possibly duplicate)", extra={'action': 'DEBUG'})
+                        self._log('debug', "Listing was not saved (possibly duplicate)")
                     
                 except Exception as e:
-                    self.logger.error(f"Error processing house: {str(e)}", exc_info=True)
+                    self._log('error', f"Error processing house: {str(e)}", exc_info=True)
                     continue
 
             return processed, new_listings
 
         except Exception as e:
-            self.logger.error(f"Error accessing website: {str(e)}", exc_info=True)
+            self._log('error', f"Error accessing website: {str(e)}", exc_info=True)
             return 0, 0
+
+    def _extract_location(self, zone):
+        """Extract freguesia and concelho from the location string"""
+        if " - " in zone:
+            parts = zone.split(" - ")
+            freguesia = parts[0].strip() if len(parts) > 0 else None
+            concelho = parts[1].strip() if len(parts) > 1 else None
+            return freguesia, concelho
+        else:
+            return None, None

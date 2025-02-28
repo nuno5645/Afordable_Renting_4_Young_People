@@ -1,0 +1,363 @@
+[
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-28T11:21:54.092598",
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-28T10:45:57.404599",
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-28T10:00:53.525987",
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-28T10:00:25.471815",
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-28T00:53:08.531011",
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-28T00:52:43.096245",
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-28T00:47:12.930317",
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-28T00:44:23.824750",
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-28T00:40:47.441450",
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T23:47:44.468002",
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T23:19:44.272826",
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T23:11:13.316692",
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T22:55:34.845952",
+    "total_houses": 0,
+    "new_houses": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T22:54:59.784675",
+    "total_houses": 0,
+    "new_houses": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T22:31:09.192945",
+    "total_houses": 0,
+    "new_houses": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T22:18:32.240733",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T22:07:36.098575",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T22:03:50.361390",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T22:03:08.047651",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "completed",
+    "timestamp": "2025-02-27T21:21:19.959224",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "running",
+    "timestamp": "2025-02-27T21:20:10.322196",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T21:20:10.314561",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "completed",
+    "timestamp": "2025-02-27T21:04:50.100783",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "running",
+    "timestamp": "2025-02-27T21:02:57.951223",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T21:02:57.944845",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "completed",
+    "timestamp": "2025-02-27T20:56:53.855004",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "running",
+    "timestamp": "2025-02-27T20:52:52.880489",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T20:52:52.875167",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "completed",
+    "timestamp": "2025-02-27T20:44:06.727172",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "running",
+    "timestamp": "2025-02-27T20:42:09.147119",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T20:42:09.141584",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "completed",
+    "timestamp": "2025-02-27T20:32:18.027558",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "running",
+    "timestamp": "2025-02-27T20:31:08.729826",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T20:31:08.726298",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "completed",
+    "timestamp": "2025-02-27T20:02:28.760420",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "running",
+    "timestamp": "2025-02-27T20:00:20.579059",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T20:00:20.576729",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "completed",
+    "timestamp": "2025-02-27T19:50:55.837650",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "running",
+    "timestamp": "2025-02-27T19:49:48.854402",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T19:49:48.852471",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "completed",
+    "timestamp": "2025-02-27T19:48:41.255023",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "running",
+    "timestamp": "2025-02-27T19:47:22.179900",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T19:47:22.178337",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "running",
+    "timestamp": "2025-02-27T19:46:52.135342",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T19:46:52.133600",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "completed",
+    "timestamp": "2025-02-27T17:51:14.406985",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "running",
+    "timestamp": "2025-02-27T17:50:23.651075",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T17:50:23.649504",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "completed",
+    "timestamp": "2025-02-27T16:47:08.469840",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "running",
+    "timestamp": "2025-02-27T16:45:50.523779",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T16:45:50.502874",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "running",
+    "timestamp": "2025-02-27T16:41:34.940021",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T16:41:34.938762",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "running",
+    "timestamp": "2025-02-27T16:40:26.370967",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-27T16:40:26.369675",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  }
+]

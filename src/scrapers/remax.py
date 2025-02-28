@@ -8,6 +8,7 @@ import time
 import random
 from src.utils.base_scraper import BaseScraper
 from src.utils.location_manager import LocationManager
+from houses.models import House
 
 class RemaxScraper(BaseScraper):
     def __init__(self, logger, urls):
@@ -16,20 +17,14 @@ class RemaxScraper(BaseScraper):
         self.source = "Remax"
         self.location_manager = LocationManager()
         self._initialize_status()
+        self._load_existing_urls()
 
     def scrape(self):
         """Scrape houses from Remax website"""
-        total_processed = 0
-        total_new_listings = 0
-
         for site_url in self.urls:
-            processed, new_listings = self._process_url(site_url)
-            total_processed += processed
-            total_new_listings += new_listings
+            self._process_url(site_url)
 
         self._log('info', "Finished processing all URLs")
-        self._log('info', f"Total houses processed: {total_processed}")
-        self._log('info', f"Total new listings found: {total_new_listings}")
 
     def _process_url(self, url):
         """Process a single Remax URL"""
@@ -61,7 +56,7 @@ class RemaxScraper(BaseScraper):
             except Exception as e:
                 self._log('warning', f"Timeout waiting for listings container: {str(e)}")
                 driver.quit()
-                return 0, 0
+                return
 
             page_content = driver.page_source
             soup = BeautifulSoup(page_content, 'html.parser')
@@ -76,14 +71,10 @@ class RemaxScraper(BaseScraper):
             
             if not house_divs:
                 self._log('warning', "No houses found. The website structure might have changed.")
-                return 0, 0
-
-            processed = 0
-            new_listings = 0
+                return
 
             for house_container in house_divs:
                 try:
-                    processed += 1
                     self._log('debug', f"Processing house with ID: {house_container.get('id')}")
                     
                     # Find the actual listing container inside the card
@@ -208,24 +199,14 @@ class RemaxScraper(BaseScraper):
                     ]
                     
                     self._log('debug', f"Attempting to save listing: {info_list}")
-                    save_result = self.save_to_excel(info_list)
-                    self._log('debug', f"Save result: {save_result}")
-                    
-                    if save_result:
-                        new_listings += 1
-                        self._log('debug', "Successfully saved new listing")
-                    else:
-                        self._log('debug', "Listing was not saved (possibly duplicate)")
+                    self.save_to_excel(info_list)
                     
                 except Exception as e:
                     self._log('error', f"Error processing house: {str(e)}", exc_info=True)
                     continue
 
-            return processed, new_listings
-
         except Exception as e:
             self._log('error', f"Error accessing website: {str(e)}", exc_info=True)
-            return 0, 0
 
     def _extract_location(self, zone):
         """Extract freguesia and concelho from the location string"""

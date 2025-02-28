@@ -10,6 +10,7 @@ from src.utils.base_scraper import BaseScraper
 from src.utils.location_manager import LocationManager
 import json
 import os
+from houses.models import House
 
 class ImoVirtualScraper(BaseScraper):
     def __init__(self, logger, urls):
@@ -18,60 +19,22 @@ class ImoVirtualScraper(BaseScraper):
         self.source = "Imovirtual"
         self.location_manager = LocationManager()
         self._initialize_status()
-        # Define the CSV path
-        self.csv_path = os.path.join("data", "houses.csv")
         self._load_existing_urls()
-
-    def _load_existing_urls(self):
-        """Load existing property URLs from the CSV file to avoid duplicates"""
-        self.existing_urls = set()
-        try:
-            # Try to read existing URLs from the CSV file
-            if os.path.exists(self.csv_path):
-                import pandas as pd
-                df = pd.read_csv(self.csv_path, on_bad_lines='skip')
-                # Check if 'URL' column exists
-                if 'URL' in df.columns:
-                    # Add all URLs to the set
-                    self.existing_urls = set(df['URL'].dropna().tolist())
-                    self._log('info', f"Loaded {len(self.existing_urls)} existing property URLs from database")
-                else:
-                    self._log('warning', "URL column not found in CSV file")
-            else:
-                self._log('info', "No existing CSV file found, starting fresh")
-        except Exception as e:
-            self._log('warning', f"Error loading existing URLs: {str(e)}")
-            # Continue with an empty set if there was an error
-            self.existing_urls = set()
+        
 
     def scrape(self):
         """Scrape houses from ImoVirtual website"""
-        total_processed = 0
-        total_new_listings = 0
-        total_skipped = 0
-
         for site_url in self.urls:
             self._log('info', f"Starting scrape for URL: {site_url}")
             page_num = 1
             max_pages = 2  # Safety limit
 
             while page_num <= max_pages:
-                processed, new_listings, skipped = self._process_page(site_url, page_num)
-                total_processed += processed
-                total_new_listings += new_listings
-                total_skipped += skipped
-                
-                # Break the loop if no new listings were found on this page
-                if new_listings == 0:
-                    self._log('info', f"No new listings found on page {page_num}, stopping pagination")
+                if not self._process_page(site_url, page_num):
                     break
-                
                 page_num += 1
 
         self._log('info', "Finished processing all pages")
-        self._log('info', f"Total houses processed: {total_processed}")
-        self._log('info', f"Total new listings found: {total_new_listings}")
-        self._log('info', f"Total listings skipped (already in database): {total_skipped}")
 
     def _process_page(self, url, page_num):
         """Process a single page of listings"""
@@ -127,7 +90,7 @@ class ImoVirtualScraper(BaseScraper):
                 self._log('info', "Chrome driver initialized successfully")
                 driver.get(current_url)
                 self._log('info', f"Navigated to URL: {current_url}")
-                time.sleep(random.uniform(8, 12))  # Randomized wait
+                time.sleep(random.uniform(5, 7))  # Randomized wait
                 
                 # Find and click all description expanders
                 try:
@@ -146,10 +109,10 @@ class ImoVirtualScraper(BaseScraper):
                             # Extract URL first to check if already processed
                             try:
                                 link_elem = article.find_element(By.CSS_SELECTOR, "a[data-cy='listing-item-link']")
-                                url = f"https://www.imovirtual.com{link_elem.get_attribute('href')}" if link_elem else "N/A"
-                                
+                                url = link_elem.get_attribute('href') if link_elem else "N/A"
+                                self._log('info', f"Extracted URL: {url}")
                                 # Skip if URL already exists in our database
-                                if url in self.existing_urls:
+                                if self.url_exists(url):
                                     self._log('info', f"Skipping already processed property in Selenium phase: {url}")
                                     # Add empty placeholders to maintain index alignment
                                     selenium_descriptions.append("N/A")
@@ -388,16 +351,14 @@ class ImoVirtualScraper(BaseScraper):
                 # Check for blocking
                 if "Request blocked" in page_content or "ERROR: The request could not be satisfied" in page_content:
                     self._log('error', "Access blocked by CloudFront - possible bot detection", exc_info=True)
-                    return 0, 0, 0
-                
+                    return False
+
                 articles = soup.find_all('article', {'data-cy': 'listing-item'})
                 if not articles:
                     self._log('warning', f"No articles found on page {page_num}")
-                    return 0, 0, 0
+                    return False
 
-                processed = 0
-                new_listings = 0
-                skipped = 0
+                found_new_listing = False
 
                 for idx, article in enumerate(articles):
                     try:
@@ -406,12 +367,11 @@ class ImoVirtualScraper(BaseScraper):
                         url = f"https://www.imovirtual.com{link_elem['href']}" if link_elem and 'href' in link_elem.attrs else "N/A"
                         
                         # Skip if URL already exists in our database
-                        if url in self.existing_urls:
+                        if self.url_exists(url):
                             self._log('info', f"Skipping already processed property: {url}")
-                            skipped += 1
                             continue
                         
-                        processed += 1
+                        found_new_listing = True
                         
                         # Extract house information
                         title_elem = article.find('p', {'data-cy': 'listing-item-title'})
@@ -459,7 +419,6 @@ class ImoVirtualScraper(BaseScraper):
                         ]
                         
                         if self.save_to_excel(info_list):
-                            new_listings += 1
                             # Add the URL to our existing URLs set to avoid duplicates in the same run
                             self.existing_urls.add(url)
                         
@@ -467,12 +426,12 @@ class ImoVirtualScraper(BaseScraper):
                         self._log('error', f"Error processing house: {str(e)}", exc_info=True)
                         continue
 
-                return processed, new_listings, skipped
+                return found_new_listing
 
             except Exception as e:
                 self._log('error', f"Error initializing Chrome: {str(e)}", exc_info=True)
-                return 0, 0, 0
+                return False
 
         except Exception as e:
             self._log('error', f"Error processing page {page_num}: {str(e)}", exc_info=True)
-            return 0, 0, 0
+            return False

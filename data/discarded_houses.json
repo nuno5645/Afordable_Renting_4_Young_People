@@ -1,28 +1,5 @@
 {
-  "houses": [
-    "Quarto T2",
-    "Apartamento T1 na travessa De São José, 21, Príncipe Real - São Bento, Misericórdia",
-    "Apartamento Remax",
-    "Quarto T5",
-    "Dividir apartamento",
-    "Quarto T6",
-    "Apartamento T1 na rua Pêro Escobar, 17, Encosta do Sol, Amadora",
-    "Arrenda T1 Portela Azóia",
-    "Apartamento T1 na avenida Maria da Conceição, Carcavelos Centro, Carcavelos e Parede",
-    "Apartamento T2 na rua Santo António, 5, Camarate, Camarate - Unhos - Apelação",
-    "Apartamento T1",
-    "Apartamento em Mem Martins",
-    "Quarto T4",
-    "Quarto T3",
-    "Apartamento T2+1 | 100 M2 | Serra da Luz | Odivelas",
-    "T0/T1 ideial para casal ou 1 pessoa",
-    "Apartamento T2 na rua Fernando Sousa Ribeiro, 7 n, Santa Iria de Azoia - São João da Talha - Bobadela, Loures",
-    "Apartamento ERA",
-    "Quarto T7",
-    "Apartamento T2+1",
-    "Quarto T1",
-    "T1 - Arrendamento - Encosta da luz/Odivelas"
-  ],
+  "houses": [],
   "by_id": {
     "80c2e25f34": "Apartamento ERA",
     "90eda34cc1": "Quarto T4",
@@ -45,6 +22,8 @@
     "64d6446fef": "Apartamento T2 na rua Santo António, 5, Camarate, Camarate - Unhos - Apelação",
     "1a7745f01d": "Apartamento T2 na rua Fernando Sousa Ribeiro, 7 n, Santa Iria de Azoia - São João da Talha - Bobadela, Loures",
     "b1b38121ea": "Apartamento T2+1 | 100 M2 | Serra da Luz | Odivelas",
-    "8042c77568": "Apartamento T2+1"
+    "8042c77568": "Apartamento T2+1",
+    "f6c100ae02": "Apartamento T1 na rua Capitão Leitão, 28, Marvila, Lisboa",
+    "1114": "Apartamento ERA"
   }
 }

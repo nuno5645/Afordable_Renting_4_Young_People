@@ -12,6 +12,7 @@ from src.utils.location_manager import LocationManager
 import re
 import json
 import os
+from houses.models import House
 
 class CasaSapoScraper(BaseScraper):
     def __init__(self, logger, urls):
@@ -20,60 +21,22 @@ class CasaSapoScraper(BaseScraper):
         self.source = "Casa SAPO"
         self.location_manager = LocationManager()
         self._initialize_status()
-        # Define the CSV path
-        self.csv_path = os.path.join("data", "houses.csv")
         self._load_existing_urls()
-
-    def _load_existing_urls(self):
-        """Load existing property URLs from the CSV file to avoid duplicates"""
-        self.existing_urls = set()
-        try:
-            # Try to read existing URLs from the CSV file
-            if os.path.exists(self.csv_path):
-                import pandas as pd
-                df = pd.read_csv(self.csv_path)
-                # Check if 'URL' column exists
-                if 'URL' in df.columns:
-                    # Add all URLs to the set
-                    self.existing_urls = set(df['URL'].dropna().tolist())
-                    self._log('info', f"Loaded {len(self.existing_urls)} existing property URLs from database")
-                else:
-                    self._log('warning', "URL column not found in CSV file")
-            else:
-                self._log('info', "No existing CSV file found, starting fresh")
-        except Exception as e:
-            self._log('warning', f"Error loading existing URLs: {str(e)}")
-            # Continue with an empty set if there was an error
-            self.existing_urls = set()
 
     def scrape(self):
         """Scrape houses from Casa SAPO website"""
-        total_processed = 0
-        total_new_listings = 0
-        total_skipped = 0
-
         for site_url in self.urls:
             self._log('info', f"Starting scrape for Casa SAPO URL: {site_url}")
             page_num = 1
             max_pages = 2  # Safety limit
 
             while page_num <= max_pages:
-                processed, new_listings, skipped = self._process_page(site_url, page_num)
-                total_processed += processed
-                total_new_listings += new_listings
-                total_skipped += skipped
-                
-                # Break the loop if no new listings were found on this page
-                if new_listings == 0:
-                    self._log('info', f"No new listings found on page {page_num}, stopping pagination")
+                # Stop if page processing returns False (no properties found)
+                if not self._process_page(site_url, page_num):
                     break
-                
                 page_num += 1
 
         self._log('info', "Finished processing all pages for Casa SAPO")
-        self._log('info', f"Total houses processed: {total_processed}")
-        self._log('info', f"Total new listings found: {total_new_listings}")
-        self._log('info', f"Total listings skipped (already in database): {total_skipped}")
 
     def _process_page(self, url, page_num):
         """Process a single page of listings"""
@@ -133,22 +96,22 @@ class CasaSapoScraper(BaseScraper):
                 
                 # Wait for property items to be present
                 try:
-                    property_items = WebDriverWait(driver, 15).until(  # Increased timeout
+                    property_items = WebDriverWait(driver, 15).until(
                         EC.presence_of_all_elements_located((By.CLASS_NAME, "property-info-content"))
                     )
                     self._log('info', f"Found {len(property_items)} property items")
+                    if len(property_items) == 0:
+                        self._log('info', "No properties found on this page, stopping pagination")
+                        driver.quit()
+                        return False  # Signal to stop pagination
                 except Exception as e:
                     self._log('warning', f"No property items found on page {page_num}: {str(e)}")
                     driver.quit()
-                    return 0, 0, 0
+                    return False  # Signal to stop pagination
 
             except Exception as e:
                 self._log('error', f"Error initializing Chrome driver: {str(e)}", exc_info=True)
-                return 0, 0, 0
-
-            processed = 0
-            new_listings = 0
-            skipped = 0
+                return False  # Signal to stop pagination
 
             for property_item in property_items:
                 try:
@@ -159,12 +122,9 @@ class CasaSapoScraper(BaseScraper):
                     url = property_info.get_attribute("href")
                     
                     # Skip if URL already exists in our database
-                    if url in self.existing_urls:
+                    if self.url_exists(url):
                         self._log('info', f"Skipping already processed property: {url}")
-                        skipped += 1
                         continue
-                    
-                    processed += 1
                     
                     # Get property type and name
                     type_elem = property_info.find_element(By.CLASS_NAME, "property-type")
@@ -188,7 +148,7 @@ class CasaSapoScraper(BaseScraper):
                     try:
                         # Click on the property link
                         driver.execute_script("arguments[0].click();", property_info)
-                        time.sleep(random.uniform(3, 5))  # Wait for page to load
+                        time.sleep(random.uniform(2, 3))  # Wait for page to load
                         
                         # Wait for the details to be present
                         detail_features = WebDriverWait(driver, 10).until(
@@ -216,7 +176,7 @@ class CasaSapoScraper(BaseScraper):
                         # Collect image URLs
                         try:
                             # Wait longer for images to load
-                            time.sleep(random.uniform(2, 4))  # Additional wait for images
+                            time.sleep(random.uniform(1, 2))  # Additional wait for images
                             
                             # First try: Get images from swiper-wrapper (main approach)
                             try:
@@ -462,7 +422,7 @@ class CasaSapoScraper(BaseScraper):
                         
                         # Go back to the listing page
                         driver.back()
-                        time.sleep(random.uniform(2, 4))  # Wait for listing page to reload
+                        time.sleep(random.uniform(1, 2))  # Wait for listing page to reload
                         
                         # Wait for the property list to be present again
                         WebDriverWait(driver, 10).until(
@@ -503,7 +463,6 @@ class CasaSapoScraper(BaseScraper):
                     ]
                     
                     if self.save_to_excel(info_list):
-                        new_listings += 1
                         # Add the URL to our existing URLs set to avoid duplicates in the same run
                         self.existing_urls.add(url)
                     
@@ -512,9 +471,9 @@ class CasaSapoScraper(BaseScraper):
                     continue
 
             driver.quit()
-            return processed, new_listings, skipped
+            return True  # Signal to continue pagination
 
         except Exception as e:
             self._log('error', f"Error processing page {page_num}: {str(e)}", exc_info=True)
-            return 0, 0, 0
+            return False  # Signal to stop pagination
 

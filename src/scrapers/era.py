@@ -41,13 +41,9 @@ class EraScraper(BaseScraper):
                 return
 
             self._log('info', f"Found {len(house_div)} houses to process")
-            processed = 0
-            new_listings = 0
 
             for house in house_div:
                 try:
-                    processed += 1
-                    
                     # Extract house information
                     name = f'{house.find("p", class_="property-type d-block mb-1").text} ERA'
                     zone = house.find('div', class_="col-12 location").text.strip()
@@ -79,16 +75,13 @@ class EraScraper(BaseScraper):
                         None  # ScrapedAt will be filled by save_to_excel
                     ]
                     
-                    if self.save_to_excel(info_list):
-                        new_listings += 1
+                    self.save_to_excel(info_list)
                     
                 except Exception as e:
                     self._log('error', f"Error processing house: {str(e)}", exc_info=True)
                     continue
 
             self._log('info', f"Finished processing URL: {self.url}")
-            self._log('info', f"Total houses processed: {processed}")
-            self._log('info', f"New listings found: {new_listings}")
 
         except Exception as e:
             self._log('error', f"Error accessing website: {str(e)}", exc_info=True)

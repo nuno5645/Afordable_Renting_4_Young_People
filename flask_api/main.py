@@ -1,6 +1,5 @@
-from fastapi import FastAPI, Request
-from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import json
@@ -13,6 +12,10 @@ import hashlib
 from datetime import datetime
 import time
 import uuid  # Add UUID import for generating truly unique IDs
+from config.settings import (
+    ROOM_RENTAL_TITLE_TERMS,
+    ROOM_RENTAL_DESCRIPTION_TERMS
+)
 
 app = FastAPI(title="Houses API")
 
@@ -25,9 +28,6 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"]
 )
-
-# Setup templates directory
-templates = Jinja2Templates(directory="api/templates")
 
 # File paths
 EXCEL_PATH = Path("data/houses.csv")
@@ -44,16 +44,11 @@ def load_contacted_houses():
         with open(CONTACTED_PATH, 'r', encoding='utf-8') as f:
             try:
                 data = json.load(f)
-                # Support both old format (list of house names) and new format (dict of house_id to house_name)
-                if isinstance(data, list):
-                    # Old format - convert to dict with empty house_ids
-                    return {"houses": set(data), "by_id": {}}
-                else:
-                    # New format - ensure both keys exist
-                    return {
-                        "houses": set(data.get("houses", [])), 
-                        "by_id": data.get("by_id", {})
-                    }
+                # Support only the new format with by_id
+                return {
+                    "houses": set(), 
+                    "by_id": data.get("by_id", {})
+                }
             except:
                 return {"houses": set(), "by_id": {}}
     else:
@@ -64,7 +59,6 @@ def load_contacted_houses():
         empty_data = {"houses": [], "by_id": {}}
         with open(CONTACTED_PATH, 'w', encoding='utf-8') as f:
             json.dump(empty_data, f, ensure_ascii=False, indent=2)
-        print(f"[DEBUG] Created new empty contacted houses file at {CONTACTED_PATH}")
         
     return {"houses": set(), "by_id": {}}
 
@@ -73,13 +67,13 @@ def save_contacted_houses(contacted_data):
     try:
         with open(CONTACTED_PATH, 'w', encoding='utf-8') as f:
             data_to_save = {
-                "houses": list(contacted_data["houses"]),
+                "houses": [], # Keep empty list for backward compatibility
                 "by_id": contacted_data["by_id"]
             }
             json.dump(data_to_save, f, ensure_ascii=False, indent=2)
-            print(f"[DEBUG] Successfully saved {len(data_to_save['houses'])} contacted houses and {len(data_to_save['by_id'])} IDs")
     except Exception as e:
         print(f"[ERROR] Failed to save contacted houses: {str(e)}")
+        pass
 
 def load_discarded_houses():
     """Load discarded houses from JSON file, create if doesn't exist"""
@@ -87,16 +81,11 @@ def load_discarded_houses():
         with open(DISCARDED_PATH, 'r', encoding='utf-8') as f:
             try:
                 data = json.load(f)
-                # Support both old format (list of house names) and new format (dict of house_id to house_name)
-                if isinstance(data, list):
-                    # Old format - convert to dict with empty house_ids
-                    return {"houses": set(data), "by_id": {}}
-                else:
-                    # New format - ensure both keys exist
-                    return {
-                        "houses": set(data.get("houses", [])), 
-                        "by_id": data.get("by_id", {})
-                    }
+                # Support only the new format with by_id
+                return {
+                    "houses": set(), 
+                    "by_id": data.get("by_id", {})
+                }
             except:
                 return {"houses": set(), "by_id": {}}
     else:
@@ -107,7 +96,6 @@ def load_discarded_houses():
         empty_data = {"houses": [], "by_id": {}}
         with open(DISCARDED_PATH, 'w', encoding='utf-8') as f:
             json.dump(empty_data, f, ensure_ascii=False, indent=2)
-        print(f"[DEBUG] Created new empty discarded houses file at {DISCARDED_PATH}")
         
     return {"houses": set(), "by_id": {}}
 
@@ -116,11 +104,10 @@ def save_discarded_houses(discarded_data):
     try:
         with open(DISCARDED_PATH, 'w', encoding='utf-8') as f:
             data_to_save = {
-                "houses": list(discarded_data["houses"]),
+                "houses": [], # Keep empty list for backward compatibility
                 "by_id": discarded_data["by_id"]
             }
             json.dump(data_to_save, f, ensure_ascii=False, indent=2)
-            print(f"[DEBUG] Successfully saved {len(data_to_save['houses'])} discarded houses and {len(data_to_save['by_id'])} IDs")
     except Exception as e:
         print(f"[ERROR] Failed to save discarded houses: {str(e)}")
 
@@ -130,16 +117,11 @@ def load_favorite_houses():
         with open(FAVORITES_PATH, 'r', encoding='utf-8') as f:
             try:
                 data = json.load(f)
-                # Support both old format (list of house names) and new format (dict of house_id to house_name)
-                if isinstance(data, list):
-                    # Old format - convert to dict with empty house_ids
-                    return {"houses": set(data), "by_id": {}}
-                else:
-                    # New format - ensure both keys exist
-                    return {
-                        "houses": set(data.get("houses", [])), 
-                        "by_id": data.get("by_id", {})
-                    }
+                # Support only the new format with by_id
+                return {
+                    "houses": set(), 
+                    "by_id": data.get("by_id", {})
+                }
             except:
                 return {"houses": set(), "by_id": {}}
     else:
@@ -150,7 +132,6 @@ def load_favorite_houses():
         empty_data = {"houses": [], "by_id": {}}
         with open(FAVORITES_PATH, 'w', encoding='utf-8') as f:
             json.dump(empty_data, f, ensure_ascii=False, indent=2)
-        print(f"[DEBUG] Created new empty favorite houses file at {FAVORITES_PATH}")
         
     return {"houses": set(), "by_id": {}}
 
@@ -159,18 +140,17 @@ def save_favorite_houses(favorite_data):
     try:
         with open(FAVORITES_PATH, 'w', encoding='utf-8') as f:
             data_to_save = {
-                "houses": list(favorite_data["houses"]),
+                "houses": [], # Keep empty list for backward compatibility
                 "by_id": favorite_data["by_id"]
             }
             json.dump(data_to_save, f, ensure_ascii=False, indent=2)
-            print(f"[DEBUG] Successfully saved {len(data_to_save['houses'])} favorite houses and {len(data_to_save['by_id'])} IDs")
     except Exception as e:
         print(f"[ERROR] Failed to save favorite houses: {str(e)}")
 
 def generate_house_id(house_data):
-    """Generate a unique ID"""
-    # Create a hash and return a shortened version (first 10 characters)
-    return hashlib.md5(str(uuid.uuid4().hex[:10]).encode('utf-8')).hexdigest()[:10]
+    """Generate a unique ID using UUID"""
+    # Return a shortened version of a UUID (first 10 characters)
+    return str(uuid.uuid4())[:10]
 
 def load_house_ids():
     """Load house ID mappings from JSON file, create if doesn't exist"""
@@ -184,7 +164,6 @@ def load_house_ids():
         # Create empty file with proper structure
         with open(HOUSE_IDS_PATH, 'w', encoding='utf-8') as f:
             json.dump({}, f, ensure_ascii=False, indent=2)
-        print(f"[DEBUG] Created new empty house IDs file at {HOUSE_IDS_PATH}")
         
     return {}
 
@@ -251,30 +230,23 @@ def deduplicate_image_urls(urls):
     return list(unique_urls.values())
 
 def process_houses_data(sort_column=None, sort_order="asc"):
-    """Process houses data and prepare for API or HTML response"""
+    """Process houses data and prepare for API response"""
     # Try to read the CSV file with houses
     if not Path(EXCEL_PATH).exists():
-        print(f"CSV file {EXCEL_PATH} does not exist")
         return {"houses": [], "by_id": {}}, False, {}
         
     try:
         contacted_data = load_contacted_houses()
         discarded_data = load_discarded_houses()
         favorite_data = load_favorite_houses()
-            
-        # Debug prints
-        print(f"Loaded {len(contacted_data['houses'])} contacted houses")
-        print(f"Loaded {len(discarded_data['houses'])} discarded houses")
-        print(f"Loaded {len(favorite_data['houses'])} favorite houses (before filtering)")
     except Exception as e:
-        print(f"Error loading house states: {e}")
         # Initialize with empty data
         contacted_data = {"houses": set(), "by_id": {}}
         discarded_data = {"houses": set(), "by_id": {}}
         favorite_data = {"houses": set(), "by_id": {}}
     
     try:
-        # Read the DataFrame from CSV (not Excel)
+        # Read the DataFrame from CSV
         df = pd.read_csv(EXCEL_PATH, 
                         quoting=csv.QUOTE_ALL, 
                         escapechar='\\',
@@ -289,9 +261,6 @@ def process_houses_data(sort_column=None, sort_order="asc"):
         # Load existing house IDs
         house_ids = load_house_ids()
         house_ids_updated = False
-
-        # Flag to track if any Casa SAPO house IDs need regeneration
-        regenerate_casa_sapo_ids = False
             
         # Add house_id to each house and check states
         for index, row in df.iterrows():
@@ -300,31 +269,20 @@ def process_houses_data(sort_column=None, sort_order="asc"):
             # Generate house ID if not already assigned
             house_name = house_data.get('Name', '')
             if house_name in house_ids:
-                # Check if it's a Casa SAPO house that needs a UUID
-                if house_data.get('Source') == 'Casa SAPO' and not house_ids[house_name].startswith(''):
-                    # Regenerate ID using UUID for Casa SAPO houses
-                    house_ids[house_name] = str(uuid.uuid4())[:10]
-                    house_ids_updated = True
-                    regenerate_casa_sapo_ids = True
                 house_data['house_id'] = house_ids[house_name]
             else:
-                # Generate new ID
+                # Generate new ID using UUID
                 house_data['house_id'] = generate_house_id(house_data)
                 house_ids[house_name] = house_data['house_id']
                 house_ids_updated = True
             
-            # Set initial states
-            house_data['contacted'] = house_name in contacted_data['houses'] or house_data['house_id'] in contacted_data['by_id']
-            house_data['discarded'] = house_name in discarded_data['houses'] or house_data['house_id'] in discarded_data['by_id']
-            house_data['favorite'] = house_name in favorite_data['houses'] or house_data['house_id'] in favorite_data['by_id']
+            # Set initial states - only check by_id
+            house_data['contacted'] = house_data['house_id'] in contacted_data['by_id']
+            house_data['discarded'] = house_data['house_id'] in discarded_data['by_id']
+            house_data['favorite'] = house_data['house_id'] in favorite_data['by_id']
             
             # Update the DataFrame with the house_id
             df.at[index, 'house_id'] = house_data['house_id']
-        
-        # If we regenerated Casa SAPO IDs, update the state data
-        if regenerate_casa_sapo_ids:
-            # Update favorite_data, contacted_data, and discarded_data with new IDs
-            update_states_with_new_ids(df, house_ids, favorite_data, contacted_data, discarded_data)
         
         # Deduplicate image URLs if available
         if 'Image URLs' in df.columns:
@@ -338,12 +296,21 @@ def process_houses_data(sort_column=None, sort_order="asc"):
         df['temp_house_id'] = df['house_id']
             
         # Filter out discarded houses
-        if len(discarded_data['houses']) > 0 or len(discarded_data['by_id']) > 0:
-            discarded_houses = set(discarded_data['houses'])
+        if len(discarded_data['by_id']) > 0:
             discarded_ids = set(discarded_data['by_id'].keys())
+            df = df[~df['temp_house_id'].isin(discarded_ids)]
             
-            # Filter out houses that are in either set
-            df = df[~df['Name'].isin(discarded_houses) & ~df['temp_house_id'].isin(discarded_ids)]
+        # Filter out room rentals
+        def is_room_rental(row):
+            name = str(row['Name']).upper()
+            
+            # Check title for room rental terms
+            is_room_by_title = any(name.startswith(term) for term in ROOM_RENTAL_TITLE_TERMS)
+            
+            return is_room_by_title
+
+        # Apply room rental filter
+        df = df[~df.apply(is_room_rental, axis=1)]
             
         # Remove the temporary column
         df = df.drop('temp_house_id', axis=1)
@@ -369,51 +336,9 @@ def process_houses_data(sort_column=None, sort_order="asc"):
         return houses, house_ids_updated, houses_by_id
         
     except Exception as e:
-        print(f"Error processing houses data: {e}")
         import traceback
         traceback.print_exc()
         return {"houses": [], "by_id": {}}, False, {}
-
-def update_states_with_new_ids(df, house_ids, favorite_data, contacted_data, discarded_data):
-    """Update the state data with new IDs"""
-    print(f"Updating states with new IDs for Casa SAPO houses")
-    
-    # Create mapping of house names to new IDs
-    name_to_id_map = {}
-    for index, row in df.iterrows():
-        if row.get('Source') == 'Casa SAPO':
-            name = row.get('Name')
-            house_id = row.get('house_id')
-            if name and house_id:
-                name_to_id_map[name] = house_id
-    
-    # Update favorite_data
-    new_favorite_by_id = {}
-    for name in favorite_data['houses']:
-        if name in name_to_id_map:
-            new_favorite_by_id[name_to_id_map[name]] = name
-    favorite_data['by_id'].update(new_favorite_by_id)
-    
-    # Update contacted_data
-    new_contacted_by_id = {}
-    for name in contacted_data['houses']:
-        if name in name_to_id_map:
-            new_contacted_by_id[name_to_id_map[name]] = name
-    contacted_data['by_id'].update(new_contacted_by_id)
-    
-    # Update discarded_data
-    new_discarded_by_id = {}
-    for name in discarded_data['houses']:
-        if name in name_to_id_map:
-            new_discarded_by_id[name_to_id_map[name]] = name
-    discarded_data['by_id'].update(new_discarded_by_id)
-    
-    # Save updated state data
-    save_favorite_houses(favorite_data)
-    save_contacted_houses(contacted_data)
-    save_discarded_houses(discarded_data)
-    
-    print(f"Updated states with new IDs for Casa SAPO houses")
 
 @app.get("/houses")
 async def get_houses():
@@ -427,85 +352,40 @@ async def get_houses():
     # Save the updated house IDs if any new ones were added
     if updated_ids:
         save_house_ids(house_ids)
-        print(f"[DEBUG] Updated house IDs mapping, now contains {len(house_ids)} entries")
     
     return JSONResponse({"houses": houses})
 
 @app.get("/sort/{column}")
 async def sort_houses(column: str, order: str = "asc"):
-    # Redirect to the new endpoint since sorting is now handled in frontend
-    return await get_houses()
-
-@app.get("/", response_class=HTMLResponse)
-async def read_houses(
-    request: Request, 
-    sort_column: Optional[str] = None,
-    sort_order: Optional[str] = "asc"
-):
-    if not EXCEL_PATH.exists():
-        return templates.TemplateResponse(
-            "houses2.html",
-            {
-                "request": request,
-                "houses": [],
-                "sort_column": sort_column,
-                "sort_order": sort_order,
-                "houses_json": json.dumps([])
-            }
-        )
-    
-    # Use the common process_houses_data function
-    houses, updated_ids, house_ids = process_houses_data(sort_column, sort_order)
-    
-    # Add HTML-specific debug messages
-    favorite_count = sum(1 for house in houses if house['favorite'])
-    for house in houses:
-        if house['favorite']:
-            print(f"[DEBUG] House marked as favorite in HTML template: {house['Name']} (ID: {house['house_id']})")
-    
-    print(f"[DEBUG] Total houses marked as favorites in HTML: {favorite_count} out of {len(houses)}")
+    # Use the common process_houses_data function with sorting
+    houses, updated_ids, house_ids = process_houses_data(column, order)
     
     # Save the updated house IDs if any new ones were added
     if updated_ids:
         save_house_ids(house_ids)
-        print(f"[DEBUG] Updated house IDs mapping, now contains {len(house_ids)} entries")
     
-    return templates.TemplateResponse(
-        "houses2.html",
-        {
-            "request": request,
-            "houses": houses,
-            "sort_column": sort_column,
-            "sort_order": sort_order,
-            "houses_json": json.dumps(houses)
-        }
-    )
+    return JSONResponse({"houses": houses})
+
+@app.get("/")
+async def root():
+    """API root endpoint - redirect to houses"""
+    return await get_houses()
 
 @app.post("/toggle-contacted")
 async def toggle_contacted(house_id: str):
-    print(f"[DEBUG] Toggle contacted request for house ID: '{house_id}'")
-    
     # Read current contacted houses directly from the JSON file
     if CONTACTED_PATH.exists():
         with open(CONTACTED_PATH, 'r', encoding='utf-8') as f:
             try:
                 data = json.load(f)
-                # Support both old format (list of house names) and new format (dict)
-                if isinstance(data, list):
-                    contacted_data = {"houses": set(data), "by_id": {}}
-                    print(f"[DEBUG] Loaded contacted using old format: {len(contacted_data['houses'])} houses")
-                else:
-                    contacted_data = {
-                        "houses": set(data.get("houses", [])), 
-                        "by_id": data.get("by_id", {})
-                    }
-                    print(f"[DEBUG] Loaded contacted using new format: {len(contacted_data['houses'])} houses, {len(contacted_data['by_id'])} IDs")
+                contacted_data = {
+                    "houses": set(), 
+                    "by_id": data.get("by_id", {})
+                }
             except Exception as e:
-                print(f"[DEBUG] Error loading contacted: {str(e)}")
                 contacted_data = {"houses": set(), "by_id": {}}
     else:
         contacted_data = {"houses": set(), "by_id": {}}
-        print(f"[DEBUG] No contacted file found before toggle.")
     
     # Load house IDs mapping
     if HOUSE_IDS_PATH.exists():
@@ -518,66 +398,40 @@ async def toggle_contacted(house_id: str):
     house_name = get_house_name_from_id(house_id, house_ids)
     
     if not house_name:
-        print(f"[DEBUG] House not found for ID: {house_id}")
         return JSONResponse({"error": f"House not found for ID: {house_id}", "contacted": False}, status_code=404)
     
-    print(f"[DEBUG] Found house name: {house_name} for ID: {house_id}")
-    
-    # Check if the house is already in either by name or ID
-    is_contacted_by_name = house_name in contacted_data["houses"]
+    # Check if the house is already in the ID map
     is_contacted_by_id = house_id in contacted_data["by_id"]
     
-    print(f"[DEBUG] Is contacted by name: {is_contacted_by_name}, Is contacted by ID: {is_contacted_by_id}")
-    
     # Toggle the contacted status
-    if is_contacted_by_name or is_contacted_by_id:
-        # Remove from both old and new data structures
-        if is_contacted_by_name:
-            contacted_data["houses"].remove(house_name)
-            print(f"[DEBUG] Removed house from contacted (by name): '{house_name}'")
-        if is_contacted_by_id:
-            del contacted_data["by_id"][house_id]
-            print(f"[DEBUG] Removed house from contacted (by ID): '{house_id}'")
+    if is_contacted_by_id:
+        # Remove from the ID mapping
+        del contacted_data["by_id"][house_id]
         contacted = False
-        print(f"[DEBUG] Removed house from contacted: '{house_name}' (ID: {house_id})")
     else:
-        contacted_data["houses"].add(house_name)
         contacted_data["by_id"][house_id] = house_name
         contacted = True
-        print(f"[DEBUG] Added house to contacted: '{house_name}' (ID: {house_id})")
     
     # Save changes to file
     save_contacted_houses(contacted_data)
-    print(f"[DEBUG] Updated contacted after toggle. Now contains {len(contacted_data['houses'])} houses, {len(contacted_data['by_id'])} IDs")
-    print(f"[DEBUG] Returning contacted={contacted}")
     
     return JSONResponse({"contacted": contacted})
 
 @app.post("/toggle-discarded")
 async def toggle_discarded(house_id: str):
-    print(f"[DEBUG] Toggle discarded request for house ID: '{house_id}'")
-    
     # Read current discarded houses directly from the JSON file
     if DISCARDED_PATH.exists():
         with open(DISCARDED_PATH, 'r', encoding='utf-8') as f:
             try:
                 data = json.load(f)
-                # Support both old format (list of house names) and new format (dict)
-                if isinstance(data, list):
-                    discarded_data = {"houses": set(data), "by_id": {}}
-                    print(f"[DEBUG] Loaded discarded using old format: {len(discarded_data['houses'])} houses")
-                else:
-                    discarded_data = {
-                        "houses": set(data.get("houses", [])), 
-                        "by_id": data.get("by_id", {})
-                    }
-                    print(f"[DEBUG] Loaded discarded using new format: {len(discarded_data['houses'])} houses, {len(discarded_data['by_id'])} IDs")
+                discarded_data = {
+                    "houses": set(), 
+                    "by_id": data.get("by_id", {})
+                }
             except Exception as e:
-                print(f"[DEBUG] Error loading discarded: {str(e)}")
                 discarded_data = {"houses": set(), "by_id": {}}
     else:
         discarded_data = {"houses": set(), "by_id": {}}
-        print(f"[DEBUG] No discarded file found before toggle.")
     
     # Load house IDs mapping
     if HOUSE_IDS_PATH.exists():
@@ -590,38 +444,22 @@ async def toggle_discarded(house_id: str):
     house_name = get_house_name_from_id(house_id, house_ids)
     
     if not house_name:
-        print(f"[DEBUG] House not found for ID: {house_id}")
         return JSONResponse({"error": f"House not found for ID: {house_id}", "discarded": False}, status_code=404)
     
-    print(f"[DEBUG] Found house name: {house_name} for ID: {house_id}")
-    
-    # Check if the house is already in either by name or ID
-    is_discarded_by_name = house_name in discarded_data["houses"]
+    # Check if the house is already in the ID map
     is_discarded_by_id = house_id in discarded_data["by_id"]
     
-    print(f"[DEBUG] Is discarded by name: {is_discarded_by_name}, Is discarded by ID: {is_discarded_by_id}")
-    
     # Toggle the discarded status
-    if is_discarded_by_name or is_discarded_by_id:
-        # Remove from both old and new data structures
-        if is_discarded_by_name:
-            discarded_data["houses"].remove(house_name)
-            print(f"[DEBUG] Removed house from discarded (by name): '{house_name}'")
-        if is_discarded_by_id:
-            del discarded_data["by_id"][house_id]
-            print(f"[DEBUG] Removed house from discarded (by ID): '{house_id}'")
+    if is_discarded_by_id:
+        # Remove from the ID mapping
+        del discarded_data["by_id"][house_id]
         discarded = False
-        print(f"[DEBUG] Removed house from discarded: '{house_name}' (ID: {house_id})")
     else:
-        discarded_data["houses"].add(house_name)
         discarded_data["by_id"][house_id] = house_name
         discarded = True
-        print(f"[DEBUG] Added house to discarded: '{house_name}' (ID: {house_id})")
     
     # Save changes to file
     save_discarded_houses(discarded_data)
-    print(f"[DEBUG] Updated discarded after toggle. Now contains {len(discarded_data['houses'])} houses, {len(discarded_data['by_id'])} IDs")
-    print(f"[DEBUG] Returning discarded={discarded}")
     
     return JSONResponse({"discarded": discarded})
 
@@ -669,29 +507,19 @@ async def get_scraper_status():
 
 @app.post("/toggle-favorite")
 async def toggle_favorite(house_id: str):
-    print(f"[DEBUG] Toggle favorite request for house ID: '{house_id}'")
-    
     # Read current favorite houses directly from the JSON file
     if FAVORITES_PATH.exists():
         with open(FAVORITES_PATH, 'r', encoding='utf-8') as f:
             try:
                 data = json.load(f)
-                # Support both old format (list of house names) and new format (dict)
-                if isinstance(data, list):
-                    favorite_data = {"houses": set(data), "by_id": {}}
-                    print(f"[DEBUG] Loaded favorites using old format: {len(favorite_data['houses'])} houses")
-                else:
-                    favorite_data = {
-                        "houses": set(data.get("houses", [])), 
-                        "by_id": data.get("by_id", {})
-                    }
-                    print(f"[DEBUG] Loaded favorites using new format: {len(favorite_data['houses'])} houses, {len(favorite_data['by_id'])} IDs")
+                favorite_data = {
+                    "houses": set(), 
+                    "by_id": data.get("by_id", {})
+                }
             except Exception as e:
-                print(f"[DEBUG] Error loading favorites: {str(e)}")
                 favorite_data = {"houses": set(), "by_id": {}}
     else:
         favorite_data = {"houses": set(), "by_id": {}}
-        print(f"[DEBUG] No favorites file found before toggle.")
     
     # Load house IDs mapping
     if HOUSE_IDS_PATH.exists():
@@ -706,25 +534,19 @@ async def toggle_favorite(house_id: str):
     if not house_name:
         return JSONResponse({"error": f"House not found for ID: {house_id}", "favorite": False}, status_code=404)
     
-    print(f"[DEBUG] Found house name: {house_name} for ID: {house_id}")
+    # Check if the house is already in the ID map
+    is_favorite_by_id = house_id in favorite_data["by_id"]
     
     # Toggle the favorite status
-    if house_name in favorite_data["houses"] or house_id in favorite_data["by_id"]:
-        # Remove from both old and new data structures
-        if house_name in favorite_data["houses"]:
-            favorite_data["houses"].remove(house_name)
-        if house_id in favorite_data["by_id"]:
-            del favorite_data["by_id"][house_id]
+    if is_favorite_by_id:
+        # Remove from the ID mapping
+        del favorite_data["by_id"][house_id]
         favorite = False
-        print(f"[DEBUG] Removed house from favorites: '{house_name}' (ID: {house_id})")
     else:
-        favorite_data["houses"].add(house_name)
         favorite_data["by_id"][house_id] = house_name
         favorite = True
-        print(f"[DEBUG] Added house to favorites: '{house_name}' (ID: {house_id})")
     
     # Save changes to file
     save_favorite_houses(favorite_data)
-    print(f"[DEBUG] Updated favorites after toggle. Now contains {len(favorite_data['houses'])} houses.")
     
     return JSONResponse({"favorite": favorite}) 

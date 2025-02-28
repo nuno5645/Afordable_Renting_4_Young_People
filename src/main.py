@@ -3,7 +3,6 @@
 
 import os
 import sys
-from openpyxl import Workbook
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from src.utils.logger import setup_logger
 from src.scrapers.imovirtual import ImoVirtualScraper
@@ -12,6 +11,8 @@ from src.scrapers.remax import RemaxScraper
 from src.scrapers.era import EraScraper
 from src.scrapers.casa_sapo import CasaSapoScraper
 from src.scrapers.super_casa import SuperCasaScraper
+from houses.models import ScraperRun
+from django.utils import timezone
 from config.settings import (
     IMOVIRTUAL_URLS,
     REMAX_URLS,
@@ -29,9 +30,16 @@ def run_scraper(scraper_name, scraper_instance):
     """Run a scraper and handle any exceptions"""
     try:
         logger.info(f"[{scraper_name}] Starting scraper...")
+        
+        # Run the scraper (initialization is handled internally)
         scraper_instance.run()
-        logger.info(f"[{scraper_name}] Finished scraper - Processed: {scraper_instance.houses_processed}, Found: {scraper_instance.houses_found}")
-        return scraper_instance.houses_processed, scraper_instance.houses_found
+        
+        # Get the statistics from the completed run
+        total = scraper_instance.current_run.total_houses if scraper_instance.current_run else 0
+        new = scraper_instance.current_run.new_houses if scraper_instance.current_run else 0
+        
+        logger.info(f"[{scraper_name}] Finished scraper - Total Houses: {total}, New Houses: {new}")
+        return total, new
     except Exception as e:
         logger.error(f"[{scraper_name}] Error in scraper: {str(e)}", exc_info=True)
         return 0, 0
@@ -98,8 +106,10 @@ def main(use_menu=True):
             else:
                 scrapers[name] = scraper_class(logger, urls)
 
-        # Store statistics
+        # Store statistics for this run
         stats = {}
+        total_houses = 0
+        total_new = 0
 
         # Run scrapers concurrently using ThreadPoolExecutor
         with ThreadPoolExecutor(max_workers=4) as executor:
@@ -109,24 +119,37 @@ def main(use_menu=True):
                 for name, scraper in scrapers.items()
             }
 
-            # Wait for all tasks to complete
+            # Wait for all tasks to complete and collect statistics
             for future in as_completed(future_to_scraper):
                 scraper_name = future_to_scraper[future]
                 try:
-                    processed, found = future.result()
-                    stats[scraper_name] = {'processed': processed, 'found': found}
+                    total, new = future.result()
+                    stats[scraper_name] = {'total': total, 'new': new}
+                    total_houses += total
+                    total_new += new
                 except Exception as e:
                     logger.error(f"[{scraper_name}] Scraper generated an exception: {str(e)}", exc_info=True)
-                    stats[scraper_name] = {'processed': 0, 'found': 0}
+                    stats[scraper_name] = {'total': 0, 'new': 0}
 
         # Display final statistics
-        total_processed = sum(s['processed'] for s in stats.values())
-        total_found = sum(s['found'] for s in stats.values())
         logger.info("[SUMMARY] === Scraping Statistics ===")
         for scraper_name, stat in stats.items():
-            logger.info(f"[{scraper_name}] Processed {stat['processed']} houses, Found {stat['found']} new listings")
-        logger.info(f"[SUMMARY] Total: Processed {total_processed} houses, Found {total_found} new listings")
+            logger.info(f"[{scraper_name}] Total Houses: {stat['total']}, New Houses: {stat['new']}")
+        logger.info(f"[SUMMARY] Total: Total Houses: {total_houses}, New Houses: {total_new}")
         logger.info("[MAIN] House scraping process completed")
+        
+        # Get today's runs for additional statistics
+        today = timezone.now().date()
+        today_runs = ScraperRun.objects.filter(
+            start_time__date=today,
+            status='completed'
+        )
+        
+        if today_runs.exists():
+            total_today_houses = sum(run.total_houses for run in today_runs)
+            total_today_new = sum(run.new_houses for run in today_runs)
+            logger.info(f"[SUMMARY] Today's Total: Total Houses: {total_today_houses}, New Houses: {total_today_new}")
+            
     except Exception as e:
         logger.error(f"[MAIN] An error occurred in the main process: {str(e)}", exc_info=True)
         raise

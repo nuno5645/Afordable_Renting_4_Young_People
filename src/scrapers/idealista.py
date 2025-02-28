@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from src.utils.base_scraper import BaseScraper
 from src.utils.location_manager import LocationManager
 from config.settings import IDEALISTA_MAX_REQUESTS_PER_HOUR
+from houses.models import House
 
 
 class IdealistaScraper(BaseScraper):
@@ -20,6 +21,20 @@ class IdealistaScraper(BaseScraper):
         self.location_manager = LocationManager()
         self._initialize_status()
         self._load_request_history()
+        self._load_existing_urls()
+
+    def _load_existing_urls(self):
+        """Load existing property URLs from the database to avoid duplicates"""
+        self.existing_urls = set()
+        try:
+            # Get all URLs from the House model where source is Idealista
+            urls = House.objects.filter(source="Idealista").values_list('url', flat=True)
+            self.existing_urls = set(urls)
+            self._log('info', f"Loaded {len(self.existing_urls)} existing property URLs from database")
+        except Exception as e:
+            self._log('warning', f"Error loading existing URLs: {str(e)}")
+            # Continue with an empty set if there was an error
+            self.existing_urls = set()
 
     def _load_request_history(self):
         """Load the request history from JSON file"""
@@ -74,9 +89,6 @@ class IdealistaScraper(BaseScraper):
 
     def scrape(self):
         """Scrape houses from Idealista website"""
-        total_processed = 0
-        total_new_listings = 0
-
         for url_index, base_url in enumerate(self.url, 1):
             if not self.can_make_request():
                 self._log('info', f"Reached maximum requests per hour ({IDEALISTA_MAX_REQUESTS_PER_HOUR}), waiting for next hour")
@@ -85,31 +97,21 @@ class IdealistaScraper(BaseScraper):
             self._log('info', f"Processing URL {url_index}: {base_url}")
             
             # Process first page
-            processed, new_listings = self._process_page(1, base_url)
-            total_processed += processed
-            total_new_listings += new_listings
+            self._process_page(1, base_url)
 
-            # Only continue to page 2 if we found more than 30 listings on page 1
-            # and we haven't hit the request limit
-            if processed > 30 and self.can_make_request():
-                self._log('info', "Found more than 30 listings, processing page 2")
-                processed_page2, new_listings_page2 = self._process_page(2, base_url)
-                total_processed += processed_page2
-                total_new_listings += new_listings_page2
+            # Only continue to page 2 if we haven't hit the request limit
+            if self.can_make_request():
+                self._log('info', "Processing page 2")
+                self._process_page(2, base_url)
             else:
-                if not self.can_make_request():
-                    self._log('info', "Request limit reached, skipping page 2")
-                else:
-                    self._log('info', f"Only found {processed} listings, skipping page 2")
+                self._log('info', "Request limit reached, skipping page 2")
 
         self._log('info', "Finished processing all URLs")
-        self._log('info', f"Total houses processed: {total_processed}")
-        self._log('info', f"Total new listings found: {total_new_listings}")
 
     def _process_page(self, page_num, base_url):
         """Process a single page of listings"""
         if not self.can_make_request():
-            return 0, 0
+            return
 
         if page_num == 1:
             current_url = base_url
@@ -144,7 +146,7 @@ class IdealistaScraper(BaseScraper):
             if r.status_code != 200:
                 self._log('error', f"Failed to get page. Status code: {r.status_code}")
                 self._log('error', f"Response content: {r.text[:500]}...")
-                return 0, 0
+                return
 
             soup = BeautifulSoup(r.text, "html.parser")
             self._log('info', "Successfully parsed page content with BeautifulSoup")
@@ -154,21 +156,21 @@ class IdealistaScraper(BaseScraper):
 
             if not houses:
                 self._log('warning', f"No houses found on page {page_num}")
-                return 0, 0
-
-            processed = 0
-            new_listings = 0
+                return
 
             for house in houses:
                 try:
-                    processed += 1
-
                     title_link = house.find("a", class_="item-link")
                     if not title_link:
                         continue
 
                     name = title_link.get("title", "N/A")
                     url = f"https://www.idealista.pt{title_link.get('href', '')}"
+                    
+                    # Skip if URL already exists in the database
+                    if self.url_exists(url):
+                        self._log('info', f"Skipping already processed property: {url}")
+                        continue
 
                     price_elem = house.find("span", class_="item-price")
                     price = price_elem.text.strip() if price_elem else "N/A"
@@ -243,15 +245,12 @@ class IdealistaScraper(BaseScraper):
                         json.dumps(image_urls)  # Add image URLs as the last column
                     ]
 
-                    if self.save_to_excel(info_list):
-                        new_listings += 1
+                    self.save_to_excel(info_list)
 
                 except Exception as e:
                     self._log('error', f"Error processing house: {str(e)}", exc_info=True)
                     continue
 
-            return processed, new_listings
-
         except Exception as e:
             self._log('error', f"Error processing page {page_num}: {str(e)}", exc_info=True)
-            return 0, 0
+            return

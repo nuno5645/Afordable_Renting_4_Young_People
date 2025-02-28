@@ -11,12 +11,14 @@ from src.scrapers.idealista import IdealistaScraper
 from src.scrapers.remax import RemaxScraper
 from src.scrapers.era import EraScraper
 from src.scrapers.casa_sapo import CasaSapoScraper
+from src.scrapers.super_casa import SuperCasaScraper
 from config.settings import (
     IMOVIRTUAL_URLS,
     REMAX_URLS,
     IDEALISTA_URLS,
     ERA_URL,
     CASA_SAPO_URLS,
+    SUPER_CASA_URLS,
     SCRAPER_API_KEY,
 )
 
@@ -41,7 +43,8 @@ def get_scraper_selection():
         2: ('Idealista', IdealistaScraper, IDEALISTA_URLS, SCRAPER_API_KEY),
         3: ('Remax', RemaxScraper, REMAX_URLS, None),
         4: ('ERA', EraScraper, ERA_URL, None),
-        5: ('Casa SAPO', CasaSapoScraper, CASA_SAPO_URLS, None)
+        5: ('Casa SAPO', CasaSapoScraper, CASA_SAPO_URLS, None),
+        6: ('Super Casa', SuperCasaScraper, SUPER_CASA_URLS, None)
     }
 
     print("\nAvailable scrapers:")
@@ -83,7 +86,8 @@ def main(use_menu=True):
                 2: ('Idealista', IdealistaScraper, IDEALISTA_URLS, SCRAPER_API_KEY),
                 3: ('Remax', RemaxScraper, REMAX_URLS, None),
                 4: ('ERA', EraScraper, ERA_URL, None),
-                5: ('Casa SAPO', CasaSapoScraper, CASA_SAPO_URLS, None)
+                5: ('Casa SAPO', CasaSapoScraper, CASA_SAPO_URLS, None),
+                6: ('Super Casa', SuperCasaScraper, SUPER_CASA_URLS, None)
             }
         
         # Create scraper instances

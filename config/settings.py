@@ -35,6 +35,16 @@ CASA_SAPO_URLS = [
     'https://casa.sapo.pt/alugar-apartamentos/t1,t2,t3,t4,t5,t6-ou-superior/mais-recentes/odivelas/?gp=1200',
 ]
 
+SUPER_CASA_URLS = [
+    'https://supercasa.pt/arrendar-casas/lisboa/com-preco-max-1000',
+    'https://supercasa.pt/arrendar-casas/amadora/com-preco-max-1000',
+    'https://supercasa.pt/arrendar-casas/cascais/com-preco-max-1000',
+    'https://supercasa.pt/arrendar-casas/oeiras/com-preco-max-1000',
+    'https://supercasa.pt/arrendar-casas/sintra/com-preco-max-1000',
+    'https://supercasa.pt/arrendar-casas/loures/com-preco-max-1000',
+    'https://supercasa.pt/arrendar-casas/odivelas/com-preco-max-1000',
+]
+
 # API Keys
 SCRAPER_API_KEY = 'e0c9203edd30d2e5c624f841b9c4e0b4'  # For Idealista scraping
 

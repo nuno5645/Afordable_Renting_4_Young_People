@@ -1,0 +1,30 @@
+[
+  {
+    "status": "running",
+    "timestamp": "2025-02-28T14:24:39.115445",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-28T14:24:39.103916",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "running",
+    "timestamp": "2025-02-28T14:19:36.281067",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  },
+  {
+    "status": "initialized",
+    "timestamp": "2025-02-28T14:19:36.267024",
+    "houses_processed": 0,
+    "houses_found": 0,
+    "error_message": null
+  }
+]

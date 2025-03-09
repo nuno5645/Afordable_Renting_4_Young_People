@@ -31,18 +31,11 @@ export function PropertyCard({
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // Parse image URLs if they exist
-  const hasImages = house['Image URLs'] && 
-                   (typeof house['Image URLs'] === 'string' 
-                     ? JSON.parse(house['Image URLs']).length > 0 
-                     : house['Image URLs'].length > 0);
+  // Check if we have any images
+  const hasImages = Array.isArray(house.image_urls) && house.image_urls.length > 0;
   
-  const images = hasImages
-    ? (typeof house['Image URLs'] === 'string'
-      ? JSON.parse(house['Image URLs'])
-      : house['Image URLs'])
-    : mockImages;
-
+  const images = hasImages ? house.image_urls : [];
+  
   const currentImage = images[currentImageIndex];
 
   // Preload all images upfront
@@ -80,7 +73,7 @@ export function PropertyCard({
     } catch (e) {
       // Ignore vibration errors
     }
-    window.open(house.URL, '_blank');
+    window.open(house.url, '_blank');
   };
 
   const handleContactedToggle = async () => {
@@ -256,22 +249,22 @@ export function PropertyCard({
             <div className="flex items-center gap-2 text-zinc-400 text-sm mb-2">
               <MapPin size={14} />
               <span>
-                {[house.Freguesia, house.Concelho].filter(Boolean).join(", ") || house.Zone}
+                {[house.freguesia, house.concelho].filter(Boolean).join(", ") || house.zone}
               </span>
             </div>
             <div className="text-2xl font-bold text-white tracking-tight">
-              €{house.Price.toLocaleString()}/month
+              €{parseFloat(house.price || '0').toLocaleString()}/month
             </div>
             <div className="mt-3 flex gap-6 text-zinc-400">
               <div className="flex items-center gap-2">
                 <Bed size={16} />
-                <span className="text-sm">{house.Bedrooms}</span>
+                <span className="text-sm">{house.bedrooms}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Square size={16} />
-                <span className="text-sm">{house.Area} m²</span>
+                <span className="text-sm">{house.area} m²</span>
                 <span className="text-xs text-zinc-500 ml-2">·</span>
-                <span className="text-xs text-zinc-500">{house.Source}</span>
+                <span className="text-xs text-zinc-500">{house.source}</span>
               </div>
             </div>
             <div className="mt-4 flex gap-3">

@@ -1,39 +1,40 @@
 services:
   api:
-    build: .
+    build: ./django_api
     ports:
-      - "8080:8080"
+      - "8080:8000"
     volumes:
-      - .:/app
-      - ./data:/app/data:rw
+      - ./django_api:/app
+      - ./data:/app/api/data:rw
     user: "1000:1000"
-    command: uvicorn api.main:app --host 0.0.0.0 --port 8080 --reload
+    command: python api/manage.py runserver_plus --cert-file api/certs/cert.crt --key-file api/certs/cert.key 0.0.0.0:8000
     environment:
       - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
+      - DJANGO_SETTINGS_MODULE=api.settings
     networks:
       - house_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      test: ["CMD", "curl", "-f", "-k", "https://localhost:8000/api/houses/"]
       interval: 30s
       timeout: 10s
       retries: 3
 
-  scraper:
-    build: .
-    volumes:
-      - .:/app
-      - ./data:/app/data:rw
-    user: "1000:1000"
-    command: /usr/local/bin/run_scraper.sh
-    environment:
-      - PYTHONPATH=/app
-      - PYTHONUNBUFFERED=1
-    networks:
-      - house_network
-    depends_on:
-      api:
-        condition: service_healthy
+  # scraper:
+  #   build: .
+  #   volumes:
+  #     - .:/app
+  #     - ./data:/app/data:rw
+  #   user: "1000:1000"
+  #   command: /usr/local/bin/run_scraper.sh
+  #   environment:
+  #     - PYTHONPATH=/app
+  #     - PYTHONUNBUFFERED=1
+  #   networks:
+  #     - house_network
+  #   depends_on:
+  #     api:
+  #       condition: service_healthy
 
   # ngrok:
   #   image: wernight/ngrok

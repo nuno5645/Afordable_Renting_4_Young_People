@@ -104,7 +104,7 @@ class ImoVirtualScraper(BaseScraper):
                     selenium_descriptions = []
                     selenium_image_urls = []  # Store image URLs from Selenium interaction
                     
-                    for article in articles:
+                    for idx, article in enumerate(articles):
                         try:
                             # Extract URL first to check if already processed
                             try:
@@ -124,6 +124,7 @@ class ImoVirtualScraper(BaseScraper):
                             
                             # Get all images from the carousel
                             image_urls_for_article = set()  # Use set to avoid duplicates
+                            self._log('debug', f"[IMAGE_DEBUG] Starting image collection for article {idx+1}")
                             
                             # First get the visible image
                             try:
@@ -153,6 +154,7 @@ class ImoVirtualScraper(BaseScraper):
                                     if img_url:
                                         self._log('info', f"Found initial image: {img_url}")
                                         image_urls_for_article.add(img_url)
+                                        self._log('debug', f"[IMAGE_DEBUG] Added initial image, current count: {len(image_urls_for_article)}")
                                     else:
                                         self._log('warning', "Initial image found but src attribute is empty")
                                 else:
@@ -245,6 +247,7 @@ class ImoVirtualScraper(BaseScraper):
                                                     if img_url and img_url not in image_urls_for_article:
                                                         self._log('info', f"Found image {i+2}/{total_images}: {img_url}")
                                                         image_urls_for_article.add(img_url)
+                                                        self._log('debug', f"[IMAGE_DEBUG] Added image {i+2}, current count: {len(image_urls_for_article)}")
                                                 else:
                                                     self._log('warning', f"Could not find image {i+2} with any selector")
                                             except Exception as img_error:
@@ -259,6 +262,7 @@ class ImoVirtualScraper(BaseScraper):
                                 self._log('warning', f"Error cycling through images: {str(e)}")
                             
                             self._log('info', f"Total unique images collected: {len(image_urls_for_article)}")
+                            self._log('debug', f"[IMAGE_DEBUG] Final image URLs for article {idx+1}: {list(image_urls_for_article)}")
                             selenium_image_urls.append(list(image_urls_for_article))
                             
                             # Find and click "Ver descrição do anúncio"
@@ -379,7 +383,14 @@ class ImoVirtualScraper(BaseScraper):
                         
                         # Use the image URLs collected by Selenium
                         image_urls = selenium_image_urls[idx] if idx < len(selenium_image_urls) else []
-                        image_urls_str = json.dumps(image_urls) if image_urls else "[]"
+                        self._log('debug', f"[IMAGE_DEBUG] Raw image URLs for {name}: {image_urls}")
+                        self._log('debug', f"[IMAGE_DEBUG] Number of images found: {len(image_urls)}")
+                        
+                        # Ensure image_urls is a list of strings
+                        image_urls = [str(url) for url in image_urls if url]
+                        
+                        # No need to convert to JSON string anymore - we'll pass the list directly
+                        self._log('debug', f"[IMAGE_DEBUG] Image URLs to pass: {image_urls}")
                         
                         price_elem = article.find('span', {'direction': 'horizontal'})
                         price = price_elem.text.strip() if price_elem else "N/A"
@@ -415,12 +426,14 @@ class ImoVirtualScraper(BaseScraper):
                             concelho if concelho else "N/A",
                             "Imovirtual",   # Source
                             None,           # ScrapedAt (will be filled by save_to_excel)
-                            image_urls_str  # Image URLs as JSON string
+                            image_urls      # Pass the list of image URLs directly
                         ]
+                        self._log('debug', f"[IMAGE_DEBUG] Image URLs in info_list[12]: {info_list[12]}")
                         
-                        if self.save_to_excel(info_list):
+                        if self.save_to_database(info_list):
                             # Add the URL to our existing URLs set to avoid duplicates in the same run
                             self.existing_urls.add(url)
+                            self._log('debug', f"[IMAGE_DEBUG] House saved with image URLs: {image_urls}")
                         
                     except Exception as e:
                         self._log('error', f"Error processing house: {str(e)}", exc_info=True)

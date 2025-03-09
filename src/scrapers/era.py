@@ -75,7 +75,7 @@ class EraScraper(BaseScraper):
                         None  # ScrapedAt will be filled by save_to_excel
                     ]
                     
-                    self.save_to_excel(info_list)
+                    self.save_to_database(info_list)
                     
                 except Exception as e:
                     self._log('error', f"Error processing house: {str(e)}", exc_info=True)

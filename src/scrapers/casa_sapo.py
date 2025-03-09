@@ -462,7 +462,7 @@ class CasaSapoScraper(BaseScraper):
                         image_urls_json # Image URLs as JSON string
                     ]
                     
-                    if self.save_to_excel(info_list):
+                    if self.save_to_database(info_list):
                         # Add the URL to our existing URLs set to avoid duplicates in the same run
                         self.existing_urls.add(url)
                     

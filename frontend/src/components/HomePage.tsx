@@ -94,9 +94,9 @@ export function HomePage() {
           
           // Convert to numbers, removing any non-numeric characters except decimal points
           const aNum = typeof aValue === 'number' ? aValue : 
-            parseFloat((aValue as string).replace(/[^\d.]/g, '')) || 0;
+            parseFloat((aValue?.toString() || '').replace(/[^\d.]/g, '')) || 0;
           const bNum = typeof bValue === 'number' ? bValue : 
-            parseFloat((bValue as string).replace(/[^\d.]/g, '')) || 0;
+            parseFloat((bValue?.toString() || '').replace(/[^\d.]/g, '')) || 0;
 
           return sortOrder === 'asc' ? aNum - bNum : bNum - aNum;
         }
@@ -153,7 +153,7 @@ export function HomePage() {
           <div className="space-y-4">
             {filteredProperties.slice(0, displayCount).map((property) => (
               <MemoizedPropertyCard
-                key={`${property.Name}-${property.URL}`}
+                key={property.house_id}
                 house={property}
                 onDelete={() => handleDelete(property.house_id)}
                 onContactedChange={(contacted) => handleContactedChange(property.house_id, contacted)}

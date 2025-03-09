@@ -1,6 +1,49 @@
 # Price limit for searches
 MAX_PRICE = 900
 
+# Logging configuration
+import os
+import logging.config
+
+# Create logs directory if it doesn't exist
+os.makedirs('logs', exist_ok=True)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'logs/house_scraper.log',
+            'formatter': 'verbose',
+        },
+        'image_debug_file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'logs/image_debug.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'house_scrapers': {
+            'handlers': ['console', 'file', 'image_debug_file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
 # Website URLs
 IMOVIRTUAL_URLS = [
     f'https://www.imovirtual.com/pt/resultados/arrendar/apartamento/lisboa/lisboa?limit=36&priceMax={MAX_PRICE}&roomsNumber=%5BTWO%2CTHREE%2CFOUR%2CFIVE%2CSIX_OR_MORE%5D&by=LATEST&direction=DESC&viewType=listing',
@@ -39,13 +82,13 @@ CASA_SAPO_URLS = [
 ]
 
 SUPER_CASA_URLS = [
-    'https://supercasa.pt/arrendar-casas/lisboa/com-preco-max-1000',
-    'https://supercasa.pt/arrendar-casas/amadora/com-preco-max-1000',
-    'https://supercasa.pt/arrendar-casas/cascais/com-preco-max-1000',
-    'https://supercasa.pt/arrendar-casas/oeiras/com-preco-max-1000',
-    'https://supercasa.pt/arrendar-casas/sintra/com-preco-max-1000',
-    'https://supercasa.pt/arrendar-casas/loures/com-preco-max-1000',
-    'https://supercasa.pt/arrendar-casas/odivelas/com-preco-max-1000',
+    f'https://supercasa.pt/arrendar-casas/lisboa/com-preco-max-{MAX_PRICE}?ordem=atualizado-desc',
+    f'https://supercasa.pt/arrendar-casas/amadora/com-preco-max-{MAX_PRICE}?ordem=atualizado-desc',
+    f'https://supercasa.pt/arrendar-casas/cascais/com-preco-max-{MAX_PRICE}?ordem=atualizado-desc',
+    f'https://supercasa.pt/arrendar-casas/oeiras/com-preco-max-{MAX_PRICE}?ordem=atualizado-desc',
+    f'https://supercasa.pt/arrendar-casas/sintra/com-preco-max-{MAX_PRICE}?ordem=atualizado-desc',
+    f'https://supercasa.pt/arrendar-casas/loures/com-preco-max-{MAX_PRICE}?ordem=atualizado-desc',
+    f'https://supercasa.pt/arrendar-casas/odivelas/com-preco-max-{MAX_PRICE}?ordem=atualizado-desc',
 ]
 
 # API Keys
@@ -60,9 +103,6 @@ MAX_PAGES = 2  # Maximum number of pages to scrape for paginated sites
 PAGE_LOAD_WAIT = 5  # Seconds to wait for page load
 BETWEEN_REQUESTS_WAIT = 10  # Seconds to wait between requests
 
-# WhatsApp Settings
-WHATSAPP_GROUP_ID = "ByBvbZbZImiIGrL8nlpvQX"  # Group ID for house notifications
-WHATSAPP_NOTIFICATION_ENABLED = False
 
 # Ntfy.sh Settings
 NTFY_TOPIC = "Casas"  # Topic for ntfy.sh notifications

@@ -20,71 +20,52 @@ class SuperCasaScraper(BaseScraper):
         self.source = "SuperCasa"
         self.location_manager = LocationManager()
         self._initialize_status()
-        # Define the CSV path
-        self.csv_path = os.path.join("data", "houses.csv")
         self._load_existing_urls()
 
-    def get_current_time(self):
-        """Get current timestamp in ISO format"""
-        return datetime.now().isoformat()
-
-    def _load_existing_urls(self):
-        """Load existing property URLs from the CSV file to avoid duplicates"""
-        self.existing_urls = set()
+    def run(self):
+        """Run the scraper with proper initialization and status handling"""
         try:
-            # Try to read existing URLs from the CSV file
-            if os.path.exists(self.csv_path):
-                import pandas as pd
-                df = pd.read_csv(self.csv_path, on_bad_lines='skip')
-                # Check if 'URL' column exists
-                if 'URL' in df.columns:
-                    # Add all URLs to the set
-                    self.existing_urls = set(df['URL'].dropna().tolist())
-                    self._log('info', f"Loaded {len(self.existing_urls)} existing property URLs from database")
-                else:
-                    self._log('warning', "URL column not found in CSV file")
-            else:
-                self._log('info', "No existing CSV file found, starting fresh")
+            # Initialize run if not already initialized
+            if not self.current_run:
+                self._initialize_run()
+            
+            # Load existing URLs before starting
+            self._load_existing_urls()
+            
+            self._start_run()
+            self.scrape()
+            self._complete_run()
         except Exception as e:
-            self._log('warning', f"Error loading existing URLs: {str(e)}")
-            # Continue with an empty set if there was an error
-            self.existing_urls = set()
+            error_message = str(e)
+            self._fail_run(error_message)
+            raise
 
     def scrape(self):
         """Scrape houses from SuperCasa website"""
-        total_processed = 0
-        total_new_listings = 0
-        total_skipped = 0
-
         for site_url in self.urls:
             self._log('info', f"Starting scrape for URL: {site_url}")
             page_num = 1
-            max_pages = 2  # Safety limit
+            max_pages = 50  # Increased safety limit, but pagination check will stop before this
 
             while page_num <= max_pages:
-                processed, new_listings, skipped = self._process_page(site_url, page_num)
-                total_processed += processed
-                total_new_listings += new_listings
-                total_skipped += skipped
-                
-                # Break the loop if no new listings were found on this page
-                if new_listings == 0:
-                    self._log('info', f"No new listings found on page {page_num}, stopping pagination")
+                if not self._process_page(site_url, page_num):
+                    self._log('info', f"Stopping at page {page_num} - no more pages or no new listings found")
                     break
-                
+                self._log('info', f"Successfully processed page {page_num}, moving to next page")
                 page_num += 1
 
         self._log('info', "Finished processing all pages")
-        self._log('info', f"Total houses processed: {total_processed}")
-        self._log('info', f"Total new listings found: {total_new_listings}")
-        self._log('info', f"Total listings skipped (already in database): {total_skipped}")
 
     def _process_page(self, url, page_num):
         """Process a single page of listings"""
         if page_num == 1:
             current_url = url
         else:
-            current_url = f"{url}?page={page_num}"
+            # Use the "/pagina-X" format for pagination instead of "?page=X"
+            if url.endswith('/'):
+                current_url = f"{url}pagina-{page_num}"
+            else:
+                current_url = f"{url}/pagina-{page_num}"
 
         try:
             self._log('info', f"Processing page {page_num}...")
@@ -144,11 +125,9 @@ class SuperCasaScraper(BaseScraper):
                 except Exception as e:
                     self._log('warning', f"No property items found on page {page_num}: {str(e)}")
                     driver.quit()
-                    return 0, 0, 0
+                    return False
 
-                processed = 0
-                new_listings = 0
-                skipped = 0
+                found_new_listing = False
 
                 for property_item in property_items:
                     try:
@@ -156,13 +135,16 @@ class SuperCasaScraper(BaseScraper):
                         url_elem = property_item.find_element(By.CLASS_NAME, "property-link")
                         url = url_elem.get_attribute("href")
                         
+                        # If URL is relative, convert to absolute URL
+                        if url and url.startswith('/'):
+                            url = f"https://supercasa.pt{url}"
+                        
                         # Skip if URL already exists in our database
-                        if url in self.existing_urls:
+                        if self.url_exists(url):
                             self._log('info', f"Skipping already processed property: {url}")
-                            skipped += 1
                             continue
                         
-                        processed += 1
+                        found_new_listing = True
                         
                         # Extract property information
                         try:
@@ -221,67 +203,65 @@ class SuperCasaScraper(BaseScraper):
                         # Get image URLs
                         image_urls = []
                         try:
-                            # Scroll the property item into view
-                            driver.execute_script("arguments[0].scrollIntoView(true);", property_item)
-                            # Add a small delay to allow lazy loading to trigger
-                            time.sleep(2)
-                            
-                            # Wait for images to be present with a timeout
-                            try:
-                                WebDriverWait(driver, 10).until(
-                                    EC.presence_of_element_located((By.CSS_SELECTOR, ".swiper-slide img"))
-                                )
-                            except Exception as wait_error:
-                                self._log('warning', f"Timeout waiting for images to load: {str(wait_error)}")
+                            # Wait for images to be present
+                            WebDriverWait(driver, 10).until(
+                                EC.presence_of_element_located((By.CSS_SELECTOR, ".swiper-slide img"))
+                            )
                             
                             # Look for all images in the swiper container
                             image_elements = property_item.find_elements(By.CSS_SELECTOR, ".swiper-slide img")
                             self._log('info', f"Found {len(image_elements)} image elements")
 
                             for img in image_elements:
-                                # Wait for the src attribute to be populated
                                 try:
+                                    # Wait for the src attribute to be populated
                                     WebDriverWait(driver, 5).until(
                                         lambda x: img.get_attribute("src") is not None
                                     )
+                                    
+                                    img_url = img.get_attribute("src")
+                                    if img_url and not img_url.endswith('placeholder.jpg'):
+                                        self._log('info', f"Image URL: {img_url}")
+                                        # Get the highest resolution version
+                                        high_res_url = img_url.replace("Z360x270", "Z1440x1080")
+                                        image_urls.append(high_res_url)
                                 except:
                                     continue
-                                
-                                img_url = img.get_attribute("src")
-                                if img_url and not img_url.endswith('placeholder.jpg'):  # Skip placeholder images
-                                    self._log('info', f"Image URL: {img_url}")
-                                    # Get the highest resolution version by replacing the resolution in the URL
-                                    high_res_url = img_url.replace("Z360x270", "Z1440x1080")
-                                    image_urls.append(high_res_url)
-                                else:
-                                    self._log('warning', "No valid image URL found or placeholder image detected")
                                     
+                            # If no images found, try alternative selectors
                             if not image_urls:
-                                # Try alternative selectors if no images found
                                 alternative_selectors = [
                                     ".property-gallery img",
                                     ".property-image img",
-                                    "[data-src]"  # For lazy-loaded images
+                                    "[data-src]"
                                 ]
                                 for selector in alternative_selectors:
                                     alt_images = property_item.find_elements(By.CSS_SELECTOR, selector)
-                                    if alt_images:
-                                        for img in alt_images:
-                                            img_url = img.get_attribute("src") or img.get_attribute("data-src")
-                                            if img_url and not img_url.endswith('placeholder.jpg'):
-                                                high_res_url = img_url.replace("Z360x270", "Z1440x1080")
-                                                image_urls.append(high_res_url)
-                                        if image_urls:
-                                            break
-                                            
+                                    for img in alt_images:
+                                        img_url = img.get_attribute("src") or img.get_attribute("data-src")
+                                        if img_url and not img_url.endswith('placeholder.jpg'):
+                                            high_res_url = img_url.replace("Z360x270", "Z1440x1080")
+                                            image_urls.append(high_res_url)
+                                    if image_urls:
+                                        break
+                                        
+                            # Limit the number of images to prevent excessive data
+                            if len(image_urls) > 10:
+                                image_urls = image_urls[:10]
+                                self._log('info', "Limited to 10 images")
+                                
+                            # Add placeholder if no images found
+                            if not image_urls:
+                                image_urls = ["https://supercasa.pt/img/no-image.jpg"]  # Update with actual placeholder URL
+                                
                         except Exception as e:
                             self._log('warning', f"Error extracting image URLs: {str(e)}")
+                            image_urls = ["https://supercasa.pt/img/no-image.jpg"]  # Update with actual placeholder URL
                             
-                        # Store the property data
                         # Convert image_urls list to JSON string
                         image_urls_json = json.dumps(image_urls, ensure_ascii=False)
                         
-                        # Order: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Freguesia, Concelho, Source, ScrapedAt, ImageURLs
+                        # Store the property data
                         info_list = [
                             name,           # Name
                             zone,           # Zone
@@ -294,12 +274,11 @@ class SuperCasaScraper(BaseScraper):
                             freguesia if freguesia else "N/A",  # Freguesia
                             concelho if concelho else "N/A",    # Concelho
                             self.source,    # Source
-                            None,           # ScrapedAt (will be filled by save_to_excel)
+                            None,           # ScrapedAt (will be filled by save_to_database)
                             image_urls_json # Image URLs as JSON string
                         ]
                         
-                        if self.save_to_excel(info_list):
-                            new_listings += 1
+                        if self.save_to_database(info_list):
                             # Add the URL to our existing URLs set to avoid duplicates in the same run
                             self.existing_urls.add(url)
                         
@@ -307,13 +286,46 @@ class SuperCasaScraper(BaseScraper):
                         self._log('error', f"Error processing property: {str(e)}")
                         continue
 
+                # Check if pagination exists and if there's a next page before returning
+                has_next_page = self._check_pagination(driver, page_num)
                 driver.quit()
-                return processed, new_listings, skipped
+                
+                # Only return True (continue to next page) if we found new listings AND pagination exists
+                return found_new_listing and has_next_page
 
             except Exception as e:
                 self._log('error', f"Error initializing Chrome driver: {str(e)}", exc_info=True)
-                return 0, 0, 0
+                return False
 
         except Exception as e:
             self._log('error', f"Error processing page {page_num}: {str(e)}", exc_info=True)
-            return 0, 0, 0
+            return False
+
+    def _check_pagination(self, driver, page_num):
+        """Check if pagination exists and if there's a next page available"""
+        try:
+            # Check if pagination element exists
+            pagination = driver.find_elements(By.CLASS_NAME, "list-pagination")
+            if not pagination:
+                self._log('info', "No pagination element found. This is the last page.")
+                return False
+                
+            # Check if there's a link to the next page
+            next_page_link = driver.find_elements(By.CLASS_NAME, "list-pagination-next")
+            if not next_page_link:
+                self._log('info', "No next page link found. This is the last page.")
+                return False
+                
+            # Verify that the current page has a link to page_num+1
+            next_page_url = f"/pagina-{page_num + 1}"
+            pagination_links = driver.find_elements(By.CSS_SELECTOR, f".list-pagination-page[href*='{next_page_url}']")
+            if not pagination_links:
+                self._log('info', f"No link to page {page_num + 1} found. This is the last page.")
+                return False
+                
+            self._log('info', f"Pagination found with link to page {page_num + 1}")
+            return True
+            
+        except Exception as e:
+            self._log('warning', f"Error checking pagination: {str(e)}")
+            return False

@@ -1,24 +1,22 @@
 import axios from 'axios';
 
-// Use ngrok URL only in production, otherwise use local proxy
-const API_URL = import.meta.env.VITE_APP_ENV === 'prod' 
-  ? `${import.meta.env.VITE_NGROK_URL}/api`
-  : '/api';
+// Simplified API URL - use proxy directly
+const API_URL = '/api';
 
 export interface House {
-  Name: string;
-  Zone: string;
-  Price: number;
-  URL: string;
-  Bedrooms: string;
-  Area: number;
-  Floor: string;
-  Description: string;
-  Freguesia: string;
-  Concelho: string;
-  Source: string;
-  'Scraped At': string;
-  'Image URLs'?: string[];
+  name: string;
+  zone: string;
+  price: number;
+  url: string;
+  bedrooms: string;
+  area: number;
+  floor: string;
+  description: string;
+  freguesia: string;
+  concelho: string;
+  source: string;
+  scraped_at: string;
+  image_urls?: string[];
   contacted: boolean;
   discarded: boolean;
   favorite: boolean;
@@ -38,11 +36,27 @@ export interface ScraperStatusResponse {
   [key: string]: ScraperStatus;
 }
 
+export interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
 const api = {
-  async getHouses(): Promise<House[]> {
+  async getHouses(ordering?: string): Promise<House[]> {
     try {
-      const response = await axios.get(`${API_URL}/houses`);
-      return response.data.houses;
+      // Build URL string directly instead of using URL constructor
+      let url = `${API_URL}/houses/`;
+      if (ordering) {
+        // Convert field names to lowercase for Django API
+        const orderingField = ordering.startsWith('-') 
+          ? '-' + ordering.substring(1).toLowerCase()
+          : ordering.toLowerCase();
+        url += `?ordering=${orderingField}`;
+      }
+      const response = await axios.get<PaginatedResponse<House>>(url);
+      return response.data.results || [];
     } catch (error) {
       console.error('Error fetching houses:', error);
       return [];
@@ -51,7 +65,7 @@ const api = {
 
   async toggleContacted(houseId: string): Promise<boolean> {
     try {
-      const response = await axios.post(`${API_URL}/toggle-contacted?house_id=${encodeURIComponent(houseId)}`);
+      const response = await axios.post(`${API_URL}/houses/${encodeURIComponent(houseId)}/toggle_contacted/`);
       return response.data.contacted;
     } catch (error) {
       console.error('Error toggling contacted status:', error);
@@ -61,7 +75,7 @@ const api = {
 
   async toggleDiscarded(houseId: string): Promise<boolean> {
     try {
-      const response = await axios.post(`${API_URL}/toggle-discarded?house_id=${encodeURIComponent(houseId)}`);
+      const response = await axios.post(`${API_URL}/houses/${encodeURIComponent(houseId)}/toggle_discarded/`);
       return response.data.discarded;
     } catch (error) {
       console.error('Error toggling discarded status:', error);
@@ -71,7 +85,7 @@ const api = {
 
   async toggleFavorite(houseId: string): Promise<boolean> {
     try {
-      const response = await axios.post(`${API_URL}/toggle-favorite?house_id=${encodeURIComponent(houseId)}`);
+      const response = await axios.post(`${API_URL}/houses/${encodeURIComponent(houseId)}/toggle_favorite/`);
       return response.data.favorite;
     } catch (error) {
       console.error('Error toggling favorite status:', error);
@@ -81,7 +95,7 @@ const api = {
 
   async getScraperStatus(): Promise<ScraperStatusResponse> {
     try {
-      const response = await axios.get(`${API_URL}/scraper-status`);
+      const response = await axios.get(`${API_URL}/scraper-status/`);
       return response.data;
     } catch (error) {
       console.error('Error fetching scraper status:', error);

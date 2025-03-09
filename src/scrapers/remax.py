@@ -199,7 +199,7 @@ class RemaxScraper(BaseScraper):
                     ]
                     
                     self._log('debug', f"Attempting to save listing: {info_list}")
-                    self.save_to_excel(info_list)
+                    self.save_to_database(info_list)
                     
                 except Exception as e:
                     self._log('error', f"Error processing house: {str(e)}", exc_info=True)

@@ -20,10 +20,18 @@ from houses.models import House, ScraperRun
 import uuid
 from django.utils import timezone
 from decimal import Decimal, InvalidOperation
+import time
+import random
 
 class BaseScraper(ABC):
     def __init__(self, logger):
-        self.logger = logger
+        # Create a unique logger for each scraper instance to prevent duplicate logging
+        self.logger_name = f"house_scrapers.{self.__class__.__name__}.{id(self)}"
+        self.logger = self._setup_logger(logger)
+        
+        # Set logger level to DEBUG to capture all our detailed logs
+        if hasattr(self.logger, 'setLevel'):
+            self.logger.setLevel(logging.DEBUG)
         # Commenting out WhatsApp initialization
         # self.whatsapp = WhatsAppSender() if WHATSAPP_NOTIFICATION_ENABLED else None
         self.source = "Unknown"  # Default source, should be overridden by child classes
@@ -42,6 +50,27 @@ class BaseScraper(ABC):
         self.current_run = None
         # Initialize existing URLs set
         self.existing_urls = set()
+        
+    def _setup_logger(self, parent_logger):
+        """Set up a unique logger for this scraper instance"""
+        # Create a new logger with a unique name
+        logger = logging.getLogger(self.logger_name)
+        
+        # If this logger already has handlers, don't add more
+        if logger.hasHandlers():
+            return logger
+            
+        # Set the level from the parent logger
+        logger.setLevel(parent_logger.level)
+        
+        # Don't propagate to the parent to avoid duplicate logs
+        logger.propagate = False
+        
+        # Add the same handlers as the parent logger
+        for handler in parent_logger.handlers:
+            logger.addHandler(handler)
+            
+        return logger
 
     def _initialize_status(self):
         """Initialize the status file after source has been set by child class"""
@@ -216,7 +245,8 @@ class BaseScraper(ABC):
                 title=f"€{price} | {name}",
                 priority="high",
                 tags=["house", "money", "bell"],
-                click=url
+                click=url,
+                actions=[f"view, View Property, {url}"]
             )
             
         except Exception as e:
@@ -224,6 +254,9 @@ class BaseScraper(ABC):
 
     def save_to_database(self, info_list):
         """Save house information to database"""
+        
+        self._log('debug', f"Saving house information to database: {info_list}")
+        
         try:
             # Extract and clean data
             name = str(info_list[0]).strip() if len(info_list) > 0 and info_list[0] is not None else ''
@@ -237,8 +270,23 @@ class BaseScraper(ABC):
             freguesia = str(info_list[8]).strip() if len(info_list) > 8 and info_list[8] is not None else ''
             concelho = str(info_list[9]).strip() if len(info_list) > 9 and info_list[9] is not None else ''
             source = str(info_list[10]).strip() if len(info_list) > 10 and info_list[10] is not None else self.source
-            image_urls = json.loads(info_list[11]) if len(info_list) > 11 and info_list[11] is not None else []
-
+            # Get image URLs - ensure it's a list
+            image_urls = info_list[12] if len(info_list) > 12 and info_list[12] is not None else []
+            
+            self._log('debug', f"\033[93m[IMAGE_DEBUG]\033[0m Original image_urls type: {type(image_urls)}, value: {image_urls}")
+            
+            # Convert image_urls to a list if it's a string (JSON)
+            if isinstance(image_urls, str) and (image_urls.startswith('[') or image_urls.startswith('[')):
+                try:
+                    self._log('debug', f"\033[93m[IMAGE_DEBUG]\033[0m Attempting to parse JSON string: {image_urls}")
+                    image_urls = json.loads(image_urls)
+                    self._log('debug', f"\033[92m[IMAGE_DEBUG]\033[0m Successfully parsed JSON to list: {image_urls}")
+                except Exception as e:
+                    self._log('error', f"\033[91m[IMAGE_DEBUG]\033[0m Failed to parse JSON: {str(e)}")
+                    image_urls = []
+            
+            self._log('debug', f"\033[96m[IMAGE_DEBUG]\033[0m Final image URLs to save: {image_urls}")
+            
             # Clean price and area
             price = self._clean_price(price_str)
             try:
@@ -249,10 +297,11 @@ class BaseScraper(ABC):
             # Generate house_id
             house_id = str(uuid.uuid4())[:20]
 
+            self._log('debug', f"[IMAGE_DEBUG] Image URLs to save: {image_urls}")
             # Check if house already exists by URL
             if not House.objects.filter(url__iexact=url).exists():
                 # Create new house
-                house = House.objects.create(
+                house = House(
                     name=name,
                     zone=zone,
                     price=price,
@@ -265,9 +314,14 @@ class BaseScraper(ABC):
                     concelho=concelho,
                     source=source,
                     scraped_at=timezone.now(),
-                    image_urls=image_urls,
                     house_id=house_id
                 )
+                
+                # Set image_urls using our special attribute
+                house._image_urls_to_save = image_urls
+                
+                # Save the house
+                house.save()
                 
                 self._log('info', f"New listing found: {name} in {zone} - {price}€")
                 

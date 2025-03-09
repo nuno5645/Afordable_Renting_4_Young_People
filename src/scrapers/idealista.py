@@ -245,7 +245,7 @@ class IdealistaScraper(BaseScraper):
                         json.dumps(image_urls)  # Add image URLs as the last column
                     ]
 
-                    self.save_to_excel(info_list)
+                    self.save_to_database(info_list)
 
                 except Exception as e:
                     self._log('error', f"Error processing house: {str(e)}", exc_info=True)

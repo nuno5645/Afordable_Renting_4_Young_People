@@ -1,5 +1,10 @@
 [
   {
+    "status": "initialized",
+    "timestamp": "2025-03-06T17:43:05.803943",
+    "error_message": null
+  },
+  {
     "status": "completed",
     "timestamp": "2025-02-27T16:11:06.089663",
     "houses_processed": 8,

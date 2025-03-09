@@ -11,8 +11,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.casaslisboa.model.RentalProperty
-import com.casaslisboa.ui.screens.HomeScreen
 import com.casaslisboa.ui.theme.LisbonRentalsTheme
+import androidx.navigation.compose.rememberNavController
+import com.casaslisboa.navigation.Navigation
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,6 +28,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun LisbonRentalsApp() {
     val context = LocalContext.current
+    val navController = rememberNavController()
     
     // Sample data
     val properties = remember {
@@ -53,7 +55,8 @@ fun LisbonRentalsApp() {
     }
     
     LisbonRentalsTheme {
-        HomeScreen(
+        Navigation(
+            navController = navController,
             properties = properties,
             onFavoriteClick = { id ->
                 val index = properties.indexOfFirst { it.id == id }
@@ -79,9 +82,6 @@ fun LisbonRentalsApp() {
             },
             onFilterClick = {
                 Toast.makeText(context, "Open filters", Toast.LENGTH_SHORT).show()
-            },
-            onNavigate = { navItem ->
-                Toast.makeText(context, "Navigate to ${navItem.label}", Toast.LENGTH_SHORT).show()
             }
         )
     }

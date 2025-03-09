@@ -4,3 +4,11 @@ logs/
 venv/
 
 
+casas-lisboa-android/.idea
+casas-lisboa-android/.vscode
+casas-lisboa-android/build
+casas-lisboa-android/app/build
+casas-lisboa-android/app/src/main/assets
+casas-lisboa-android/app/src/main/res/raw
+casas-lisboa-android/app/src/main/res/raw/
+

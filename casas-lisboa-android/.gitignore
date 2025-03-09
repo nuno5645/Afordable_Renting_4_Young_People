@@ -13,3 +13,30 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+
+# Gradle files
+.gradle/
+build/
+# Android Studio & IntelliJ IDEA files
+.idea/
+# Log files
+*.log
+# OS-generated files
+Thumbs.db
+# Android-specific
+captures/
+# Jetpack Compose preview files
+.idea/*_debug/
+# Android build folders
+app/build/
+# Kotlin files
+*.kotlin_metadata
+# .gradle caches
+gradle-wrapper.jar
+gradle-wrapper.properties
+# Keystore files
+*.jks
+# Dependency caches
+/.gradle/
+/build/

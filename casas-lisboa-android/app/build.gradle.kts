@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.casas_lisboa_android"
+    namespace = "com.casaslisboa"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.casas_lisboa_android"
+        applicationId = "com.casaslisboa"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -40,6 +40,9 @@ android {
 }
 
 dependencies {
+
+    // coil compose
+    implementation("io.coil-kt:coil-compose:2.4.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

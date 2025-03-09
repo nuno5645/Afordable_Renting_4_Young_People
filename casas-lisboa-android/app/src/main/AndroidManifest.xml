@@ -13,17 +13,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Casaslisboaandroid"
+        android:enableOnBackInvokedCallback="true"
         tools:targetApi="31">
+
         <activity
             android:name="com.casaslisboa.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Casaslisboaandroid">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

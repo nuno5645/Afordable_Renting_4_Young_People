@@ -10,6 +10,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.casaslisboa.ui.components.BottomNavItem
 import com.casaslisboa.ui.components.LisbonRentalsBottomNavigation
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.ExitToApp
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.MailOutline
+import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,7 +44,8 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Profile Image and Name Section
@@ -68,10 +78,10 @@ fun ProfileScreen(
             ListItem(
                 headlineContent = { Text("Edit Profile") },
                 leadingContent = {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit Profile")
+                    Icon(Icons.Default.Person, contentDescription = "Edit Profile")
                 },
                 trailingContent = {
-                    Icon(Icons.Default.ChevronRight, contentDescription = "Navigate")
+                    Icon(Icons.Default.ArrowForward, contentDescription = "Navigate")
                 }
             )
             
@@ -81,7 +91,7 @@ fun ProfileScreen(
                     Icon(Icons.Default.Notifications, contentDescription = "Notifications")
                 },
                 trailingContent = {
-                    Icon(Icons.Default.ChevronRight, contentDescription = "Navigate")
+                    Icon(Icons.Default.ArrowForward, contentDescription = "Navigate")
                 }
             )
             
@@ -91,7 +101,7 @@ fun ProfileScreen(
                     Icon(Icons.Default.Lock, contentDescription = "Privacy")
                 },
                 trailingContent = {
-                    Icon(Icons.Default.ChevronRight, contentDescription = "Navigate")
+                    Icon(Icons.Default.ArrowForward, contentDescription = "Navigate")
                 }
             )
             
@@ -108,22 +118,90 @@ fun ProfileScreen(
             ListItem(
                 headlineContent = { Text("Language") },
                 leadingContent = {
-                    Icon(Icons.Default.Language, contentDescription = "Language")
+                    Icon(Icons.Outlined.LocationOn, contentDescription = "Language")
                 },
                 trailingContent = {
-                    Icon(Icons.Default.ChevronRight, contentDescription = "Navigate")
+                    Icon(Icons.Default.ArrowForward, contentDescription = "Navigate")
                 }
             )
             
             ListItem(
                 headlineContent = { Text("Dark Mode") },
                 leadingContent = {
-                    Icon(Icons.Default.DarkMode, contentDescription = "Dark Mode")
+                    Icon(Icons.Outlined.Settings, contentDescription = "Dark Mode")
                 },
                 trailingContent = {
-                    Icon(Icons.Default.ChevronRight, contentDescription = "Navigate")
+                    Icon(Icons.Default.ArrowForward, contentDescription = "Navigate")
                 }
             )
+
+            ListItem(
+                headlineContent = { Text("Push Notifications") },
+                leadingContent = {
+                    Icon(Icons.Outlined.Notifications, contentDescription = "Push Notifications")
+                },
+                trailingContent = {
+                    Icon(Icons.Default.ArrowForward, contentDescription = "Navigate")
+                }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Support Section
+            Text(
+                text = "Support",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.align(Alignment.Start)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            ListItem(
+                headlineContent = { Text("Help Center") },
+                leadingContent = {
+                    Icon(Icons.Outlined.MailOutline, contentDescription = "Help Center")
+                },
+                trailingContent = {
+                    Icon(Icons.Default.ArrowForward, contentDescription = "Navigate")
+                }
+            )
+
+            ListItem(
+                headlineContent = { Text("Contact Us") },
+                leadingContent = {
+                    Icon(Icons.Outlined.Email, contentDescription = "Contact Us")
+                },
+                trailingContent = {
+                    Icon(Icons.Default.ArrowForward, contentDescription = "Navigate")
+                }
+            )
+
+            ListItem(
+                headlineContent = { Text("Terms of Service") },
+                leadingContent = {
+                    Icon(Icons.Outlined.MoreVert, contentDescription = "Terms of Service")
+                },
+                trailingContent = {
+                    Icon(Icons.Default.ArrowForward, contentDescription = "Navigate")
+                }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Logout Button
+            Button(
+                onClick = { /* Handle logout */ },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    Icons.Outlined.ExitToApp,
+                    contentDescription = "Logout",
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Text("Logout")
+            }
         }
     }
 } 

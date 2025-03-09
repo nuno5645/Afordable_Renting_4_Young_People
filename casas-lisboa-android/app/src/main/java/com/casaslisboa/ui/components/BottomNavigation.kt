@@ -43,7 +43,11 @@ fun LisbonRentalsBottomNavigation(
                 icon = { Icon(item.icon, contentDescription = item.label) },
                 label = { Text(item.label) },
                 selected = currentRoute == item.route,
-                onClick = { onNavigate(item) }
+                onClick = { 
+                    if (currentRoute != item.route) {
+                        onNavigate(item)
+                    }
+                }
             )
         }
     }

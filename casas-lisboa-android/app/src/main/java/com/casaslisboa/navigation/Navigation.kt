@@ -10,6 +10,7 @@ import com.casaslisboa.ui.screens.FavoritesScreen
 import com.casaslisboa.ui.screens.HomeScreen
 import com.casaslisboa.ui.screens.StatisticsScreen
 import com.casaslisboa.ui.screens.SearchScreen
+import com.casaslisboa.ui.screens.ProfileScreen
 
 @Composable
 fun Navigation(
@@ -85,6 +86,20 @@ fun Navigation(
 
         composable(BottomNavItem.Analytics.route) {
             StatisticsScreen(
+                onNavigate = { navItem ->
+                    navController.navigate(navItem.route) {
+                        popUpTo(BottomNavItem.Home.route) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
+
+        composable(BottomNavItem.Profile.route) {
+            ProfileScreen(
                 onNavigate = { navItem ->
                     navController.navigate(navItem.route) {
                         popUpTo(BottomNavItem.Home.route) {

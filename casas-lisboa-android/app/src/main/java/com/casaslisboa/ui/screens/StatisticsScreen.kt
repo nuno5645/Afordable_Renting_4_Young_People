@@ -37,7 +37,7 @@ fun StatisticsScreen(
         },
         bottomBar = {
             LisbonRentalsBottomNavigation(
-                currentRoute = BottomNavI tem.Analytics.route,
+                currentRoute = BottomNavItem.Analytics.route,
                 onNavigate = onNavigate
             )
         },

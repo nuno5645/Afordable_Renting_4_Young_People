@@ -1,5 +1,8 @@
 import SwiftUI
 
+// Add at the top level, before CachedAsyncImage
+private let imageCache = NSCache<NSString, UIImage>()
+
 struct CachedAsyncImage: View {
     let url: URL
     @State private var image: UIImage?
@@ -25,13 +28,19 @@ struct CachedAsyncImage: View {
     }
     
     private func loadImage() {
+        // Check cache first
+        if let cachedImage = imageCache.object(forKey: url.absoluteString as NSString) {
+            self.image = cachedImage
+            return
+        }
+        
         // Use NetworkService's session to handle SSL certificate validation
         if url.host == "100.95.208.157" {
-            // Get data using NetworkService's custom session
             Task {
                 do {
                     let (data, _) = try await NetworkService.shared.session.data(from: url)
                     if let loadedImage = UIImage(data: data) {
+                        imageCache.setObject(loadedImage, forKey: url.absoluteString as NSString)
                         DispatchQueue.main.async {
                             self.image = loadedImage
                         }
@@ -41,9 +50,9 @@ struct CachedAsyncImage: View {
                 }
             }
         } else {
-            // Use shared session for other domains
             URLSession.shared.dataTask(with: url) { data, _, _ in
                 if let data = data, let loadedImage = UIImage(data: data) {
+                    imageCache.setObject(loadedImage, forKey: url.absoluteString as NSString)
                     DispatchQueue.main.async {
                         self.image = loadedImage
                     }

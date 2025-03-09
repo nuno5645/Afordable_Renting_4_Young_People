@@ -12,6 +12,7 @@ struct CustomNavigationBar: View {
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(Theme.Colors.primary)
+                .lineLimit(1)
             
             Spacer()
             
@@ -24,10 +25,12 @@ struct CustomNavigationBar: View {
                 .padding(.vertical, 8)
                 .glassBackground()
             }
+            .buttonStyle(BorderlessButtonStyle())
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
         .background(Theme.Colors.background)
+        .drawingGroup() // Enables Metal-accelerated rendering
     }
 }
 
@@ -52,6 +55,7 @@ struct ContactOptionsSheet: View {
                             dismiss()
                         }
                     }
+                    .listRowBackground(Theme.Colors.surface)
                     
                     ContactOptionButton(
                         icon: "envelope.fill",
@@ -60,6 +64,7 @@ struct ContactOptionsSheet: View {
                     ) {
                         showingMailView = true
                     }
+                    .listRowBackground(Theme.Colors.surface)
                     
                     ContactOptionButton(
                         icon: "message.fill",
@@ -71,12 +76,15 @@ struct ContactOptionsSheet: View {
                             dismiss()
                         }
                     }
+                    .listRowBackground(Theme.Colors.surface)
                 } header: {
                     Text("Contact Options")
                 } footer: {
                     Text("Property: \(property.location)")
+                        .lineLimit(2)
                 }
             }
+            .listStyle(InsetGroupedListStyle())
             .navigationTitle("Contact Agent")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -84,6 +92,7 @@ struct ContactOptionsSheet: View {
                     Button("Done") {
                         dismiss()
                     }
+                    .buttonStyle(BorderlessButtonStyle())
                 }
             }
         }
@@ -191,6 +200,7 @@ struct HomeView: View {
     @State private var searchText = ""
     @State private var isLoading = false
     @State private var error: Error?
+    @Namespace private var scrollToTop
     
     var filteredProperties: [Property] {
         filterOptions.filterProperties(properties)
@@ -237,46 +247,63 @@ struct HomeView: View {
                         .padding()
                         Spacer()
                     } else {
-                        ScrollView(.vertical, showsIndicators: false) {
-                            LazyVStack(spacing: 0) {
-                                ForEach(filteredProperties) { property in
-                                    PropertyCardView(
-                                        property: property,
-                                        onFavoriteToggle: { updatedProperty in
-                                            if let index = properties.firstIndex(where: { $0.id == updatedProperty.id }) {
-                                                properties[index].isFavorite = updatedProperty.isFavorite
-                                            }
-                                        },
-                                        onDelete: { property in
-                                            withAnimation {
-                                                properties.removeAll { $0.id == property.id }
-                                            }
-                                        },
-                                        onContactedChange: { updatedProperty in
-                                            if let index = properties.firstIndex(where: { $0.id == updatedProperty.id }) {
-                                                properties[index].contacted = updatedProperty.contacted
-                                            }
-                                        },
-                                        onDiscard: { property in
-                                            Task {
-                                                do {
-                                                    try await NetworkService.shared.toggleDiscarded(for: property.houseId)
-                                                    if let index = properties.firstIndex(where: { $0.id == property.id }) {
-                                                        properties[index].discarded = true
-                                                        withAnimation {
-                                                            properties.removeAll { $0.id == property.id }
+                        ScrollViewReader { proxy in
+                            ScrollView(.vertical, showsIndicators: false) {
+                                VStack(spacing: 0) {
+                                    // Invisible anchor view at the top
+                                    Color.clear
+                                        .frame(height: 0)
+                                        .id(scrollToTop)
+                                    
+                                    LazyVStack(spacing: 0) {
+                                        ForEach(filteredProperties) { property in
+                                            PropertyCardView(
+                                                property: property,
+                                                onFavoriteToggle: { updatedProperty in
+                                                    if let index = properties.firstIndex(where: { $0.id == updatedProperty.id }) {
+                                                        properties[index].isFavorite = updatedProperty.isFavorite
+                                                    }
+                                                },
+                                                onDelete: { property in
+                                                    withAnimation {
+                                                        properties.removeAll { $0.id == property.id }
+                                                    }
+                                                },
+                                                onContactedChange: { updatedProperty in
+                                                    if let index = properties.firstIndex(where: { $0.id == updatedProperty.id }) {
+                                                        properties[index].contacted = updatedProperty.contacted
+                                                    }
+                                                },
+                                                onDiscard: { property in
+                                                    Task {
+                                                        do {
+                                                            try await NetworkService.shared.toggleDiscarded(for: property.houseId)
+                                                            if let index = properties.firstIndex(where: { $0.id == property.id }) {
+                                                                properties[index].discarded = true
+                                                                withAnimation {
+                                                                    properties.removeAll { $0.id == property.id }
+                                                                }
+                                                            }
+                                                        } catch {
+                                                            print("❌ Failed to discard property: \(error.localizedDescription)")
                                                         }
                                                     }
-                                                } catch {
-                                                    print("❌ Failed to discard property: \(error.localizedDescription)")
                                                 }
-                                            }
+                                            )
+                                            .transition(.opacity.combined(with: .move(edge: .leading)))
                                         }
-                                    )
-                                    .transition(.opacity.combined(with: .move(edge: .leading)))
+                                    }
+                                    .padding(.bottom, 20)
                                 }
                             }
-                            .padding(.bottom, 20)
+                            .scrollIndicators(.hidden)
+                            .animation(Theme.Animation.spring, value: properties)
+                            .onReceive(NotificationCenter.default.publisher(for: .scrollHomeToTop)) { _ in
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                    proxy.scrollTo(scrollToTop, anchor: .top)
+                                }
+                            }
+                            .simultaneousGesture(DragGesture().onChanged { _ in })
                         }
                     }
                 }

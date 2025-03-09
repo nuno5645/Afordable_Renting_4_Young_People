@@ -1,5 +1,10 @@
 import SwiftUI
 
+// Notification for scrolling to top
+extension Notification.Name {
+    static let scrollHomeToTop = Notification.Name("scrollHomeToTop")
+}
+
 struct MainTabView: View {
     @State private var selectedTab = 0
     
@@ -10,6 +15,11 @@ struct MainTabView: View {
                     Label("Home", systemImage: "house.fill")
                 }
                 .tag(0)
+                .onTapGesture {
+                    if selectedTab == 0 {
+                        NotificationCenter.default.post(name: .scrollHomeToTop, object: nil)
+                    }
+                }
             
             FavoritesView()
                 .tabItem {

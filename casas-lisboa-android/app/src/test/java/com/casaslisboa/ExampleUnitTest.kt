@@ -1,4 +1,4 @@
-package com.example.casas_lisboa_android
+package casas_lisboa_android
 
 import org.junit.Test
 

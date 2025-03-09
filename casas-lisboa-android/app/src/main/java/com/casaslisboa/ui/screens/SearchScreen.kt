@@ -10,14 +10,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.casaslisboa.ui.components.BottomNavItem
+import com.casaslisboa.ui.components.LisbonRentalsBottomNavigation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     onNavigateBack: () -> Unit,
+    onNavigate: (BottomNavItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
+    val currentRoute = remember { mutableStateOf(BottomNavItem.Home.route) }
 
     Scaffold(
         topBar = {
@@ -30,6 +34,15 @@ fun SearchScreen(
                             contentDescription = "Navigate back"
                         )
                     }
+                }
+            )
+        },
+        bottomBar = {
+            LisbonRentalsBottomNavigation(
+                currentRoute = currentRoute.value,
+                onNavigate = { navItem ->
+                    currentRoute.value = navItem.route
+                    onNavigate(navItem)
                 }
             )
         },

@@ -70,7 +70,16 @@ fun Navigation(
 
         composable(BottomNavItem.Search.route) {
             SearchScreen(
-                onNavigateBack = { navController.navigateUp() }
+                onNavigateBack = { navController.navigateUp() },
+                onNavigate = { navItem ->
+                    navController.navigate(navItem.route) {
+                        popUpTo(BottomNavItem.Home.route) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
             )
         }
 

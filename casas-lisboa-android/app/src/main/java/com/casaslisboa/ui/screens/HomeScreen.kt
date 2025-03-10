@@ -8,8 +8,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.casaslisboa.model.RentalProperty
@@ -31,22 +29,18 @@ fun HomeScreen(
     onNavigate: (BottomNavItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val currentRoute = remember { mutableStateOf(BottomNavItem.Home.route) }
-    
     Scaffold(
         topBar = {
             LisbonRentalsTopAppBar(
                 title = "Lisbon Rentals",
-                onFilterClick = onFilterClick
+                onFilterClick = onFilterClick,
+                onSearchClick = { onNavigate(BottomNavItem.Search) }
             )
         },
         bottomBar = {
             LisbonRentalsBottomNavigation(
-                currentRoute = currentRoute.value,
-                onNavigate = { navItem ->
-                    currentRoute.value = navItem.route
-                    onNavigate(navItem)
-                }
+                currentRoute = BottomNavItem.Home.route,
+                onNavigate = onNavigate
             )
         },
         modifier = modifier.fillMaxSize()
@@ -77,10 +71,10 @@ fun HomeScreenPreview() {
     val sampleProperties = listOf(
         RentalProperty(
             id = "1",
-            address = "avenida Embaixador Augusto de Castro, 23, Figueirinha - Augusto Castro, Oeiras e São Julião da Barra, Oeiras e São Julião da Barra - Paço de Arcos - Caxias",
+            address = "avenida Embaixador Augusto de Castro, 23, Figueirinha",
             price = 900,
-            area = 0.0,
-            bedrooms = 0,
+            area = 65.0,
+            bedrooms = 1,
             imageUrl = "",
             isFavorite = false
         ),

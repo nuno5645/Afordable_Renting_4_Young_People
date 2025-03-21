@@ -1,0 +1,69 @@
+{
+  "" : {
+    "dependencies" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData/casas-lisboa/Index.noindex/Build/Intermediates.noindex/casas-lisboa.build/Debug-iphoneos/casas-lisboa.build/Objects-normal/arm64/casas-lisboa-master.d",
+    "diagnostics" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData/casas-lisboa/Index.noindex/Build/Intermediates.noindex/casas-lisboa.build/Debug-iphoneos/casas-lisboa.build/Objects-normal/arm64/casas-lisboa-master.dia",
+    "emit-module-dependencies" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData/casas-lisboa/Index.noindex/Build/Intermediates.noindex/casas-lisboa.build/Debug-iphoneos/casas-lisboa.build/Objects-normal/arm64/casas-lisboa-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData/casas-lisboa/Index.noindex/Build/Intermediates.noindex/casas-lisboa.build/Debug-iphoneos/casas-lisboa.build/Objects-normal/arm64/casas-lisboa-master-emit-module.dia",
+    "swift-dependencies" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData/casas-lisboa/Index.noindex/Build/Intermediates.noindex/casas-lisboa.build/Debug-iphoneos/casas-lisboa.build/Objects-normal/arm64/casas-lisboa-master.swiftdeps"
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Models/FilterOptions.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Models/Property.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Models/Theme.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Models/User.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Services/AuthenticationService.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Services/NetworkService.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Services/PropertyStateManager.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Views/AnalyticsView.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Views/Authentication/LoginView.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Views/Authentication/RegisterView.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Views/FavoritesView.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Views/FilterView.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Views/HomeView.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Views/MainTabView.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Views/ProfileView.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Views/PropertyCardView.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Views/PropertyListView.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Views/SearchView.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/Views/TestCertificateView.swift" : {
+
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa/casas_lisboaApp.swift" : {
+
+  }
+}

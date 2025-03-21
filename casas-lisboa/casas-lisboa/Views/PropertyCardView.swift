@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftUIX
 
 // Add at the top level, before CachedAsyncImage
 private let imageCache = NSCache<NSString, UIImage>()
@@ -13,12 +14,15 @@ struct CachedAsyncImage: View {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
+                    .transition(.opacity)
             } else {
                 Rectangle()
                     .fill(Theme.Colors.surface)
                     .overlay {
-                        ProgressView()
-                            .tint(.white)
+                        ActivityIndicator()
+                            .animated(true)
+                            .style(.large)
+                            .tintColor(.white)
                     }
             }
         }
@@ -42,7 +46,9 @@ struct CachedAsyncImage: View {
                     if let loadedImage = UIImage(data: data) {
                         imageCache.setObject(loadedImage, forKey: url.absoluteString as NSString)
                         DispatchQueue.main.async {
-                            self.image = loadedImage
+                            withAnimation {
+                                self.image = loadedImage
+                            }
                         }
                     }
                 } catch {
@@ -54,7 +60,9 @@ struct CachedAsyncImage: View {
                 if let data = data, let loadedImage = UIImage(data: data) {
                     imageCache.setObject(loadedImage, forKey: url.absoluteString as NSString)
                     DispatchQueue.main.async {
-                        self.image = loadedImage
+                        withAnimation {
+                            self.image = loadedImage
+                        }
                     }
                 }
             }.resume()
@@ -69,6 +77,8 @@ struct PropertyCardView: View {
     var onContactedChange: ((Property) -> Void)?
     var onDiscard: ((Property) -> Void)?
     
+    @StateObject private var stateManager = PropertyStateManager.shared
+    
     // Animation state
     @State private var isPressed = false
     @State private var showContactSheet = false
@@ -77,6 +87,40 @@ struct PropertyCardView: View {
     
     // Image preloading
     @State private var preloadedImages: [Int: UIImage] = [:]
+    
+    private func handleFavoriteToggle() {
+        print("🔄 Toggling favorite for house: \(property.houseId)")
+        property.isFavorite.toggle()
+        stateManager.toggleFavorite(property.houseId)
+        Theme.Haptics.impact(style: .light)
+        onFavoriteToggle(property)
+    }
+    
+    private func handleDiscard() {
+        print("🗑️ Attempting to discard house: \(property.houseId)")
+        print("🗑️ Property details - ID: \(property.houseId), Location: \(property.location), Price: \(property.formattedPrice)")
+        
+        withAnimation(Theme.Animation.spring) {
+            Theme.Haptics.notification(type: .success)
+            print("🗑️ Calling onDiscard callback")
+            onDiscard?(property)
+        }
+    }
+    
+    private func handleContactedChange() {
+        print("✉️ Toggling contacted for house: \(property.houseId)")
+        property.contacted.toggle()
+        stateManager.toggleContacted(property.houseId)
+        Theme.Haptics.impact()
+        onContactedChange?(property)
+    }
+    
+    private func handleVisit() {
+        print("🔗 Visiting URL for house: \(property.houseId)")
+        if let url = URL(string: property.url) {
+            UIApplication.shared.open(url)
+        }
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -118,14 +162,10 @@ struct PropertyCardView: View {
                     // Top row with favorite button
                     HStack {
                         Spacer()
-                        Button(action: {
-                            property.isFavorite.toggle()
-                            Theme.Haptics.impact(style: .light)
-                            onFavoriteToggle(property)
-                        }) {
-                            Image(systemName: property.isFavorite ? "heart.fill" : "heart")
+                        Button(action: handleFavoriteToggle) {
+                            Image(systemName: stateManager.isFavorite(property.houseId) ? "heart.fill" : "heart")
                                 .font(.title2)
-                                .foregroundColor(property.isFavorite ? .red : .white)
+                                .foregroundColor(stateManager.isFavorite(property.houseId) ? .red : .white)
                                 .frame(width: 44, height: 44)
                                 .background(Color.black.opacity(0.3))
                                 .clipShape(Circle())
@@ -134,54 +174,57 @@ struct PropertyCardView: View {
                         .padding()
                     }
                     
+                    Spacer()
+                    
                     // Image navigation
                     if property.imageUrls.count > 1 {
-                        HStack {
-                            // Previous button
-                            Button(action: {
-                                guard !isAnimating else { return }
-                                navigateImage(direction: -1)
-                            }) {
-                                Image(systemName: "chevron.left")
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.white)
-                                    .frame(width: 40, height: 40)
-                                    .background(Color.black.opacity(0.3))
-                                    .clipShape(Circle())
+                        VStack(spacing: 8) {
+                            HStack {
+                                // Previous button
+                                Button(action: {
+                                    guard !isAnimating else { return }
+                                    navigateImage(direction: -1)
+                                }) {
+                                    Image(systemName: "chevron.left")
+                                        .font(.title3)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
+                                        .frame(width: 40, height: 40)
+                                        .background(Color.black.opacity(0.3))
+                                        .clipShape(Circle())
+                                }
+                                
+                                Spacer()
+                                
+                                // Next button
+                                Button(action: {
+                                    guard !isAnimating else { return }
+                                    navigateImage(direction: 1)
+                                }) {
+                                    Image(systemName: "chevron.right")
+                                        .font(.title3)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
+                                        .frame(width: 40, height: 40)
+                                        .background(Color.black.opacity(0.3))
+                                        .clipShape(Circle())
+                                }
                             }
+                            .padding(.horizontal, 16)
                             
-                            Spacer()
-                            
-                            // Next button
-                            Button(action: {
-                                guard !isAnimating else { return }
-                                navigateImage(direction: 1)
-                            }) {
-                                Image(systemName: "chevron.right")
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.white)
-                                    .frame(width: 40, height: 40)
-                                    .background(Color.black.opacity(0.3))
-                                    .clipShape(Circle())
-                            }
+                            // Image counter
+                            Text("\(currentImageIndex + 1)/\(property.imageUrls.count)")
+                                .font(.caption)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.black.opacity(0.3))
+                                .cornerRadius(12)
+                                .padding(.bottom, 8)
                         }
-                        .padding(.horizontal, 16)
-                        
-                        Spacer()
-                        
-                        // Image counter
-                        Text("\(currentImageIndex + 1)/\(property.imageUrls.count)")
-                            .font(.caption)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.black.opacity(0.3))
-                            .cornerRadius(12)
-                            .padding(.bottom, 8)
                     }
                 }
+                .frame(maxHeight: 200)
             }
             .background(Theme.Colors.surface)
             
@@ -216,11 +259,7 @@ struct PropertyCardView: View {
                 // Action buttons
                 HStack(spacing: Theme.Layout.spacing) {
                     // Visit button
-                    Button(action: {
-                        if let url = URL(string: property.url) {
-                            UIApplication.shared.open(url)
-                        }
-                    }) {
+                    Button(action: handleVisit) {
                         HStack {
                             Image(systemName: "arrow.forward.circle.fill")
                             Text("Visit")
@@ -234,11 +273,7 @@ struct PropertyCardView: View {
                     }
                     
                     // Contacted button
-                    Button(action: {
-                        property.contacted.toggle()
-                        Theme.Haptics.impact()
-                        onContactedChange?(property)
-                    }) {
+                    Button(action: handleContactedChange) {
                         Image(systemName: property.contacted ? "checkmark.circle.fill" : "envelope.fill")
                             .font(.title3)
                             .foregroundColor(property.contacted ? Theme.Colors.primary : .white)
@@ -247,12 +282,7 @@ struct PropertyCardView: View {
                     }
                     
                     // Delete/Discard button
-                    Button(action: {
-                        withAnimation(Theme.Animation.spring) {
-                            Theme.Haptics.notification(type: .success)
-                            onDiscard?(property)
-                        }
-                    }) {
+                    Button(action: handleDiscard) {
                         Image(systemName: "trash.fill")
                             .font(.title3)
                             .foregroundColor(.red)
@@ -288,6 +318,8 @@ struct PropertyCardView: View {
             ContactOptionsSheet(property: property)
         }
         .onAppear {
+            print("📱 PropertyCard appeared for house: \(property.houseId)")
+            stateManager.setInitialState(for: property)
             preloadImages()
         }
         .onChange(of: currentImageIndex) { _ in
@@ -349,11 +381,19 @@ struct PropertySpec: View {
     let text: String
     
     var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-                .foregroundColor(Theme.Colors.secondary)
-            Text(text)
-                .foregroundColor(Theme.Colors.secondary)
+        if !text.isEmpty {
+            HStack(spacing: 4) {
+                Image(systemName: icon)
+                    .foregroundColor(Theme.Colors.secondary)
+                    .imageScale(.medium)
+                    .font(.system(.body, design: .rounded))
+                Text(text)
+                    .foregroundColor(Theme.Colors.secondary)
+                    .fontWeight(.medium)
+            }
+            .contentShape(Rectangle())
+        } else {
+            EmptyView()
         }
     }
 }

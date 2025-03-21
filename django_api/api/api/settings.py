@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 import json
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -46,12 +47,17 @@ INSTALLED_APPS = [
     'corsheaders',  # Add corsheaders to INSTALLED_APPS
     'django_extensions',  # Add django-extensions
     'houses',
+    'users',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 100
@@ -193,3 +199,26 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Custom user model
+AUTH_USER_MODEL = 'users.User'
+
+# JWT settings
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': True,
+}
+
+# Media files configuration for profile pictures
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Frontend URL for password reset
+FRONTEND_URL = 'http://localhost:3000'  # Change this to your iOS app's deep link URL in production
+
+# Email settings (configure these in production)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
+DEFAULT_FROM_EMAIL = 'noreply@casaslisboa.com'

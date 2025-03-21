@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftUIX
 
 struct Theme {
     // MARK: - Colors
@@ -12,12 +13,12 @@ struct Theme {
         
         // Gradients
         static let cardGradient = LinearGradient(
-            colors: [Color.black.opacity(0.7), Color.black.opacity(0.8)],
+            gradient: Gradient(colors: [Color.black.opacity(0.7), Color.black.opacity(0.8)]),
             startPoint: .top,
             endPoint: .bottom
         )
         
-        // Glass effect
+        // Glass effect with SwiftUIX's blur capabilities
         static let glassBackground = Color.white.opacity(0.1)
         static let glassBorder = Color.white.opacity(0.2)
     }
@@ -61,12 +62,18 @@ struct Theme {
 extension View {
     func glassBackground() -> some View {
         self.background(
-            RoundedRectangle(cornerRadius: Theme.Layout.cornerRadius)
-                .fill(Theme.Colors.glassBackground)
-                .overlay(
-                    RoundedRectangle(cornerRadius: Theme.Layout.cornerRadius)
-                        .stroke(Theme.Colors.glassBorder, lineWidth: 0.5)
-                )
+            ZStack {
+                if #available(iOS 14.0, *) {
+                    VisualEffectBlurView(blurStyle: .systemThinMaterial)
+                        .cornerRadius(Theme.Layout.cornerRadius)
+                } else {
+                    Rectangle()
+                        .fill(Theme.Colors.glassBackground)
+                        .cornerRadius(Theme.Layout.cornerRadius)
+                }
+                RoundedRectangle(cornerRadius: Theme.Layout.cornerRadius)
+                    .stroke(Theme.Colors.glassBorder, lineWidth: 0.5)
+            }
         )
     }
     

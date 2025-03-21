@@ -246,7 +246,7 @@ struct FilterViewModifier: ViewModifier {
                 Color.black.opacity(0.4)
                     .ignoresSafeArea()
                     .onTapGesture {
-                        withAnimation(Theme.Animation.spring) {
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
                             if isExpanded {
                                 isExpanded = false
                             } else {
@@ -254,6 +254,7 @@ struct FilterViewModifier: ViewModifier {
                             }
                         }
                     }
+                    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
                 
                 VStack {
                     Spacer()
@@ -264,15 +265,41 @@ struct FilterViewModifier: ViewModifier {
                         .background(
                             Theme.Colors.surface
                                 .cornerRadius(32, corners: [.topLeft, .topRight])
+                                .drawingGroup()
                         )
-                        .transition(.move(edge: .bottom))
+                        .compositingGroup()
+                        .transition(
+                            .asymmetric(
+                                insertion: AnyTransition.opacity
+                                    .combined(with: .move(edge: .bottom))
+                                    .combined(with: .scale(scale: 0.95, anchor: .bottom))
+                                    .animation(.spring(response: 0.5, dampingFraction: 0.85, blendDuration: 0.1)),
+                                removal: AnyTransition.opacity
+                                    .combined(with: .move(edge: .bottom))
+                                    .combined(with: .scale(scale: 0.95, anchor: .bottom))
+                                    .animation(.spring(response: 0.5, dampingFraction: 0.85, blendDuration: 0.1))
+                            )
+                        )
                 }
                 .ignoresSafeArea()
-                .transition(.opacity)
-                .animation(Theme.Animation.spring, value: isPresented)
-                .animation(Theme.Animation.spring, value: isExpanded)
             }
         }
+        .animation(
+            .spring(
+                response: 0.5,
+                dampingFraction: 0.85,
+                blendDuration: 0.1
+            ),
+            value: isPresented
+        )
+        .animation(
+            .spring(
+                response: 0.5,
+                dampingFraction: 0.85,
+                blendDuration: 0.1
+            ),
+            value: isExpanded
+        )
     }
 }
 

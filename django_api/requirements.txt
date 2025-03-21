@@ -22,3 +22,5 @@ schedule==1.2.1
 pyOpenSSL
 django-extensions==3.2.3
 Werkzeug==3.0.1 
+djangorestframework-simplejwt 
+Pillow

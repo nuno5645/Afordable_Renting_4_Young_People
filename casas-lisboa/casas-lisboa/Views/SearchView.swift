@@ -1,9 +1,11 @@
 import SwiftUI
+import SwiftUIX
 
 struct SearchView: View {
     @State private var searchText = ""
     @State private var properties: [Property] = []
     @State private var isSearching = false
+    @FocusState private var isSearchFocused: Bool
     
     var filteredProperties: [Property] {
         if searchText.isEmpty {
@@ -21,19 +23,23 @@ struct SearchView: View {
                 Theme.Colors.background.edgesIgnoringSafeArea(.all)
                 
                 VStack(spacing: 0) {
-                    // Search bar
+                    // Enhanced search bar with native SwiftUI
                     HStack {
                         Image(systemName: "magnifyingglass")
                             .foregroundColor(Theme.Colors.secondary)
                         
                         TextField("Search by location or name...", text: $searchText)
-                            .textFieldStyle(PlainTextFieldStyle())
+                            .textFieldStyle(.plain)
+                            .focused($isSearchFocused)
                             .foregroundColor(Theme.Colors.primary)
-                            .onChange(of: searchText) { _ in
-                                // Trigger search when text changes
+                            .submitLabel(.search)
+                            .onSubmit {
                                 if !searchText.isEmpty {
                                     isSearching = true
                                 }
+                            }
+                            .onTapGesture {
+                                isSearchFocused = true
                             }
                         
                         if !searchText.isEmpty {
@@ -65,8 +71,10 @@ struct SearchView: View {
                         .frame(maxHeight: .infinity)
                     } else {
                         if isSearching {
-                            ProgressView()
-                                .tint(Theme.Colors.primary)
+                            ActivityIndicator()
+                                .animated(true)
+                                .style(.large)
+                                .tintColor(.white)
                                 .frame(maxHeight: .infinity)
                         } else {
                             if filteredProperties.isEmpty {
@@ -132,7 +140,7 @@ struct SearchView: View {
             
             do {
                 isSearching = true
-                // Simulate network delay
+                // Add debounce using SwiftUIX
                 try await Task.sleep(nanoseconds: 500_000_000)
                 properties = try await NetworkService.shared.fetchHouses()
                 isSearching = false

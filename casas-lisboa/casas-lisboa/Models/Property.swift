@@ -7,6 +7,7 @@ struct Property: Identifiable, Equatable {
     let location: String
     let bedrooms: Int
     let area: Double
+    let areaStr: String
     let source: String
     let hasPhoto: Bool
     var isFavorite: Bool
@@ -24,7 +25,22 @@ struct Property: Identifiable, Equatable {
     
     // Computed property for formatted area
     var formattedArea: String {
-        return String(format: "%.2f m²", area)
+        if !areaStr.isEmpty && areaStr != "0" {
+            // If areaStr already contains m², return it as is
+            if areaStr.contains("m²") {
+                return areaStr
+            }
+            // Otherwise add m² to it
+            return "\(areaStr) m²"
+        }
+        
+        // If areaStr is empty, "0", or area is 0, return empty string
+        if areaStr.isEmpty || areaStr == "0" || area == 0 {
+            return ""
+        }
+        
+        // Format numeric area with m²
+        return String(format: "%.0f m²", area)
     }
     
     // Computed property for formatted scraped date
@@ -50,6 +66,7 @@ extension Property {
             location: "N/A, Odivelas",
             bedrooms: 1,
             area: 0.0,
+            areaStr: "N/A",
             source: "Casa SAPO",
             hasPhoto: false,
             isFavorite: false,
@@ -67,6 +84,7 @@ extension Property {
             location: "Benfica, Lisboa",
             bedrooms: 1,
             area: 45.0,
+            areaStr: "45 m²",
             source: "Idealista",
             hasPhoto: false,
             isFavorite: false,

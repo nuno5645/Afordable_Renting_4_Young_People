@@ -1,0 +1,24 @@
+{
+  "originHash" : "ece18d55fbca737130f2bc01e01b5a9acbe1d34c71aa27998a69e740c7849527",
+  "pins" : [
+    {
+      "identity" : "keychain-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/evgenyneu/keychain-swift",
+      "state" : {
+        "revision" : "5e1b02b6a9dac2a759a1d5dbc175c86bd192a608",
+        "version" : "24.0.0"
+      }
+    },
+    {
+      "identity" : "swiftuix",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SwiftUIX/SwiftUIX.git",
+      "state" : {
+        "revision" : "e984fd2e08140ad5a95d084be38fe02b774bc15d",
+        "version" : "0.2.3"
+      }
+    }
+  ],
+  "version" : 3
+}

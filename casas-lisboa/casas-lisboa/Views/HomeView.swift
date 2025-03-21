@@ -5,6 +5,7 @@ import MessageUI
 struct CustomNavigationBar: View {
     let title: String
     let onFilterTap: () -> Void
+    @State private var isPressed = false
     
     var body: some View {
         HStack {
@@ -12,25 +13,28 @@ struct CustomNavigationBar: View {
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(Theme.Colors.primary)
-                .lineLimit(1)
             
             Spacer()
             
-            Button(action: onFilterTap) {
+            Button(action: {
+                isPressed.toggle()
+                onFilterTap()
+            }) {
                 HStack(spacing: 6) {
                     Image(systemName: "line.3.horizontal.decrease")
+                        .rotationEffect(.degrees(isPressed ? -10 : 0))
+                        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
                     Text("Filters")
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
                 .glassBackground()
             }
-            .buttonStyle(BorderlessButtonStyle())
+            .filterButtonStyle()
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
         .background(Theme.Colors.background)
-        .drawingGroup() // Enables Metal-accelerated rendering
     }
 }
 
@@ -55,7 +59,6 @@ struct ContactOptionsSheet: View {
                             dismiss()
                         }
                     }
-                    .listRowBackground(Theme.Colors.surface)
                     
                     ContactOptionButton(
                         icon: "envelope.fill",
@@ -64,7 +67,6 @@ struct ContactOptionsSheet: View {
                     ) {
                         showingMailView = true
                     }
-                    .listRowBackground(Theme.Colors.surface)
                     
                     ContactOptionButton(
                         icon: "message.fill",
@@ -76,15 +78,12 @@ struct ContactOptionsSheet: View {
                             dismiss()
                         }
                     }
-                    .listRowBackground(Theme.Colors.surface)
                 } header: {
                     Text("Contact Options")
                 } footer: {
                     Text("Property: \(property.location)")
-                        .lineLimit(2)
                 }
             }
-            .listStyle(InsetGroupedListStyle())
             .navigationTitle("Contact Agent")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -92,7 +91,6 @@ struct ContactOptionsSheet: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .buttonStyle(BorderlessButtonStyle())
                 }
             }
         }
@@ -160,188 +158,276 @@ struct MailView: UIViewControllerRepresentable {
     }
 }
 
-// MARK: - Property List View
-struct PropertyListView: View {
-    let properties: [Property]
-    let onFavoriteToggle: (Property) -> Void
-    let onDelete: (Property) -> Void
-    let onContactedChange: (Property) -> Void
-    let onContactAgent: (Property) -> Void
-    let onDiscard: (Property) -> Void
+// MARK: - Property Card Container
+struct PropertyCardContainer: View {
+    let property: Property
+    let onPropertyUpdate: (Property) -> Void
+    let onPropertyRemove: (Property) -> Void
+    @StateObject private var stateManager = PropertyStateManager.shared
     
     var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 0) {
-                ForEach(properties) { property in
-                    PropertyCardView(
-                        property: property,
-                        onFavoriteToggle: onFavoriteToggle,
-                        onDelete: { onDelete($0) },
-                        onContactedChange: { onContactedChange($0) },
-                        onDiscard: { onDiscard($0) }
-                    )
-                    .transition(.opacity.combined(with: .move(edge: .leading)))
+        PropertyCardView(
+            property: property,
+            onFavoriteToggle: { updatedProperty in
+                print("🏠 Handling favorite toggle for house: \(updatedProperty.houseId)")
+                Task {
+                    do {
+                        try await NetworkService.shared.toggleFavorite(for: updatedProperty.houseId)
+                        onPropertyUpdate(updatedProperty)
+                    } catch {
+                        print("❌ Failed to toggle favorite: \(error.localizedDescription)")
+                        // Revert the state if the API call fails
+                        stateManager.toggleFavorite(updatedProperty.houseId)
+                    }
+                }
+            },
+            onDelete: nil,
+            onContactedChange: { property in
+                print("🏠 Handling contacted change for house: \(property.houseId)")
+                Task {
+                    do {
+                        try await NetworkService.shared.toggleContacted(for: property.houseId)
+                        onPropertyUpdate(property)
+                    } catch {
+                        print("❌ Failed to toggle contacted: \(error.localizedDescription)")
+                        // Revert the state if the API call fails
+                        stateManager.toggleContacted(property.houseId)
+                    }
+                }
+            },
+            onDiscard: { property in
+                print("🏠 Starting discard process for house: \(property.houseId)")
+                // Update local state immediately
+                stateManager.toggleDiscarded(property.houseId)
+                
+                // Remove from UI immediately
+                onPropertyRemove(property)
+                
+                // Then update the server
+                Task {
+                    do {
+                        print("🏠 Calling toggleDiscarded API for house: \(property.houseId)")
+                        try await NetworkService.shared.toggleDiscarded(for: property.houseId)
+                        print("🏠 API call successful")
+                    } catch {
+                        print("❌ Failed to discard property: \(error.localizedDescription)")
+                        print("❌ Error details: \(error)")
+                        // Note: We don't revert the UI state here since the item is already removed
+                    }
                 }
             }
-            .padding(.bottom, 80)
-        }
-        .scrollIndicators(.hidden)
-        .animation(Theme.Animation.spring, value: properties)
+        )
+        .transition(.opacity.combined(with: .move(edge: .leading)))
     }
 }
 
 // MARK: - Home View
 struct HomeView: View {
-    @StateObject private var filterOptions = FilterOptions()
+    @StateObject private var viewModel = HomeViewModel()
+    @EnvironmentObject var authService: AuthenticationService
+    @State private var showingLoginSheet = false
+    @State private var isRefreshingToken = false
     @State private var properties: [Property] = []
     @State private var showFilterSheet = false
     @State private var selectedProperty: Property?
-    @State private var showContactSheet = false
     @State private var searchText = ""
-    @State private var isLoading = false
-    @State private var error: Error?
-    @Namespace private var scrollToTop
+    @State private var showContactSheet = false
+    @StateObject private var stateManager = PropertyStateManager.shared
     
     var filteredProperties: [Property] {
-        filterOptions.filterProperties(properties)
+        FilterOptions().filterProperties(properties)
     }
     
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Theme.Colors.background.edgesIgnoringSafeArea(.all)
-                
-                VStack(spacing: 0) {
-                    CustomNavigationBar(
-                        title: "Lisbon Rentals",
-                        onFilterTap: { 
-                            Theme.Haptics.impact(style: .light)
-                            showFilterSheet = true 
+        NavigationView {
+            Group {
+                if viewModel.isLoading {
+                    LoadingView()
+                } else if let error = viewModel.error {
+                    ErrorView(error: error) {
+                        Task {
+                            await loadProperties()
                         }
-                    )
-                    
-                    if isLoading {
-                        Spacer()
-                        ProgressView()
-                            .tint(.white)
-                        Spacer()
-                    } else if let error = error {
-                        Spacer()
-                        VStack(spacing: 16) {
-                            Image(systemName: "exclamationmark.triangle")
-                                .font(.largeTitle)
-                                .foregroundColor(.yellow)
-                            Text("Error loading properties")
-                                .font(.headline)
-                            Text(error.localizedDescription)
-                                .font(.subheadline)
-                                .foregroundColor(Theme.Colors.secondary)
-                            Button("Retry") {
-                                Task {
-                                    await loadProperties()
-                                }
-                            }
-                            .padding()
-                            .glassBackground()
+                    }
+                } else {
+                    propertyList
+                }
+            }
+            .navigationTitle("Houses")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        Task {
+                            await loadProperties()
                         }
-                        .padding()
-                        Spacer()
-                    } else {
-                        ScrollViewReader { proxy in
-                            ScrollView(.vertical, showsIndicators: false) {
-                                VStack(spacing: 0) {
-                                    // Invisible anchor view at the top
-                                    Color.clear
-                                        .frame(height: 0)
-                                        .id(scrollToTop)
-                                    
-                                    LazyVStack(spacing: 0) {
-                                        ForEach(filteredProperties) { property in
-                                            PropertyCardView(
-                                                property: property,
-                                                onFavoriteToggle: { updatedProperty in
-                                                    if let index = properties.firstIndex(where: { $0.id == updatedProperty.id }) {
-                                                        properties[index].isFavorite = updatedProperty.isFavorite
-                                                    }
-                                                },
-                                                onDelete: { property in
-                                                    withAnimation {
-                                                        properties.removeAll { $0.id == property.id }
-                                                    }
-                                                },
-                                                onContactedChange: { updatedProperty in
-                                                    if let index = properties.firstIndex(where: { $0.id == updatedProperty.id }) {
-                                                        properties[index].contacted = updatedProperty.contacted
-                                                    }
-                                                },
-                                                onDiscard: { property in
-                                                    Task {
-                                                        do {
-                                                            try await NetworkService.shared.toggleDiscarded(for: property.houseId)
-                                                            if let index = properties.firstIndex(where: { $0.id == property.id }) {
-                                                                properties[index].discarded = true
-                                                                withAnimation {
-                                                                    properties.removeAll { $0.id == property.id }
-                                                                }
-                                                            }
-                                                        } catch {
-                                                            print("❌ Failed to discard property: \(error.localizedDescription)")
-                                                        }
-                                                    }
-                                                }
-                                            )
-                                            .transition(.opacity.combined(with: .move(edge: .leading)))
-                                        }
-                                    }
-                                    .padding(.bottom, 20)
-                                }
-                            }
-                            .scrollIndicators(.hidden)
-                            .animation(Theme.Animation.spring, value: properties)
-                            .onReceive(NotificationCenter.default.publisher(for: .scrollHomeToTop)) { _ in
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                                    proxy.scrollTo(scrollToTop, anchor: .top)
-                                }
-                            }
-                            .simultaneousGesture(DragGesture().onChanged { _ in })
-                        }
+                    }) {
+                        Image(systemName: "arrow.clockwise")
                     }
                 }
             }
         }
+        .sheet(isPresented: $showingLoginSheet) {
+            LoginView()
+        }
+        .onAppear {
+            Task {
+                await loadProperties()
+            }
+        }
         .accentColor(Theme.Colors.primary)
         .preferredColorScheme(.dark)
-        .filterSheet(isPresented: $showFilterSheet, filterOptions: filterOptions)
+        .filterSheet(isPresented: $showFilterSheet, filterOptions: FilterOptions())
         .sheet(isPresented: $showContactSheet, content: {
             if let property = selectedProperty {
                 ContactOptionsSheet(property: property)
             }
         })
-        .task {
+    }
+    
+    private var propertyList: some View {
+        ScrollView {
+            LazyVStack(spacing: 16) {
+                ForEach(filteredProperties) { property in
+                    PropertyCardContainer(
+                        property: property,
+                        onPropertyUpdate: { updatedProperty in
+                            if let index = properties.firstIndex(where: { $0.id == updatedProperty.id }) {
+                                withAnimation {
+                                    if updatedProperty.isFavorite != properties[index].isFavorite {
+                                        properties[index].isFavorite.toggle()
+                                    }
+                                    if updatedProperty.contacted != properties[index].contacted {
+                                        properties[index].contacted.toggle()
+                                    }
+                                }
+                            }
+                        },
+                        onPropertyRemove: { property in
+                            withAnimation {
+                                properties.removeAll { $0.id == property.id }
+                            }
+                        }
+                    )
+                }
+            }
+            .padding(.vertical)
+        }
+        .refreshable {
             await loadProperties()
         }
     }
     
     private func loadProperties() async {
         print("📱 HomeView: Starting to load properties")
-        isLoading = true
-        error = nil
+        viewModel.isLoading = true
+        viewModel.error = nil
         
         do {
             print("📱 HomeView: Calling NetworkService.fetchHouses()")
             properties = try await NetworkService.shared.fetchHouses()
-            print("📱 HomeView: Successfully loaded \(properties.count) properties")
+            properties.forEach { stateManager.setInitialState(for: $0) }
+            viewModel.isLoading = false
+            print("📱 HomeView: Finished loading properties, isLoading set to false")
         } catch {
             print("❌ HomeView: Error loading properties: \(error)")
             print("❌ HomeView: Error Description: \(error.localizedDescription)")
-            self.error = error
+            
+            if let urlError = error as? URLError,
+               urlError.code == .userAuthenticationRequired {
+                print("🔐 HomeView: Authentication required, attempting to refresh token")
+                
+                // Prevent multiple simultaneous refresh attempts
+                guard !isRefreshingToken else { return }
+                isRefreshingToken = true
+                
+                do {
+                    // Try to refresh the token
+                    _ = try await authService.refreshToken()
+                    
+                    // Token refresh successful, retry loading properties
+                    print("🔐 HomeView: Token refreshed successfully, retrying property load")
+                    properties = try await NetworkService.shared.fetchHouses()
+                    properties.forEach { stateManager.setInitialState(for: $0) }
+                    viewModel.isLoading = false
+                } catch {
+                    print("❌ HomeView: Token refresh failed: \(error)")
+                    // If token refresh fails, show login sheet
+                    showingLoginSheet = true
+                    viewModel.error = error
+                }
+                
+                isRefreshingToken = false
+            } else {
+                viewModel.error = error
+            }
+            
+            viewModel.isLoading = false
         }
-        
-        print("📱 HomeView: Finished loading properties, isLoading set to false")
-        isLoading = false
     }
 }
 
-#Preview {
-    HomeView()
+class HomeViewModel: ObservableObject {
+    @Published var properties: [Property] = []
+    @Published var isLoading = false
+    @Published var error: Error?
+}
+
+// MARK: - Helper Views
+struct LoadingView: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: Theme.Colors.primary))
+                .scaleEffect(1.5)
+            Text("Loading properties...")
+                .foregroundColor(Theme.Colors.secondary)
+        }
+    }
+}
+
+struct ErrorView: View {
+    let error: Error
+    let onRetry: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.largeTitle)
+                .foregroundColor(.yellow)
+            Text("Error loading properties")
+                .font(.headline)
+            Text(error.localizedDescription)
+                .font(.subheadline)
+                .foregroundColor(Theme.Colors.secondary)
+            Button("Retry", action: onRetry)
+                .padding()
+                .glassBackground()
+        }
+        .padding()
+    }
+}
+
+// Button style extension for animation
+extension View {
+    func filterButtonStyle() -> some View {
+        self.buttonStyle(FilterButtonStyle())
+    }
+}
+
+// Custom button style for filter button animation
+struct FilterButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.92 : 1.0)
+            .brightness(configuration.isPressed ? 0.05 : 0)
+            .opacity(configuration.isPressed ? 0.9 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0.1), value: configuration.isPressed)
+    }
+}
+
+struct HomeView_Previews: PreviewProvider {
+    static var previews: some View {
+        HomeView()
+            .environmentObject(AuthenticationService())
+    }
 } 

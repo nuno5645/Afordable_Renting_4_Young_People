@@ -1,0 +1,27 @@
+Target dependency graph (14 targets)
+Target 'casas-lisboaUITests' in project 'casas-lisboa' (no dependencies)
+Target 'casas-lisboaUITests' in project 'casas-lisboa'
+➜ Explicit dependency on target 'casas-lisboa' in project 'casas-lisboa'
+Target 'casas-lisboaUITests' in project 'casas-lisboa'
+➜ Explicit dependency on target 'casas-lisboa' in project 'casas-lisboa'
+Target 'casas-lisboaTests' in project 'casas-lisboa' (no dependencies)
+Target 'casas-lisboaTests' in project 'casas-lisboa'
+➜ Explicit dependency on target 'casas-lisboa' in project 'casas-lisboa'
+Target 'casas-lisboaTests' in project 'casas-lisboa'
+➜ Explicit dependency on target 'casas-lisboa' in project 'casas-lisboa'
+Target 'casas-lisboa' in project 'casas-lisboa'
+➜ Explicit dependency on target 'SwiftUIX' in project 'SwiftUIX'
+Target 'SwiftUIX' in project 'SwiftUIX'
+➜ Explicit dependency on target '_SwiftUIX' in project 'SwiftUIX'
+➜ Explicit dependency on target 'SwiftUIX' in project 'SwiftUIX'
+Target 'SwiftUIX' in project 'SwiftUIX'
+➜ Explicit dependency on target '_SwiftUIX' in project 'SwiftUIX'
+Target '_SwiftUIX' in project 'SwiftUIX' (no dependencies)
+Target 'casas-lisboa' in project 'casas-lisboa'
+➜ Explicit dependency on target 'SwiftUIX' in project 'SwiftUIX'
+Target 'SwiftUIX' in project 'SwiftUIX'
+➜ Explicit dependency on target '_SwiftUIX' in project 'SwiftUIX'
+➜ Explicit dependency on target 'SwiftUIX' in project 'SwiftUIX'
+Target 'SwiftUIX' in project 'SwiftUIX'
+➜ Explicit dependency on target '_SwiftUIX' in project 'SwiftUIX'
+Target '_SwiftUIX' in project 'SwiftUIX' (no dependencies)

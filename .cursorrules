@@ -1,0 +1,105 @@
+# Lisbon Housing Scraper - Cursor Rules
+# This file defines the project structure and naming conventions for the iOS app and Django API
+
+# Swift Code Style Rules
+[*.swift]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+max_line_length = 100
+
+# Swift Naming Conventions
+swift_class_naming = PascalCase
+swift_function_naming = camelCase
+swift_variable_naming = camelCase
+swift_constant_naming = camelCase
+swift_enum_naming = PascalCase
+swift_property_naming = camelCase
+swift_protocol_naming = PascalCase
+
+# Python Code Style Rules for Django API
+[*.py]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+max_line_length = 120
+
+# Django Naming Conventions
+django_model_naming = PascalCase
+django_view_naming = snake_case
+django_function_naming = snake_case
+django_variable_naming = snake_case
+django_constant_naming = UPPER_CASE_WITH_UNDERSCORES
+django_url_naming = kebab-case
+
+# Project Structure Rules
+[project]
+ios_app_directory = casas-lisboa
+django_api_directory = django_api
+frontend_directory = frontend
+
+# iOS App Structure
+[ios_app]
+model_directory = Models
+view_directory = Views
+service_directory = Services
+test_directory = casas-lisboaTests
+ui_test_directory = casas-lisboaUITests
+
+# Django API Structure
+[django_api]
+app_directory = api
+houses_app_directory = houses
+settings_directory = config
+data_directory = data
+logs_directory = logs
+
+# API Endpoint Rules
+[api_endpoints]
+base_url = /api
+houses_endpoint = /houses/
+status_endpoint = /status/
+model_property_mapping = {
+    "name": "name",
+    "zone": "location",
+    "price": "price",
+    "url": "url",
+    "bedrooms": "bedrooms",
+    "area": "area",
+    "area_str": "areaStr",
+    "source": "source",
+    "image_urls": "imageUrls",
+    "contacted": "contacted",
+    "favorite": "isFavorite",
+    "discarded": "discarded",
+    "house_id": "houseId",
+    "scraped_at": "scrapedAt"
+}
+
+# File Naming Conventions
+[file_naming]
+swift_model_files = PascalCase.swift
+swift_view_files = PascalCase.swift
+swift_service_files = PascalCase.swift
+python_model_files = models.py
+python_view_files = views.py
+python_serializer_files = serializers.py
+python_url_files = urls.py
+
+# Custom Rules for iOS - Django API Integration
+[integration]
+date_format = ISO8601
+network_timeout = 30
+scraper_network_timeout = 1200
+error_logging = true
+debug_logs = true
+image_separator = |||
+max_image_count = 10
+handle_missing_values = true
+fallback_image_url = "" 

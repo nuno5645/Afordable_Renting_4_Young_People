@@ -1,0 +1,54 @@
+{
+  "buildCommand" : {
+    "command" : "prepareForIndexing",
+    "enableIndexBuildArena" : true,
+    "targets" : null
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "a7a4d4e92cf59ddf72f7ac3f845c0c389341a08865e3223921c2a0ed0a038a78"
+    },
+    {
+      "guid" : "a7a4d4e92cf59ddf72f7ac3f845c0c3890c7bf6351896001d92c088671a1cb29"
+    },
+    {
+      "guid" : "a7a4d4e92cf59ddf72f7ac3f845c0c38e48bfd661518e69c4ca6481143c3731a"
+    }
+  ],
+  "containerPath" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboa.xcodeproj",
+  "continueBuildingAfterErrors" : true,
+  "dependencyScope" : "workspace",
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "indexbuild",
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData/casas-lisboa/Index.noindex/Build/Intermediates.noindex",
+      "buildProductsPath" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData/casas-lisboa/Index.noindex/Build/Products",
+      "derivedDataPath" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData",
+      "indexDataStoreFolderPath" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData/casas-lisboa/Index.noindex/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData/casas-lisboa/Index.noindex/PrecompiledHeaders",
+      "indexRegularBuildIntermediatesPath" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData/casas-lisboa/Build/Intermediates.noindex",
+      "indexRegularBuildProductsPath" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData/casas-lisboa/Build/Products",
+      "pchPath" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData/casas-lisboa/Index.noindex/Build/Intermediates.noindex/PrecompiledHeaders"
+    },
+    "configurationName" : "Debug",
+    "overrides" : {
+      "synthesized" : {
+        "table" : {
+          "ENABLE_PREVIEWS" : "NO",
+          "ENABLE_XOJIT_PREVIEWS" : "NO",
+          "ONLY_ACTIVE_ARCH" : "YES"
+        }
+      }
+    }
+  },
+  "qos" : "utility",
+  "schemeCommand" : "launch",
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}

@@ -28,29 +28,123 @@ This project aims to level the playing field by providing young house hunters wi
 4. Save time by automating the monitoring of multiple real estate websites
 5. Increase your chances of securing a viewing appointment
 
-The tool automatically scrapes multiple Portuguese real estate websites (Idealista, ImoVirtual, Remax, ERA) and aggregates rental listings based on specific filters and price ranges, sending immediate notifications when suitable properties are found.
+The tool automatically scrapes multiple Portuguese real estate websites (Idealista, ImoVirtual, Remax, ERA, Casa Sapo, Super Casa) and aggregates rental listings based on specific filters and price ranges, sending immediate notifications when suitable properties are found.
 
 ## Features 🌟
 
-- Multi-platform scraping (Idealista, ImoVirtual, Remax, ERA)
+- Multi-platform scraping (Idealista, ImoVirtual, Remax, ERA, Casa Sapo, Super Casa)
 - Configurable filters for location and price ranges
 - Automated data collection and processing
-- Web interface to view listings
-- WhatsApp notifications for new listings
+- Modern React frontend with Tailwind CSS
+- Django REST API backend with database storage
+- Progressive Web App (PWA) support
+- Native iOS app with SwiftUI
+- Responsive mobile-friendly design
 - Ntfy.sh notifications for affordable houses (under €850)
 - Docker support for easy deployment
 - Detailed logging system
 - Robust CSV handling with automatic error detection and fixing
+- Property image storage and display
+- Favorite and discard property tracking
+- Scraper run statistics and monitoring
+
+## System Architecture 🏗️
+
+The project has been restructured into a modern microservices architecture with the following components:
+
+                     LISBON HOUSING SCRAPER ARCHITECTURE
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                     │
+│         ┌─────────────────┐                    ┌─────────────────┐                  │
+│         │    Frontend     │                    │   iOS Native    │                  │
+│         │   React + PWA   │                    │   SwiftUI App   │                  │
+│         └────────┬────────┘                    └────────┬────────┘                  │
+│                  │                                      │                           │
+│                  │ HTTP/REST                            │ HTTP/REST                 │
+│                  ▼                                      │                           │
+│         ┌────────────────┐                              │                           │
+│         │                │                              │                           │
+│         │   Django API   │◄─────────────────────────────┘                           │
+│         │                │◄───────┐                                                 │
+│         └────────┬───────┘        │                                                 │
+│                  │                │                                                 │
+│                  ▼                │                                                 │
+│         ┌────────────────┐        │                                                 │
+│         │  PostgreSQL    │        │                                                 │
+│         │   Database     │        │                                                 │
+│         └────────────────┘        │                                                 │
+│                                   │                                                 │
+│         ┌────────────────────────────────────────────┐                              │
+│         │               Scrapers                     │                              │
+│         │ ┌────────────┐ ┌─────────┐ ┌────────────┐  │                              │
+│         │ │ Idealista  │ │ Remax   │ │ SuperCasa  │  │                              │
+│         │ └────────────┘ └─────────┘ └────────────┘  │                              │
+│         │ ┌────────────┐ ┌─────────┐ ┌────────────┐  │                              │
+│         │ │ ImoVirtual │ │ ERA     │ │ CasaSapo   │  │-──┐                          │
+│         │ └────────────┘ └─────────┘ └────────────┘  │   │                          │
+│         └────────────────────────────────────────────┘   │                          │
+│                                                          │                          │
+│         ┌────────────────────────────────────────┐       │                          │
+│         │            Notifications               │       │                          │
+│         │                                        │◄────-─┘                          │
+│         │  ┌──────────────┐  ┌───────────────┐   │                                  │
+│         │  │   ntfy.sh    │  │   WhatsApp    │   │                                  │
+│         │  │ Notifications│  │ Notifications │   │                                  │
+│         │  └──────────────┘  └───────────────┘   │                                  │
+│         └────────────────────────────────────────┘                                  │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+### Backend Services
+
+1. **Django API** - Main backend service with PostgreSQL database
+   - RESTful API endpoints for house listings
+   - Database models for property data
+   - Scraper run statistics and tracking
+   - Authentication and data validation
+
+2. **Flask API** (Legacy) - Older API implementation being migrated to Django
+
+3. **Scrapers** - Modular web scrapers for different real estate platforms
+   - Idealista, ImoVirtual, Remax, ERA scrapers
+   - Rotating proxies and user agents
+   - Headless browser automation
+
+### Frontend Application
+
+- Modern React application with TypeScript
+- Tailwind CSS for styling
+- PWA support for mobile installation
+- Responsive design for all device sizes
+- Property search and filtering
+- Property details view with images
+- Favorites management
+
+### iOS Application
+
+- Native SwiftUI app for iOS 15.0+
+- Modern card-based property listing interface
+- Advanced filtering system with:
+  - Price range selection
+  - Area range filtering
+  - Bedroom count filtering
+  - Source filtering
+- Dark mode support
+- Smooth animations and transitions
+- Responsive and adaptive UI design
+
+### Deployment
+
+- Docker containerization for all services
+- Docker Compose for orchestration
+- HTTPS support with SSL certificates
+- Nginx for reverse proxy (optional)
 
 ## Notifications 📱
 
-### WhatsApp Notifications
-
-The system can send WhatsApp notifications for new listings through the WhatsApp Business API. This feature is disabled by default and requires additional setup.
-
 ### Ntfy.sh Notifications
 
-The system can send instant notifications for affordable houses (under €850 by default) using [ntfy.sh](https://ntfy.sh/), a simple HTTP-based pub-sub notification service.
+The system sends instant notifications for affordable houses (under €850 by default) using [ntfy.sh](https://ntfy.sh/), a simple HTTP-based pub-sub notification service.
 
 To receive notifications:
 1. Install the ntfy app on your smartphone ([Android](https://play.google.com/store/apps/details?id=io.heckel.ntfy) or [iOS](https://apps.apple.com/us/app/ntfy/id1625396347))
@@ -76,14 +170,21 @@ ROOM_RENTAL_TITLE_TERMS = [
 
 The system automatically filters out room rentals (as opposed to full apartments) by checking for common room rental terms in the listing title and description. You can customize the filter terms or disable this feature by setting `NTFY_FILTER_ROOM_RENTALS = False`.
 
+### WhatsApp Notifications (Planned)
+
+WhatsApp notifications are planned for future implementation. This feature will allow sending notifications through the WhatsApp Business API for new listings that match specific criteria.
+
 ## Prerequisites 📋
 
 - Python 3.x
-- Docker (optional)
+- Docker and Docker Compose
+- Node.js (for frontend development)
 - Chrome/Chromium browser (for Selenium-based scraping)
-- ScraperAPI key (for proxy rotation)
+- ScraperAPI key (required for Idealista scraping)
 
 ## Installation 🔧
+
+### Using Docker (Recommended)
 
 1. Clone the repository:
 ```bash
@@ -91,15 +192,38 @@ git clone https://github.com/yourusername/scrape_houses.git
 cd scrape_houses
 ```
 
-2. Create and activate a virtual environment:
+2. Configure your environment:
+   - Copy `config/settings.example.py` to `config/settings.py` and update settings
+   - Add your ScraperAPI key for Idealista scraping
+   - Configure other API keys and preferences
+
+3. Start the services with Docker Compose:
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+docker-compose up -d
 ```
 
-3. Install dependencies:
+This will start the Django API service. You can uncomment other services in the docker-compose.yml file as needed.
+
+### Manual Installation
+
+1. Clone the repository:
 ```bash
+git clone https://github.com/yourusername/scrape_houses.git
+cd scrape_houses
+```
+
+2. Set up the backend:
+```bash
+cd django_api
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
+```
+
+3. Set up the frontend:
+```bash
+cd frontend
+npm install
 ```
 
 4. Configure your settings:
@@ -107,6 +231,24 @@ pip install -r requirements.txt
    - Update the configuration with your API keys and preferences
 
 ## Usage 🚀
+
+### Running the Django API
+
+```bash
+cd django_api
+python api/manage.py runserver
+```
+
+The API will be available at http://localhost:8000/api/
+
+### Running the Frontend
+
+```bash
+cd frontend
+npm run dev
+```
+
+The frontend will be available at http://localhost:5173/
 
 ### Running the Scraper
 
@@ -118,64 +260,83 @@ python run.py
 python run.py --less
 ```
 
-### CSV Data Management
-
-The scraper saves all housing data to a CSV file in the `data` directory. To ensure data integrity, several tools are provided:
-
-#### Automatic CSV Fixing
-
-The scraper automatically runs the CSV fix script after each scraping session to ensure data integrity. If you need to manually fix the CSV file:
-
-```bash
-# Run only the CSV fix script
-python run.py --fix-csv-only
-
-# Or run the fix script directly
-python fix_csv.py
-```
-
-#### Continuous CSV Integrity Checking
-
-For long-running deployments, you can use the CSV checker to periodically validate and fix the CSV file:
-
-```bash
-# Start the CSV checker (checks every 30 minutes by default)
-./run_csv_checker.sh
-
-# Start with custom interval (in minutes)
-./run_csv_checker.sh 15  # Check every 15 minutes
-
-# Stop the CSV checker
-./stop_csv_checker.sh
-```
-
-The CSV checker logs are stored in the `logs` directory.
 
 ## Project Structure 📁
 
+The project now has a more organized structure with several components:
+
 ```
 scrape_houses/
-├── api/                    # FastAPI web interface
-│   ├── main.py
-│   └── templates/
-├── config/                 # Configuration files
-│   └── settings.py
-├── data/                   # Scraped data storage
-│   └── houses.csv
-├── logs/                   # Log files
-├── src/
-│   ├── main.py            # Main execution file
-│   ├── whatsapp_sender.py # WhatsApp notification system
-│   ├── utils/             # Utility functions
-│   └── scrapers/          # Individual website scrapers
+├── django_api/                # Django REST API
+│   ├── api/                   # Django project
+│   │   ├── houses/            # Houses app with models and views
+│   │   └── manage.py          # Django management script
+│   ├── config/                # Configuration files
+│   ├── Dockerfile             # Docker config for Django API
+│   └── requirements.txt       # Python dependencies
+│
+├── frontend/                  # React frontend application
+│   ├── src/                   # Source code
+│   │   ├── components/        # React components
+│   │   ├── services/          # API service connections
+│   │   └── context/           # React context providers
+│   ├── Dockerfile             # Docker config for frontend
+│   └── package.json           # Node.js dependencies
+│
+├── casas-lisboa/             # iOS native application
+│   ├── Views/                # SwiftUI views
+│   │   ├── HomeView.swift    # Main listing view
+│   │   ├── FilterView.swift  # Property filtering interface
+│   │   └── PropertyCardView.swift # Property card component
+│   ├── Models/               # Data models
+│   └── Assets/               # App resources
+│
+├── flask_api/                 # Legacy Flask API (being migrated)
+│   └── main.py                # Flask API implementation
+│
+├── data/                      # Scraped data storage
+│   └── houses.csv             # CSV data file
+│
+├── logs/                      # Log files
+│
+├── src/                       # Scraper source code
+│   ├── main.py                # Main execution file
+│   ├── whatsapp_sender.py     # WhatsApp notification system
+│   ├── utils/                 # Utility functions
+│   └── scrapers/              # Individual website scrapers
 │       ├── idealista.py
 │       ├── imovirtual.py
 │       ├── remax.py
-│       └── era.py
-├── Dockerfile
-├── docker-compose.yml
-└── requirements.txt
+│       ├── era.py
+│       ├── casa_sapo.py
+│       └── super_casa.py
+│
+├── Dockerfile                 # Docker config for scrapers
+├── docker-compose.yml         # Docker Compose configuration
+└── requirements.txt           # Python dependencies for scrapers
 ```
+
+## Database Models 📊
+
+The system now uses a PostgreSQL database with Django models:
+
+### House Model
+- Property details (name, price, area, bedrooms, etc.)
+- Location data (zone, freguesia, concelho)
+- Property images
+- Status tracking (contacted, discarded, favorite)
+- Source platform and scraping timestamp
+
+### MainRun Model
+- Tracks main scraper runs
+- Stores run status and execution time
+- Counts total and new houses found
+- Error reporting
+
+### ScraperRun Model
+- Tracks individual scraper runs
+- Links to parent MainRun
+- Stores status, statistics, and errors for each scraper
 
 ## Configuration ⚙️
 
@@ -217,21 +378,33 @@ Popular areas included in the search:
 
 ## Roadmap & Tasks 📋
 
-- [ ] Fix filters not working
+- [x] Implement Django backend with proper database models
+- [x] Create React frontend with Tailwind CSS
+- [x] Set up Docker containerization
+- [x] Add property image storage and display
+- [x] Implement property detail view
+- [x] Add favorites and discarded property tracking
+- [x] Fix filters not working
+- [x] Update deleted and viewed properties logic with ID (from database)
+- [x] Add Casa Sapo scraper integration
+- [x] Sort by most recent by default
 - [ ] Implement pagination in listings homepage
 - [ ] Restructure data and start using postgres(split 'zona' column into concelho/freguesia when possible)
-- [ ] Update ngrok configuration to avoid using same domain
-- [ ] Complete telegram notification logic
-- [ ] Update deleted and viewed properties logic with ID (from database)
 - [ ] Add property detail page (`/anuncio/{id}`)
-- [ ] Add Casa Sapo scraper integration
 - [ ] Display property location in listings
-- [ ] Add favorites feature
 - [ ] Maintain import history in database
 - [ ] Remove duplicate listings
 - [ ] Show import timestamp with green bubble notification for recent items
 - [ ] Implement analytics/favorites/search pages
-- [ ] Sort by most recent by default
+- [ ] Complete iOS app features:
+  - [ ] Property details screen
+  - [ ] Favorites system
+  - [ ] Search functionality
+  - [ ] User preferences persistence
+  - [ ] Map view for property locations
+  - [ ] Property alerts and notifications
+- [ ] Implement WhatsApp notifications
+- [ ] Add support for more real estate platforms
 
 ## Contributing 🤝
 
@@ -269,4 +442,4 @@ This tool is for educational purposes only. Please check and comply with the ter
 4. **Common Pitfalls to Avoid:**
    - Don't skip the viewing even if the price seems perfect
    - Be ready with your documentation
-   - Have your deposit ready to secure the property 
+   - Have your deposit ready to secure the property

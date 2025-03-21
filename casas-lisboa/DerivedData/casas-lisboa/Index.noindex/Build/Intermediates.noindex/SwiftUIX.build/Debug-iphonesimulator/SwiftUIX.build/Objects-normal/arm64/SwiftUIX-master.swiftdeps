@@ -1,0 +1,813 @@
+version: "Apple Swift version 6.0.3 (swiftlang-6.0.3.1.10 clang-1600.0.30.1)"
+options: "3a03af629b9cbb99fa157a78920ecb50cecad8b767f56052928bff6274d0b9be"
+build_start_time: [1742405422, 481643000]
+build_end_time: [1742405423, 885878000]
+inputs:
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/AppKit or UIKit/AppKitOrUIKitApplication++.swift"
+  : !dirty [1742404569, 305637354]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/AppKit or UIKit/AppKitOrUIKitBezierPath++.swift"
+  : !dirty [1742404569, 305712980]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/AppKit or UIKit/AppKitOrUIKitController++.swift"
+  : !dirty [1742404569, 305797146]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/AppKit or UIKit/AppKitOrUIKitEdgeInsets++.swift"
+  : !dirty [1742404569, 305877063]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/AppKit or UIKit/AppKitOrUIKitScrollView++.swift"
+  : !dirty [1742404569, 305959188]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/AppKit or UIKit/AppKitOrUIKitTextView++.swift"
+  : !dirty [1742404569, 306056689]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/AppKit or UIKit/AppKitOrUIKitView++.swift"
+  : !dirty [1742404569, 306138605]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/AppKit or UIKit/AppKitOrUIKitWindow++.swift"
+  : !dirty [1742404569, 306217230]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/AppKit or UIKit/NSTextAlignment++.swift"
+  : !dirty [1742404569, 306306189]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/CoreData/FetchedResults.swift"
+  : !dirty [1742404569, 306429814]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/CoreData/NSManagedObject++.swift"
+  : !dirty [1742404569, 306512231]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/CoreGraphics/CGFloat++.swift"
+  : !dirty [1742404569, 306631190]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/CoreGraphics/CGPoint++.swift"
+  : !dirty [1742404569, 306709815]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/CoreGraphics/CGRect++.swift"
+  : !dirty [1742404569, 306793690]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/CoreGraphics/CGSize++.swift"
+  : !dirty [1742404569, 307023232]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/Dispatch/DispatchQueue++.swift"
+  : !dirty [1742404569, 307139899]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/Foundation/NSObject++.swift"
+  : !dirty [1742404569, 307253982]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/Foundation/UserDefaults++.swift"
+  : !dirty [1742404569, 307334441]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/Swift/Collection++.swift"
+  : !dirty [1742404569, 307454857]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/Swift/Optional++.swift"
+  : !dirty [1742404569, 307533733]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/Alert++.swift"
+  : !dirty [1742404569, 307653733]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/Animation++.swift"
+  : !dirty [1742404569, 307729691]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/AnyTransition.swift"
+  : !dirty [1742404569, 307796983]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/App++.swift"
+  : !dirty [1742404569, 307868191]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/Axis++.swift"
+  : !dirty [1742404569, 307939442]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/Color++.swift"
+  : !dirty [1742404569, 308024525]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/DisclosureGroup++.swift"
+  : !dirty [1742404569, 308129984]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/EquatableView+.swift"
+  : !dirty [1742404569, 308206025]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/Font++.swift"
+  : !dirty [1742404569, 308293192]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/Font.TextStyle++.swift"
+  : !dirty [1742404569, 308502068]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/ForEach++.swift"
+  : !dirty [1742404569, 308620068]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/GeometryReader++.swift"
+  : !dirty [1742404569, 308707985]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/Image++.swift"
+  : !dirty [1742404569, 308791068]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/KeyEquivalent++.swift"
+  : !dirty [1742404569, 308870027]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/KeyboardShortcut++.swift"
+  : !dirty [1742404569, 308943943]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/LinearGradient++.swift"
+  : !dirty [1742404569, 309025610]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/Mirror++.swift"
+  : !dirty [1742404569, 309112902]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/NavigationLink++.swift"
+  : !dirty [1742404569, 309185485]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/OutlineGroup++.swift"
+  : !dirty [1742404569, 309259111]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/Path++.swift"
+  : !dirty [1742404569, 309331819]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/Picker++.swift"
+  : !dirty [1742404569, 309405611]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/Section++.swift"
+  : !dirty [1742404569, 309484194]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/Settings++.swift"
+  : !dirty [1742404569, 309558069]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/Shape++.swift"
+  : !dirty [1742404569, 309630361]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/Text++.swift"
+  : !dirty [1742404569, 309704861]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/Transaction++.swift"
+  : !dirty [1742404569, 309777570]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/VStack++.swift"
+  : !dirty [1742404569, 309846611]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/SwiftUI/View++.swift"
+  : !dirty [1742404569, 309917195]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/UIKit/UIApplication++.swift"
+  : !dirty [1742404569, 310030945]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/UIKit/UICollectionView++.swift"
+  : !dirty [1742404569, 310104112]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/UIKit/UIColor++.swift"
+  : !dirty [1742404569, 310182821]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/UIKit/UIEdgeInsets++.swift"
+  : !dirty [1742404569, 310255571]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/UIKit/UIFont++.swift"
+  : !dirty [1742404569, 310326404]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/UIKit/UILayoutGuide++.swift"
+  : !dirty [1742404569, 310406988]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/UIKit/UINavigationBar++.swift"
+  : !dirty [1742404569, 310474863]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/UIKit/UINavigationController++.swift"
+  : !dirty [1742404569, 310654655]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/UIKit/UIPageViewController++.swift"
+  : !dirty [1742404569, 310737738]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/UIKit/UIRectEdge++.swift"
+  : !dirty [1742404569, 310813488]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/UIKit/UIResponder++.swift"
+  : !dirty [1742404569, 310890905]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/UIKit/UIScrollView++.swift"
+  : !dirty [1742404569, 310967072]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/UIKit/UITabBarController++.swift"
+  : !dirty [1742404569, 311040947]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/UIKit/UITableViewController++.swift"
+  : !dirty [1742404569, 311132280]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/UIKit/UIView++.swift"
+  : !dirty [1742404569, 311204155]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Extensions/UIKit/UIViewController++.swift"
+  : !dirty [1742404569, 311269114]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit or UIKit/AppKitOrUIKit.swift"
+  : !dirty [1742404569, 311440989]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit or UIKit/AppKitOrUIKitBackgroundFetchResult.swift"
+  : !dirty [1742404569, 311533073]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit or UIKit/AppKitOrUIKitColor+.swift"
+  : !dirty [1742404569, 311611989]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit or UIKit/AppKitOrUIKitFont++.swift"
+  : !dirty [1742404569, 311689948]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit or UIKit/AppKitOrUIKitHostingControllerProtocol.swift"
+  : !dirty [1742404569, 311818115]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit or UIKit/AppKitOrUIKitHostingWindow.swift"
+  : !dirty [1742404569, 311922073]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit or UIKit/AppKitOrUIKitHostingWindowContent.swift"
+  : !dirty [1742404569, 312038907]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit or UIKit/AppKitOrUIKitImage++.swift"
+  : !dirty [1742404569, 312112740]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit or UIKit/AppKitOrUIKitResponder++.swift"
+  : !dirty [1742404569, 312192615]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit or UIKit/AppKitOrUIKitViewAdaptor.swift"
+  : !dirty [1742404569, 312270199]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit or UIKit/AppKitOrUIKitViewControllerAdaptor.swift"
+  : !dirty [1742404569, 312353741]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit or UIKit/AppKitOrUIKitViewControllerConfigurator.swift"
+  : !dirty [1742404569, 312433866]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit or UIKit/AppKitOrUIKitViewControllerResolver.swift"
+  : !dirty [1742404569, 312535116]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit or UIKit/AppKitOrUIKitViewRepresentable.swift"
+  : !dirty [1742404569, 312628075]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit or UIKit/MutableAppKitOrUIKitViewWrapper.swift"
+  : !dirty [1742404569, 312739658]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit or UIKit/_AppKitOrUIKitViewAnimation.swift"
+  : !dirty [1742404569, 312821325]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit/_AppKitMenuBarExtraPopover.swift"
+  : !dirty [1742404569, 312955117]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AppKit/_AppKitOrUIKitHostingPopover.swift"
+  : !dirty [1742404569, 313084409]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AuthenticationServices/AuthorizationAppleIDButton.swift"
+  : !dirty [1742404569, 313212159]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AuthenticationServices/AuthorizationAppleIDButtonStyle.swift"
+  : !dirty [1742404569, 313296451]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/AuthenticationServices/AuthorizationAppleIDButtonType.swift"
+  : !dirty [1742404569, 313374951]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/Combine/AnyObservableValue.swift"
+  : !dirty [1742404569, 313512034]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/Combine/_ObservableObjectBox.swift"
+  : !dirty [1742404569, 313596076]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/Combine/_PublisherObserver.swift"
+  : !dirty [1742404569, 313787285]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/Foundation/Bundle++.swift"
+  : !dirty [1742404569, 313917327]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/LinkPresentation/LinkPresentationView.swift"
+  : !dirty [1742404569, 314106785]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/MessageUI/MailComposer.swift"
+  : !dirty [1742404569, 314230619]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/Quartz/QuickLookPreview.swift"
+  : !dirty [1742404569, 314363411]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/Quartz/_QuickLookPreviewPanelPresenter.swift"
+  : !dirty [1742404569, 314446953]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SafariServices/SafariView.swift"
+  : !dirty [1742404569, 314569786]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/Swift/Animatable+.swift"
+  : !dirty [1742404569, 314689703]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/Swift/ArrayBuilder.swift"
+  : !dirty [1742404569, 314768203]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/Swift/ReferenceBox.swift"
+  : !dirty [1742404569, 314863203]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/Swift/SetBinding.swift"
+  : !dirty [1742404569, 314933578]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/Swift/_HashIdentifiable.swift"
+  : !dirty [1742404569, 315005787]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/AnyButtonStyle.swift"
+  : !dirty [1742404569, 315123912]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/AnyForEach.swift"
+  : !dirty [1742404569, 315197370]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/AnyViewModifier.swift"
+  : !dirty [1742404569, 315272995]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/DefaultTextInputType.swift"
+  : !dirty [1742404569, 315349662]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/DragGesture.Value+.swift"
+  : !dirty [1742404569, 315437204]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/DynamicProperty+.swift"
+  : !dirty [1742404569, 315509079]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/EnvironmentKey+.swift"
+  : !dirty [1742404569, 315578496]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/EnvironmentValues+.swift"
+  : !dirty [1742404569, 315654955]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/EnvironmentValues+Gesture.swift"
+  : !dirty [1742404569, 315734413]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/EnvironmentValues+Metatype.swift"
+  : !dirty [1742404569, 315813288]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/Font+.swift"
+  : !dirty [1742404569, 315892247]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/HoverEffect.swift"
+  : !dirty [1742404569, 315964163]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/Labeled.swift"
+  : !dirty [1742404569, 316042580]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/LazyView.swift"
+  : !dirty [1742404569, 316134330]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/LinearGradient+.swift"
+  : !dirty [1742404569, 316199414]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/ListStyle+.swift"
+  : !dirty [1742404569, 316273039]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/Menu+.swift"
+  : !dirty [1742404569, 316342372]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/PreferenceKey+.swift"
+  : !dirty [1742404569, 316422373]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/RedactionReasons.swift"
+  : !dirty [1742404569, 316497706]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/RoundedRectangle+.swift"
+  : !dirty [1742404569, 316570914]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/SidebarListStyle+.swift"
+  : !dirty [1742404569, 316638873]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/Spacer+.swift"
+  : !dirty [1742404569, 316718581]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/TabView+.swift"
+  : !dirty [1742404569, 317363332]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/TapGesture+.swift"
+  : !dirty [1742404569, 317440541]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/UserInterfaceSizeClass+.swift"
+  : !dirty [1742404569, 317512208]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/View.alignmentGuide+.swift"
+  : !dirty [1742404569, 317584499]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/View.frame+.swift"
+  : !dirty [1742404569, 317699666]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/View.hoverEffect+.swift"
+  : !dirty [1742404569, 317773458]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/View.modify.swift"
+  : !dirty [1742404569, 317854291]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/View.onChange+.swift"
+  : !dirty [1742404569, 317957917]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/View.onDrag+.swift"
+  : !dirty [1742404569, 318042417]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/View.onHover+.swift"
+  : !dirty [1742404569, 318117292]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/View.onReceive+.swift"
+  : !dirty [1742404569, 318183750]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/View.padding+.swift"
+  : !dirty [1742404569, 318248501]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/View.redacted+.swift"
+  : !dirty [1742404569, 318315584]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/View.scrollBounceBehavior+.swift"
+  : !dirty [1742404569, 318383667]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/View.shadow+.swift"
+  : !dirty [1742404569, 318450626]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/View.sheetBackground.swift"
+  : !dirty [1742404569, 318523126]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/View.tintColor.swift"
+  : !dirty [1742404569, 318592418]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/_AnyApp.swift"
+  : !dirty [1742404569, 318660335]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/_DynamicViewContentTraitValues.swift"
+  : !dirty [1742404569, 318734501]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/_ViewListMaker.swift"
+  : !dirty [1742404569, 318801251]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/_opaque_View.swift"
+  : !dirty [1742404569, 318860668]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/SwiftUI/withAnimation+.swift"
+  : !dirty [1742404569, 318925835]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/UIKit/UIHostingAlignTransitioningDelegate.swift"
+  : !dirty [1742404569, 319041752]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/UIKit/UIHostingControllerTransitioningDelegate.swift"
+  : !dirty [1742404569, 319121419]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/UIKit/UIHostingPageViewController.swift"
+  : !dirty [1742404569, 319211460]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/UIKit/UIHostingScrollView.swift"
+  : !dirty [1742404569, 319315502]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/UIKit/UIHostingView.swift"
+  : !dirty [1742404569, 319386294]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/UIKit/UIHostingVisualEffectBlurView.swift"
+  : !dirty [1742404569, 319463919]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Helpers/UIKit/View.configureUINavigationController.swift"
+  : !dirty [1742404569, 319536211]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Protocol Conformances/SwiftUI/SwiftUI+PreferenceKey.swift"
+  : !dirty [1742404569, 319690586]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intermodular/Protocol Conformances/SwiftUI/SwiftUI+opaque_View.swift"
+  : !dirty [1742404569, 320003879]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Activity Indicator/ActivityIndicator.swift"
+  : !dirty [1742404569, 320188670]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Animations/ChangePredicatedAnimation.swift"
+  : !dirty [1742404569, 320295004]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/App Activities/AppActivityView.swift"
+  : !dirty [1742404569, 320395296]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/App Delegate/_CocoaApplicationDelegateAdaptor.swift"
+  : !dirty [1742404569, 320502254]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Bridging/CocoaHostingController+PreferenceKey.swift"
+  : !dirty [1742404569, 320614504]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Bridging/CocoaHostingController+Utilities.swift"
+  : !dirty [1742404569, 320689255]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Bridging/CocoaHostingController.swift"
+  : !dirty [1742404569, 320788463]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Bridging/CocoaViewController.swift"
+  : !dirty [1742404569, 320862338]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Bridging/_AppKitOrUIKitRepresented.swift"
+  : !dirty [1742404569, 320932547]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Bridging/_AppKitOrUIKitViewRepresentableUpdate.swift"
+  : !dirty [1742404569, 321000880]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Bridging/_CocoaHostingView.swift"
+  : !dirty [1742404569, 321106922]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Bridging/_RepresentableAppKitOrUIKitView.swift"
+  : !dirty [1742404569, 321175047]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Collection View/CocoaCollectionElementHostingController.swift"
+  : !dirty [1742404569, 321303172]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Collection View/CocoaHostingCollectionViewCell.swift"
+  : !dirty [1742404569, 321381256]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Collection View/CocoaHostingCollectionViewController+_CollectionViewProxyBase.swift"
+  : !dirty [1742404569, 321488964]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Collection View/CocoaHostingCollectionViewController.Cache.swift"
+  : !dirty [1742404569, 321598714]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Collection View/CocoaHostingCollectionViewController.DragAndDropDelegate.swift"
+  : !dirty [1742404569, 321672589]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Collection View/CocoaHostingCollectionViewController.swift"
+  : !dirty [1742404569, 321756298]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Collection View/CocoaHostingCollectionViewSupplementaryView.swift"
+  : !dirty [1742404569, 321848507]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Collection View/CollectionView.swift"
+  : !dirty [1742404569, 321922048]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Collection View/CollectionViewDropDelegate.swift"
+  : !dirty [1742404569, 321997632]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Collection View/CollectionViewLayout.swift"
+  : !dirty [1742404569, 322062257]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Collection View/CollectionViewReader.swift"
+  : !dirty [1742404569, 322144299]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Collection View/_CollectionOrListCellPreferences.swift"
+  : !dirty [1742404569, 322215507]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Collection View/_CollectionView.DataSource.swift"
+  : !dirty [1742404569, 322325091]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Collection View/_CollectionView.swift"
+  : !dirty [1742404569, 322407466]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Collection View/_CollectionViewConfiguration.swift"
+  : !dirty [1742404569, 322485424]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Collection View/_CollectionViewElementContent.swift"
+  : !dirty [1742404569, 322557758]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Collection View/_CollectionViewItemContent.swift"
+  : !dirty [1742404569, 322622008]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Documents/DocumentPicker.swift"
+  : !dirty [1742404569, 322848342]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Documents/FileImportLink.swift"
+  : !dirty [1742404569, 322929217]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Drag & Drop/AnyFileDropDelegate.swift"
+  : !dirty [1742404569, 323158384]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Drag & Drop/DragDelegate.swift"
+  : !dirty [1742404569, 323237550]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Drag & Drop/DragItem.swift"
+  : !dirty [1742404569, 323310092]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Drag & Drop/_DragSourceDropDestinationView.swift"
+  : !dirty [1742404569, 323402009]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Drag & Drop/_SwiftUIX_DropDelegate.swift"
+  : !dirty [1742404569, 323477718]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Drag & Drop/_SwiftUIX_DropInfo.swift"
+  : !dirty [1742404569, 323565884]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Drawing & Graphics/AnyStroke.swift"
+  : !dirty [1742404569, 323675218]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Drawing & Graphics/Visual Effects/BlurEffectView.swift"
+  : !dirty [1742404569, 323792593]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Drawing & Graphics/Visual Effects/VisualEffectBlurView.swift"
+  : !dirty [1742404569, 323873468]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Drawing & Graphics/Visual Effects/VisualEffectView.swift"
+  : !dirty [1742404569, 323945468]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Drawing & Graphics/_AnyShapeStyle.swift"
+  : !dirty [1742404569, 324013093]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Drawing & Graphics/_ViewShadowStyle.swift"
+  : !dirty [1742404569, 324082260]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/DelayedState.swift"
+  : !dirty [1742404569, 324197010]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/EnvironmentObject.Member.swift"
+  : !dirty [1742404569, 324267385]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/EnvironmentObject.Optional.swift"
+  : !dirty [1742404569, 324339219]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/EnvironmentObjectOrObservedObject.swift"
+  : !dirty [1742404569, 324406302]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/EnvironmentObjectOrState.swift"
+  : !dirty [1742404569, 324476719]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/ExistentialStateObject.swift"
+  : !dirty [1742404569, 324539969]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/LazyState.swift"
+  : !dirty [1742404569, 324614220]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/ObservableState.swift"
+  : !dirty [1742404569, 324680220]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/ObservedObject.Optional.swift"
+  : !dirty [1742404569, 324744761]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/ObservedPublisher.swift"
+  : !dirty [1742404569, 324810220]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/ObservedValue.swift"
+  : !dirty [1742404569, 324884637]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/PersistentObject.swift"
+  : !dirty [1742404569, 324969262]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/StateObject.Optional.swift"
+  : !dirty [1742404569, 325031137]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/StateOrBinding.swift"
+  : !dirty [1742404569, 325099887]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/ThrottledDelayedState.swift"
+  : !dirty [1742404569, 325162262]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/TimerState.swift"
+  : !dirty [1742404569, 325237804]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/UserStorage.swift"
+  : !dirty [1742404569, 325331846]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/ViewStorage.swift"
+  : !dirty [1742404569, 325424846]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Dynamic Properties/WeakState.swift"
+  : !dirty [1742404569, 325498221]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Edit Menu/EditMenuPresenter.swift"
+  : !dirty [1742404569, 325625305]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Environment/EnvironmentInsertions.swift"
+  : !dirty [1742404569, 325751805]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Environment/EnvironmentPropagator.swift"
+  : !dirty [1742404569, 325831847]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Error Handling/LocalizedErrorHandler.swift"
+  : !dirty [1742404569, 325956972]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Error Handling/_TryCatchView.swift"
+  : !dirty [1742404569, 326042930]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Event Handling/HoverReader.swift"
+  : !dirty [1742404569, 326156472]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Event Handling/_SwiftUIX_KeyPress.swift"
+  : !dirty [1742404569, 326251472]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Focus/FocusRingType.swift"
+  : !dirty [1742404569, 326360264]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Focus/_SwiftUIX_MoveCommandDirection.swift"
+  : !dirty [1742404569, 326439264]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Geometry/Axis3D.swift"
+  : !dirty [1742404569, 326562556]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Geometry/Flip3D.swift"
+  : !dirty [1742404569, 326647098]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Geometry/FrameReader.swift"
+  : !dirty [1742404569, 326737973]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Geometry/HorizontalLine.swift"
+  : !dirty [1742404569, 326813265]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Geometry/InitialContentAlignment.swift"
+  : !dirty [1742404569, 326892307]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Geometry/IntrinsicGeometryReader.swift"
+  : !dirty [1742404569, 326973307]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Geometry/IntrinsicSizeReader.swift"
+  : !dirty [1742404569, 327066015]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Geometry/OptionalDimensions.swift"
+  : !dirty [1742404569, 327159724]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Geometry/PartlyRoundedRectangle.swift"
+  : !dirty [1742404569, 327232765]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Geometry/RectangleCorner.swift"
+  : !dirty [1742404569, 327311266]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Geometry/RelativeFrame.swift"
+  : !dirty [1742404569, 327512599]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Geometry/RoundedHexagon.swift"
+  : !dirty [1742404569, 327614683]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Geometry/RoundedRhombus.swift"
+  : !dirty [1742404569, 327699183]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Geometry/Square.swift"
+  : !dirty [1742404569, 327780266]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Geometry/_AnchorSourceValue.swift"
+  : !dirty [1742404569, 327860558]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Gestures/DraggabilityViewModifier.swift"
+  : !dirty [1742404569, 327982683]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Gestures/EdgeSwipeGestureOverlay.swift"
+  : !dirty [1742404569, 328073017]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Gestures/HitTestView.swift"
+  : !dirty [1742404569, 328150642]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Gestures/SwipeGestureOverlay.swift"
+  : !dirty [1742404569, 328223350]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Haptic Feedback/FeedbackGenerator.swift"
+  : !dirty [1742404569, 328355059]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Images/ImagePicker.swift"
+  : !dirty [1742404569, 328493018]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Images/_AnyImage.swift"
+  : !dirty [1742404569, 328592143]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Images/_SwiftUI_ImageProvider.swift"
+  : !dirty [1742404569, 328674560]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Keyboard/AddKeyboardPadding.swift"
+  : !dirty [1742404569, 328798518]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Keyboard/Keyboard.swift"
+  : !dirty [1742404569, 328889893]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Keyboard/PerformActionOnKeyboardShortcut.swift"
+  : !dirty [1742404569, 328967477]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Layout/AutomaticAxisStack.swift"
+  : !dirty [1742404569, 329086269]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Layout/AxisStack.swift"
+  : !dirty [1742404569, 329174435]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Layout/XStack.swift"
+  : !dirty [1742404569, 329256019]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/CocoaList-Initializers.swift"
+  : !dirty [1742404569, 329384727]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/CocoaList-Modifiers.swift"
+  : !dirty [1742404569, 329458561]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/CocoaList-UIKit.swift"
+  : !dirty [1742404569, 329534561]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/CocoaList.swift"
+  : !dirty [1742404569, 329617061]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/CocoaListReader.swift"
+  : !dirty [1742404569, 329969770]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/IdentifiedListSection.swift"
+  : !dirty [1742404569, 330049354]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/ListRowManager.swift"
+  : !dirty [1742404569, 330125354]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/ListSection.swift"
+  : !dirty [1742404569, 330206396]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/ListSeparatorStyleNoneModifier.swift"
+  : !dirty [1742404569, 330288229]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/_CocoaList+_VariadicViewChildren.swift"
+  : !dirty [1742404569, 330372062]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/_CocoaList-AppKit.swift"
+  : !dirty [1742404569, 330506563]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/_CocoaList-Auxiliary.swift"
+  : !dirty [1742404569, 330581771]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/_CocoaList.swift"
+  : !dirty [1742404569, 330660979]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/_CocoaListCache.swift"
+  : !dirty [1742404569, 330757730]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/_CocoaListConfiguration.swift"
+  : !dirty [1742404569, 330833188]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/_CocoaListDataSourceType.swift"
+  : !dirty [1742404569, 330912772]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/_CocoaListPreferences.swift"
+  : !dirty [1742404569, 330985230]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/_CocoaListViewProvider.swift"
+  : !dirty [1742404569, 331055189]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/_PlatformTableHeaderFooterView.swift"
+  : !dirty [1742404569, 331134230]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/_PlatformTableView.swift"
+  : !dirty [1742404569, 331211731]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/_PlatformTableViewCell.swift"
+  : !dirty [1742404569, 331289897]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/_PlatformTableViewCellView.ContentHostingView.swift"
+  : !dirty [1742404569, 331435731]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/_PlatformTableViewCellView.swift"
+  : !dirty [1742404569, 331581773]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/_PlatformTableViewContainer.swift"
+  : !dirty [1742404569, 331675898]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/List/_PlatformTableViewController.swift"
+  : !dirty [1742404569, 331768481]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Menu Bar/MenuBarItem.swift"
+  : !dirty [1742404569, 331897607]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Menu Bar/NSStatusItem+_CocoaMenuBarExtraCoordinator.swift"
+  : !dirty [1742404569, 331989148]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Menu Bar/_AppPhaseMonitor.swift"
+  : !dirty [1742404569, 332068815]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Menu Bar/_CocoaMenuBarExtraCoordinator.swift"
+  : !dirty [1742404569, 332154357]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Action/Action.swift"
+  : !dirty [1742404569, 332457691]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Action/DynamicAction.swift"
+  : !dirty [1742404569, 332593941]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/ActionLabelView.swift"
+  : !dirty [1742404569, 332683400]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Caching/KeyedBoundedPriorityQueue.swift"
+  : !dirty [1742404569, 332811025]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Caching/KeyedViewCache.swift"
+  : !dirty [1742404569, 332903733]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Caching/_MemoizedViewContent.swift"
+  : !dirty [1742404569, 332989650]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Control Flow/ControlFlowView.swift"
+  : !dirty [1742404569, 333110484]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Control Flow/Switch/SwitchOver.swift"
+  : !dirty [1742404569, 333235692]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Control Flow/Switch/SwitchOverCaseView.swift"
+  : !dirty [1742404569, 333312984]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/DeviceOrientation.swift"
+  : !dirty [1742404569, 333401026]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/EmptyAppKitOrUIKitViewRepresentable.swift"
+  : !dirty [1742404569, 333478984]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/NSEventMonitor.swift"
+  : !dirty [1742404569, 333607026]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Referencing/_NameAssignmentView.swift"
+  : !dirty [1742404569, 333729193]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Referencing/_NamedViewDescription.swift"
+  : !dirty [1742404569, 333817943]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/SceneActivationActionModifiers.swift"
+  : !dirty [1742404569, 334073235]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/TakeSnapshotView.swift"
+  : !dirty [1742404569, 334166735]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Utility Views/EmptyObservableObject.swift"
+  : !dirty [1742404569, 334294402]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Utility Views/EvaluateBooleanView.swift"
+  : !dirty [1742404569, 334374152]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Utility Views/PassthroughView.swift"
+  : !dirty [1742404569, 334452069]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Utility Views/PreferenceReader.swift"
+  : !dirty [1742404569, 334531319]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Utility Views/PublisherOutputView.swift"
+  : !dirty [1742404569, 334606569]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Utility Views/ResultView.swift"
+  : !dirty [1742404569, 334680528]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Utility Views/UnwrapOptionalView.swift"
+  : !dirty [1742404569, 334756278]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Utility Views/ZeroSizeView.swift"
+  : !dirty [1742404569, 334829028]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/Utility Views/_ActionPerformingView.swift"
+  : !dirty [1742404569, 334909112]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/VisibilityModifier.swift"
+  : !dirty [1742404569, 334989570]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/_AddTopOrBottomBar.swift"
+  : !dirty [1742404569, 335070987]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/_SwiftUI_TargetPlatform.swift"
+  : !dirty [1742404569, 335160862]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/_WithThrottledValue.swift"
+  : !dirty [1742404569, 335240779]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Miscellaneous/_assignIfNotEqual.swift"
+  : !dirty [1742404569, 335317904]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Navigation/CocoaNavigationView.swift"
+  : !dirty [1742404569, 335443488]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Navigation/NavigationBarConfigurator.swift"
+  : !dirty [1742404569, 335539571]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Navigation/NavigationBarVisibilityModifier.swift"
+  : !dirty [1742404569, 335636904]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Navigation/Navigator.swift"
+  : !dirty [1742404569, 335710905]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Navigation/PopNavigationButton.swift"
+  : !dirty [1742404569, 335791363]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Navigation/SelectionNavigator.swift"
+  : !dirty [1742404569, 335872030]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Navigation/StackNavigationView.swift"
+  : !dirty [1742404569, 335957530]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Navigation/_NestedNavigationView.swift"
+  : !dirty [1742404569, 336033988]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Pagination/PageControl.swift"
+  : !dirty [1742404569, 336278531]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Pagination/PaginationView.swift"
+  : !dirty [1742404569, 336407531]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Pagination/PaginationViewReader.swift"
+  : !dirty [1742404569, 336607656]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Pagination/ProgressionController.swift"
+  : !dirty [1742404569, 336686490]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Pagination/_PaginationView.swift"
+  : !dirty [1742404569, 336774573]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Path Control/PathControl.swift"
+  : !dirty [1742404569, 337026573]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/AlertPresentationLink.swift"
+  : !dirty [1742404569, 337142532]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/AnyModalPresentation.swift"
+  : !dirty [1742404569, 337221366]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/AnyPresentationView.swift"
+  : !dirty [1742404569, 337299199]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/CocoaPresentationCoordinator.Context.swift"
+  : !dirty [1742404569, 337458283]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/CocoaPresentationCoordinator.swift"
+  : !dirty [1742404569, 337581908]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/CocoaPresentationHostingController.swift"
+  : !dirty [1742404569, 337667741]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/CocoaPresentationMode.swift"
+  : !dirty [1742404569, 337743825]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/Dismissal/DismissPresentationButton.swift"
+  : !dirty [1742404569, 337848033]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/Dismissal/DismissPresentationUnderlay.swift"
+  : !dirty [1742404569, 337917200]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/DynamicViewPresentable.swift"
+  : !dirty [1742404569, 338018617]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/DynamicViewPresenter.swift"
+  : !dirty [1742404569, 338187034]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/Link/FullScreenCoverLink.swift"
+  : !dirty [1742404569, 338299201]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/Link/NavigationPresentationLink.swift"
+  : !dirty [1742404569, 338436951]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/Link/PopoverPresentationLink.swift"
+  : !dirty [1742404569, 338532951]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/Link/PresentationLink.swift"
+  : !dirty [1742404569, 338645035]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/Link/PresentationLinkView.swift"
+  : !dirty [1742404569, 338727993]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/ModalPresentationStyle.swift"
+  : !dirty [1742404569, 338936327]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/Popover/CocoaPopover.swift"
+  : !dirty [1742404569, 339068619]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/Popover/Popover.swift"
+  : !dirty [1742404569, 339155535]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/PresentationManager.swift"
+  : !dirty [1742404569, 339235536]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/PresentationTransitionPhase.swift"
+  : !dirty [1742404569, 339316369]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/PresentationView.swift"
+  : !dirty [1742404569, 339411119]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Presentation/_PopoverPresentationPreferences.swift"
+  : !dirty [1742404569, 339603203]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Runtime/_ForEachSubview.swift"
+  : !dirty [1742404569, 339724161]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Runtime/_VariadicViewAdapter.swift"
+  : !dirty [1742404569, 339800828]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Runtime/_VariadicViewChildren.swift"
+  : !dirty [1742404569, 339878787]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Runtime/_WithDynamicPropertyExistential.swift"
+  : !dirty [1742404569, 339957203]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Screen/OrientationLock.swift"
+  : !dirty [1742404569, 340068787]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Screen/PopoverAttachmentTarget.swift"
+  : !dirty [1742404569, 340146662]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Screen/Screen.swift"
+  : !dirty [1742404569, 340219662]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Screen/UserInterfaceIdiom.swift"
+  : !dirty [1742404569, 340297662]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Screen/UserInterfaceOrientation.swift"
+  : !dirty [1742404569, 340363996]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Screen/_CoordinateSpaceRelative.swift"
+  : !dirty [1742404569, 340437663]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Screen/_ScreenOrCoordinateSpace.swift"
+  : !dirty [1742404569, 340505746]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Scroll View/CocoaScrollView.swift"
+  : !dirty [1742404569, 340634080]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Scroll View/CocoaScrollViewConfiguration.swift"
+  : !dirty [1742404569, 340710330]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Scroll View/CocoaScrollViewReader.swift"
+  : !dirty [1742404569, 340780372]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Scroll View/EnvironmentValues+ScrollView.swift"
+  : !dirty [1742404569, 340847080]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Scroll View/Internal/AppKit+CocoaScrollView.Configuration.swift"
+  : !dirty [1742404569, 341103830]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Scroll View/Internal/UIKit+CocoaScrollView.Configuration.swift"
+  : !dirty [1742404569, 341194914]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Scroll View/Internal/_AppKitOrUIKitHostingScrollViewType.swift"
+  : !dirty [1742404569, 341289747]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Scroll View/ScrollIndicatorStyle.swift"
+  : !dirty [1742404569, 341381664]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Scroll View/ScrollView.ContentOffset.swift"
+  : !dirty [1742404569, 341585081]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Search Bar/SearchBar+NavigationView.swift"
+  : !dirty [1742404569, 341722456]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Search Bar/SearchBar.swift"
+  : !dirty [1742404569, 341816957]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Search Bar/SearchToken.swift"
+  : !dirty [1742404569, 342191374]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Sidebar/SidebarVisibilityModifier.swift"
+  : !dirty [1742404569, 342315624]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Text/AttributedText.swift"
+  : !dirty [1742404569, 342436124]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Text/CocoaTextField.swift"
+  : !dirty [1742404569, 342576833]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Text/EditableText.swift"
+  : !dirty [1742404569, 342687708]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Text/TextView-Modifiers.swift"
+  : !dirty [1742404569, 342958125]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Text/TextView.swift"
+  : !dirty [1742404569, 343349917]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Text/TextViewDataBinding.swift"
+  : !dirty [1742404569, 343461334]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Text/_ObservableTextCursor.swift"
+  : !dirty [1742404569, 343554751]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Text/_PlatformTextView+Auxiliary.swift"
+  : !dirty [1742404569, 343632751]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Text/_PlatformTextView-AppKit.swift"
+  : !dirty [1742404569, 343724960]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Text/_PlatformTextView-UIKit.swift"
+  : !dirty [1742404569, 343819585]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Text/_PlatformTextView.swift"
+  : !dirty [1742404569, 343959835]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Text/_TextView.swift"
+  : !dirty [1742404569, 344094835]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Text/_TextViewConfiguration.swift"
+  : !dirty [1742404569, 344325877]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Text/_TextViewReader.swift"
+  : !dirty [1742404569, 344563086]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Typography/FontFamily.swift"
+  : !dirty [1742404569, 344866462]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Typography/SFSymbolName+Image.swift"
+  : !dirty [1742404569, 344995420]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/View Traits/_OnViewTraitsChange.swift"
+  : !dirty [1742404569, 345115545]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/View Traits/_PreferenceTraitKey.swift"
+  : !dirty [1742404569, 345194170]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/View Traits/_PreferenceTraitsReader.swift"
+  : !dirty [1742404569, 345261379]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/View Traits/_ViewTraitKeys.swift"
+  : !dirty [1742404569, 345488379]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/View Traits/_ViewTraitValues.swift"
+  : !dirty [1742404569, 345561421]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/View Traits/_ViewTraitsReader.swift"
+  : !dirty [1742404569, 345634796]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Web/WebView.swift"
+  : !dirty [1742404569, 345768047]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Window/HideTitleBar.swift"
+  : !dirty [1742404569, 345893172]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Window/PresentWindow.swift"
+  : !dirty [1742404569, 345971880]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Window/Titlebar/TitlebarConfigurationView.swift"
+  : !dirty [1742404569, 346096839]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Window/Titlebar/TitlebarItem.swift"
+  : !dirty [1742404569, 346196755]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Window/WindowOverlay.swift"
+  : !dirty [1742404569, 346409756]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Window/WindowReader.swift"
+  : !dirty [1742404569, 346527631]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Window/_WindowPresentationController.swift"
+  : !dirty [1742404569, 346649673]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/Intramodular/Window/_WindowStyle.swift"
+  : !dirty [1742404569, 346725673]
+  ? "/Users/nuno/Library/Developer/Xcode/DerivedData/casas-lisboa-asqrdqixasgdmubfphehmcqecfol/SourcePackages/checkouts/SwiftUIX/Sources/SwiftUIX/module.swift"
+  : !dirty [1742404569, 347422966]

@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		BC6E65742D7E59F9009B740E /* SwiftUIX in Frameworks */ = {isa = PBXBuildFile; productRef = BC6E65732D7E59F9009B740E /* SwiftUIX */; };
+		BCC005942D8B370900F8F8C1 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = BCC005932D8B370900F8F8C1 /* KeychainSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		BC36DB552D7A721400450306 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,22 +34,9 @@
 		BC36DB5E2D7A721400450306 /* casas-lisboaUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "casas-lisboaUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		BCE015E52D7D1FFC0085EB8C /* Exceptions for "casas-lisboa" folder in "casas-lisboa" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = BC36DB432D7A721200450306 /* casas-lisboa */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		BC36DB462D7A721200450306 /* casas-lisboa */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				BCE015E52D7D1FFC0085EB8C /* Exceptions for "casas-lisboa" folder in "casas-lisboa" target */,
-			);
 			path = "casas-lisboa";
 			sourceTree = "<group>";
 		};
@@ -65,6 +57,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BCC005942D8B370900F8F8C1 /* KeychainSwift in Frameworks */,
+				BC6E65742D7E59F9009B740E /* SwiftUIX in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -114,7 +108,6 @@
 			buildPhases = (
 				BC36DB402D7A721200450306 /* Sources */,
 				BC36DB412D7A721200450306 /* Frameworks */,
-				BC36DB422D7A721200450306 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -125,6 +118,8 @@
 			);
 			name = "casas-lisboa";
 			packageProductDependencies = (
+				BC6E65732D7E59F9009B740E /* SwiftUIX */,
+				BCC005932D8B370900F8F8C1 /* KeychainSwift */,
 			);
 			productName = "casas-lisboa";
 			productReference = BC36DB442D7A721200450306 /* casas-lisboa.app */;
@@ -208,6 +203,10 @@
 			);
 			mainGroup = BC36DB3B2D7A721200450306;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				BC24E4542D7E5784008E9058 /* XCRemoteSwiftPackageReference "SwiftUIX" */,
+				BC655EE32D8B3254003B2158 /* XCRemoteSwiftPackageReference "keychain-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BC36DB452D7A721200450306 /* Products */;
 			projectDirPath = "";
@@ -221,13 +220,6 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		BC36DB422D7A721200450306 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		BC36DB522D7A721400450306 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -573,6 +565,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		BC24E4542D7E5784008E9058 /* XCRemoteSwiftPackageReference "SwiftUIX" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwiftUIX/SwiftUIX.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.2.3;
+			};
+		};
+		BC655EE32D8B3254003B2158 /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/evgenyneu/keychain-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 24.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		BC6E65732D7E59F9009B740E /* SwiftUIX */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BC24E4542D7E5784008E9058 /* XCRemoteSwiftPackageReference "SwiftUIX" */;
+			productName = SwiftUIX;
+		};
+		BCC005932D8B370900F8F8C1 /* KeychainSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BC655EE32D8B3254003B2158 /* XCRemoteSwiftPackageReference "keychain-swift" */;
+			productName = KeychainSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = BC36DB3C2D7A721200450306 /* Project object */;
 }

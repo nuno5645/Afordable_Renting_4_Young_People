@@ -1,0 +1,61 @@
+---
+description: Lisbon Housing Scraper project structure and coding conventions for iOS-Django integration.
+globs:  *.swift, *.py, casas-lisboa/**, django_api/**
+---
+# Lisbon Housing Scraper - Cursor Rules
+This file defines the project structure and naming conventions for the iOS app and Django API
+
+## Swift Code Style Rules
+- All Swift files follow space indentation (4 spaces)
+- Maximum line length of 100 characters
+- Use LF line endings
+- Trim trailing whitespace and insert final newline
+
+## Swift Naming Conventions
+- Classes, Structs, Enums, Protocols: PascalCase
+- Functions, Variables, Properties, Constants: camelCase
+
+## Python/Django Conventions
+- Models: PascalCase
+- Views, Functions, Variables: snake_case
+- Constants: UPPER_CASE_WITH_UNDERSCORES
+- URLs: kebab-case
+
+## Project Structure
+- iOS App: casas-lisboa/
+  - Models/ - Data structures
+  - Views/ - UI components 
+  - Services/ - Network and data handling
+  - Tests directories: casas-lisboaTests/ and casas-lisboaUITests/
+
+- Django API: django_api/
+  - api/ - Main API app
+  - houses/ - Houses app with models and endpoints
+  - config/ - Settings and configuration
+  - data/ and logs/ - Data storage and logging
+
+## API Endpoints
+- Base URL: /api
+- Houses: /houses/
+- Status: /status/
+
+## Model Mapping (Django → iOS)
+- name → name
+- zone → location
+- price → price
+- url → url
+- bedrooms → bedrooms
+- area → area
+- area_str → areaStr
+- image_urls → imageUrls
+- contacted → contacted
+- favorite → isFavorite
+- discarded → discarded
+- house_id → houseId
+- scraped_at → scrapedAt
+
+## Integration Details
+- Date format: ISO8601
+- Network timeout: 30s (regular), 1200s (scraper)
+- Image separator: |||
+- Max images: 10

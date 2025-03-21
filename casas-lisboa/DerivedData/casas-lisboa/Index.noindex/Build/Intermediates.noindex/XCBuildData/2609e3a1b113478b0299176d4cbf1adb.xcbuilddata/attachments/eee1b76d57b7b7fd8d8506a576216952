@@ -1,0 +1,12 @@
+{
+  "" : {
+    "dependencies" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData/casas-lisboa/Index.noindex/Build/Intermediates.noindex/casas-lisboa.build/Debug-maccatalyst/casas-lisboaTests.build/Objects-normal/arm64/casas-lisboaTests-master.d",
+    "diagnostics" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData/casas-lisboa/Index.noindex/Build/Intermediates.noindex/casas-lisboa.build/Debug-maccatalyst/casas-lisboaTests.build/Objects-normal/arm64/casas-lisboaTests-master.dia",
+    "emit-module-dependencies" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData/casas-lisboa/Index.noindex/Build/Intermediates.noindex/casas-lisboa.build/Debug-maccatalyst/casas-lisboaTests.build/Objects-normal/arm64/casas-lisboaTests-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData/casas-lisboa/Index.noindex/Build/Intermediates.noindex/casas-lisboa.build/Debug-maccatalyst/casas-lisboaTests.build/Objects-normal/arm64/casas-lisboaTests-master-emit-module.dia",
+    "swift-dependencies" : "/Users/nuno/Programação/scrape_houses/casas-lisboa/DerivedData/casas-lisboa/Index.noindex/Build/Intermediates.noindex/casas-lisboa.build/Debug-maccatalyst/casas-lisboaTests.build/Objects-normal/arm64/casas-lisboaTests-master.swiftdeps"
+  },
+  "/Users/nuno/Programação/scrape_houses/casas-lisboa/casas-lisboaTests/casas_lisboaTests.swift" : {
+
+  }
+}

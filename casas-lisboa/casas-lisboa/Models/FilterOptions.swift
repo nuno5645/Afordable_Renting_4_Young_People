@@ -18,6 +18,8 @@ enum PropertySource: String, CaseIterable {
     case idealista = "Idealista"
     case imovirtual = "Imovirtual"
     case casaSapo = "Casa SAPO"
+    case remax = "Remax"
+    case superCasa = "SuperCasa"
 }
 
 class FilterOptions: ObservableObject {

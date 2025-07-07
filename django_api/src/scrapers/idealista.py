@@ -4,8 +4,12 @@ import time
 import json
 import os
 from datetime import datetime, timedelta
-from src.utils.base_scraper import BaseScraper
-from src.utils.location_manager import LocationManager
+try:
+    from src.utils.base_scraper import BaseScraper
+    from src.utils.location_manager import LocationManager
+except Exception as e:
+    from utils.base_scraper import BaseScraper
+    from utils.location_manager import LocationManager
 from config.settings import IDEALISTA_MAX_REQUESTS_PER_HOUR
 from houses.models import House
 

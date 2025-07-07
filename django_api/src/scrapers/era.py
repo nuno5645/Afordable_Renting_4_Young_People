@@ -2,8 +2,12 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 import time
-from src.utils.base_scraper import BaseScraper
-from src.utils.location_manager import LocationManager
+try:
+    from src.utils.base_scraper import BaseScraper
+    from src.utils.location_manager import LocationManager
+except Exception as e:
+    from utils.base_scraper import BaseScraper
+    from utils.location_manager import LocationManager
 
 class EraScraper(BaseScraper):
     def __init__(self, logger, url):

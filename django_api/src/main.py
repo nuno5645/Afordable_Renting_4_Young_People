@@ -4,15 +4,40 @@
 import os
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from src.utils.logger import setup_logger
-from src.scrapers.imovirtual import ImoVirtualScraper
-from src.scrapers.idealista import IdealistaScraper
-from src.scrapers.remax import RemaxScraper
-from src.scrapers.era import EraScraper
-from src.scrapers.casa_sapo import CasaSapoScraper
-from src.scrapers.super_casa import SuperCasaScraper
-from houses.models import ScraperRun
-from django.utils import timezone
+from pathlib import Path
+
+# Add necessary paths for imports
+current_dir = Path(__file__).parent.parent.absolute()
+if str(current_dir) not in sys.path:
+    sys.path.insert(0, str(current_dir))
+
+try:
+    from src.utils.logger import setup_logger
+    from src.scrapers.imovirtual import ImoVirtualScraper
+    from src.scrapers.idealista import IdealistaScraper
+    from src.scrapers.remax import RemaxScraper
+    from src.scrapers.era import EraScraper
+    from src.scrapers.casa_sapo import CasaSapoScraper
+    from src.scrapers.super_casa import SuperCasaScraper
+except ImportError as e:
+    from utils.logger import setup_logger
+    from scrapers.imovirtual import ImoVirtualScraper
+    from scrapers.idealista import IdealistaScraper
+    from scrapers.remax import RemaxScraper
+    from scrapers.era import EraScraper
+    from scrapers.casa_sapo import CasaSapoScraper
+    from scrapers.super_casa import SuperCasaScraper
+
+# Django imports
+try:
+    from houses.models import ScraperRun, MainRun
+    from django.utils import timezone
+except ImportError:
+    # Django is not set up, this should be handled by the caller
+    ScraperRun = None
+    MainRun = None
+    timezone = None
+
 from config.settings import (
     IMOVIRTUAL_URLS,
     REMAX_URLS,
@@ -80,7 +105,16 @@ def get_scraper_selection():
 
 def main(use_menu=True):
     try:
+        # Check if Django models are available
+        if ScraperRun is None or MainRun is None or timezone is None:
+            print("Error: Django is not properly set up. Please run this script through run_scrapers.py")
+            return
+            
         logger.info("[MAIN] Starting house scraping process")
+        
+        # Create a new main run
+        main_run = MainRun.objects.create(status='running')
+        logger.info(f"[MAIN] Created new main run: {main_run.id}")
         
         # Initialize scrapers based on menu selection or all scrapers
         if len(sys.argv) > 1 and sys.argv[1] == '--all':
@@ -105,6 +139,9 @@ def main(use_menu=True):
                 scrapers[name] = scraper_class(logger, urls, api_key)
             else:
                 scrapers[name] = scraper_class(logger, urls)
+            
+            # Set the main run for each scraper
+            scrapers[name].set_main_run(main_run)
 
         # Store statistics for this run
         stats = {}
@@ -131,6 +168,13 @@ def main(use_menu=True):
                     logger.error(f"[{scraper_name}] Scraper generated an exception: {str(e)}", exc_info=True)
                     stats[scraper_name] = {'total': 0, 'new': 0}
 
+        # Update main run with totals
+        main_run.total_houses = total_houses
+        main_run.new_houses = total_new
+        main_run.status = 'completed'
+        main_run.end_time = timezone.now()
+        main_run.save()
+
         # Display final statistics
         logger.info("[SUMMARY] === Scraping Statistics ===")
         for scraper_name, stat in stats.items():
@@ -152,6 +196,12 @@ def main(use_menu=True):
             
     except Exception as e:
         logger.error(f"[MAIN] An error occurred in the main process: {str(e)}", exc_info=True)
+        # Mark main run as failed if it exists
+        if 'main_run' in locals():
+            main_run.status = 'failed'
+            main_run.error_message = str(e)
+            main_run.end_time = timezone.now()
+            main_run.save()
         raise
 
 if __name__ == "__main__":

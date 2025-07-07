@@ -7,8 +7,12 @@ from bs4 import BeautifulSoup
 import time
 import random
 from datetime import datetime
-from src.utils.base_scraper import BaseScraper
-from src.utils.location_manager import LocationManager
+try:
+    from src.utils.base_scraper import BaseScraper
+    from src.utils.location_manager import LocationManager
+except Exception as e:
+    from utils.base_scraper import BaseScraper
+    from utils.location_manager import LocationManager
 import os
 import json
 import re

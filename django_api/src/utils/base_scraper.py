@@ -5,17 +5,38 @@ from datetime import datetime
 import os
 from pathlib import Path
 import json
-from config.settings import (
-    EXCEL_HEADERS,
-    NTFY_TOPIC,
-    NTFY_NOTIFICATION_ENABLED,
-    NTFY_PRICE_THRESHOLD,
-    NTFY_FILTER_ROOM_RENTALS,
-    ROOM_RENTAL_TITLE_TERMS,
-    ROOM_RENTAL_DESCRIPTION_TERMS
-)
+try:
+    from config.settings import (
+        EXCEL_HEADERS,
+        NTFY_TOPIC,
+        NTFY_NOTIFICATION_ENABLED,
+        NTFY_PRICE_THRESHOLD,
+        NTFY_FILTER_ROOM_RENTALS,
+        ROOM_RENTAL_TITLE_TERMS,
+        ROOM_RENTAL_DESCRIPTION_TERMS
+    )
+    from src.messenger.ntfy_sender import NtfySender
+except ImportError:
+    # Fallback for relative imports
+    import sys
+    from pathlib import Path
+    
+    # Add parent directories to path if not already there
+    current_dir = Path(__file__).parent.parent.parent
+    if str(current_dir) not in sys.path:
+        sys.path.insert(0, str(current_dir))
+    
+    from config.settings import (
+        EXCEL_HEADERS,
+        NTFY_TOPIC,
+        NTFY_NOTIFICATION_ENABLED,
+        NTFY_PRICE_THRESHOLD,
+        NTFY_FILTER_ROOM_RENTALS,
+        ROOM_RENTAL_TITLE_TERMS,
+        ROOM_RENTAL_DESCRIPTION_TERMS
+    )
+    from messenger.ntfy_sender import NtfySender
 import csv
-from src.messenger.ntfy_sender import NtfySender
 from houses.models import House, ScraperRun
 import uuid
 from django.utils import timezone

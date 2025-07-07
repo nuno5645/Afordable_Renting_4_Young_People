@@ -6,8 +6,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import time
 import random
-from src.utils.base_scraper import BaseScraper
-from src.utils.location_manager import LocationManager
+try:
+    from src.utils.base_scraper import BaseScraper
+    from src.utils.location_manager import LocationManager
+except Exception as e:
+    from utils.base_scraper import BaseScraper
+    from utils.location_manager import LocationManager
 from houses.models import House
 
 class RemaxScraper(BaseScraper):

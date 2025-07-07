@@ -19,7 +19,7 @@ class HouseViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['name', 'price', 'area_str', 'bedrooms', 'zone', 'freguesia', 'concelho', 'source', 'scraped_at']
     ordering = ['-scraped_at']
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         """

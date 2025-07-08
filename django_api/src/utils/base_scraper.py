@@ -50,13 +50,14 @@ db_lock = threading.Lock()
 
 class BaseScraper(ABC):
     def __init__(self, logger):
-        # Create a unique logger for each scraper instance to prevent duplicate logging
-        self.logger_name = f"house_scrapers.{self.__class__.__name__}.{id(self)}"
-        self.logger = self._setup_logger(logger)
-        
-        # Set logger level to DEBUG to capture all our detailed logs
-        if hasattr(self.logger, 'setLevel'):
-            self.logger.setLevel(logging.DEBUG)
+        # Store the ScraperLogger instance directly
+        if hasattr(logger, 'logger'):
+            # It's a ScraperLogger instance
+            self.logger = logger
+        else:
+            # It's a regular logger, wrap it
+            from utils.logger import ScraperLogger
+            self.logger = ScraperLogger(f"house_scrapers.{self.__class__.__name__}")
         # Commenting out WhatsApp 
         # self.whatsapp = WhatsAppSender() if WHATSAPP_NOTIFICATION_ENABLED else None
         self.source = "Unknown"  # Default source, should be overridden by child classes
@@ -74,33 +75,40 @@ class BaseScraper(ABC):
         # Initialize existing URLs set
         self.existing_urls = set()
 
-    def _setup_logger(self, parent_logger):
-        """Set up a unique logger for this scraper instance"""
-        # Create a new logger with a unique name
-        logger = logging.getLogger(self.logger_name)
-        
-        # If this logger already has handlers, don't add more
-        if logger.hasHandlers():
-            return logger
-            
-        # Set the level from the parent logger
-        logger.setLevel(parent_logger.level)
-        
-        # Don't propagate to the parent to avoid duplicate logs
-        logger.propagate = False
-        
-        # Add the same handlers as the parent logger
-        for handler in parent_logger.handlers:
-            logger.addHandler(handler)
-            
-        return logger
+
 
     def _log(self, level, message, **kwargs):
-        """Wrapper for logging that adds the scraper tag"""
+        """Wrapper for logging that adds the scraper tag and uses color coding"""
         tagged_message = f"[{self.source}] {message}"
-        if hasattr(self.logger, level):
-            log_method = getattr(self.logger, level)
-            log_method(tagged_message, **kwargs)
+        
+        # Map common log levels to colored methods
+        if level == 'info':
+            self.logger.info(tagged_message, **kwargs)
+        elif level == 'warning':
+            self.logger.warning(tagged_message, **kwargs)
+        elif level == 'error':
+            self.logger.error(tagged_message, **kwargs)
+        elif level == 'debug':
+            self.logger.debug(tagged_message, **kwargs)
+        else:
+            # For specific action levels, use the colored methods
+            if level == 'scraping':
+                self.logger.scraping(tagged_message, **kwargs)
+            elif level == 'processing':
+                self.logger.processing(tagged_message, **kwargs)
+            elif level == 'saving':
+                self.logger.saving(tagged_message, **kwargs)
+            elif level == 'loading':
+                self.logger.loading(tagged_message, **kwargs)
+            elif level == 'initializing':
+                self.logger.initializing(tagged_message, **kwargs)
+            elif level == 'filtering':
+                self.logger.filtering(tagged_message, **kwargs)
+            elif level == 'analyzing':
+                self.logger.analyzing(tagged_message, **kwargs)
+            else:
+                # Fallback to info
+                self.logger.info(tagged_message, **kwargs)
 
     @abstractmethod
     def scrape(self):
@@ -124,7 +132,7 @@ class BaseScraper(ABC):
                 status='initialized',
                 main_run=self.main_run
             )
-            self._log('info', f"Initialized new scraper run: {self.current_run.id}")
+            self._log('initializing', f"Initialized new scraper run: {self.current_run.id}")
         
     def _start_run(self):
         """Mark the current run as started"""
@@ -326,7 +334,7 @@ class BaseScraper(ABC):
                     # Save the house
                     house.save()
                     
-                    self._log('info', f"New listing found: {name} in {zone} - {price}€")
+                    self._log('scraping', f"New listing found: {name} in {zone} - {price}€")
                     
                     # Send notification if price is below threshold
                     if price > 0 and price <= self.price_threshold:
@@ -381,7 +389,7 @@ class BaseScraper(ABC):
                     normalized_urls.append(url)
                     
             self.existing_urls = set(normalized_urls)
-            self._log('info', f"Loaded {len(self.existing_urls)} existing property URLs from database")
+            self._log('loading', f"Loaded {len(self.existing_urls)} existing property URLs from database")
         except Exception as e:
             self._log('warning', f"Error loading existing URLs: {str(e)}")
             # Continue with an empty set if there was an error

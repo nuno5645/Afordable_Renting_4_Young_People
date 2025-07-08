@@ -7,8 +7,12 @@ from selenium.common.exceptions import TimeoutException
 from bs4 import BeautifulSoup
 import time
 import random
-from src.utils.base_scraper import BaseScraper
-from src.utils.location_manager import LocationManager
+try:
+    from src.utils.base_scraper import BaseScraper
+    from src.utils.location_manager import LocationManager
+except Exception as e:
+    from utils.base_scraper import BaseScraper
+    from utils.location_manager import LocationManager
 import re
 import json
 import os
@@ -35,7 +39,7 @@ class CasaSapoScraper(BaseScraper):
     def scrape(self):
         """Scrape houses from Casa SAPO website"""
         for site_url in self.urls:
-            self._log('info', f"Starting scrape for Casa SAPO URL: {site_url}")
+            self._log('initializing', f"Starting scrape for Casa SAPO URL: {site_url}")
             page_num = 1
             max_pages = 2  # Safety limit
 
@@ -45,7 +49,7 @@ class CasaSapoScraper(BaseScraper):
                     break
                 page_num += 1
 
-        self._log('info', "Finished processing all pages for Casa SAPO")
+        self._log('analyzing', "Finished processing all pages for Casa SAPO")
 
     def _process_page(self, url, page_num):
         """Process a single page of listings"""
@@ -55,7 +59,7 @@ class CasaSapoScraper(BaseScraper):
             current_url = f"{url}&pn={page_num}"
 
         try:
-            self._log('info', f"Processing page {page_num}...")
+            self._log('scraping', f"Processing page {page_num}...")
             if page_num > 1:
                 time.sleep(5)  # Wait between pages
                 
@@ -98,9 +102,9 @@ class CasaSapoScraper(BaseScraper):
                     '''
                 })
                 
-                self._log('info', "Chrome driver initialized successfully")
+                self._log('initializing', "Chrome driver initialized successfully")
                 driver.get(current_url)
-                self._log('info', f"Navigated to URL: {current_url}")
+                self._log('loading', f"Navigated to URL: {current_url}")
                 time.sleep(random.uniform(8, 12))  # Randomized wait
                 
                 # Wait for property items to be present
@@ -108,9 +112,9 @@ class CasaSapoScraper(BaseScraper):
                     property_items = WebDriverWait(driver, 15).until(
                         EC.presence_of_all_elements_located((By.CLASS_NAME, "property-info-content"))
                     )
-                    self._log('info', f"Found {len(property_items)} property items")
+                    self._log('processing', f"Found {len(property_items)} property items")
                     if len(property_items) == 0:
-                        self._log('info', "No properties found on this page, stopping pagination")
+                        self._log('analyzing', "No properties found on this page, stopping pagination")
                         driver.quit()
                         return False  # Signal to stop pagination
                 except Exception as e:
@@ -171,14 +175,14 @@ class CasaSapoScraper(BaseScraper):
                             
                         # Store the property URL securely
                         property_url = url
-                        self._log('info', f"Extracted property URL: {property_url}")
+                        self._log('processing', f"Extracted property URL: {property_url}")
                     except Exception as e:
                         self._log('warning', f"Error extracting property URL: {str(e)}")
                         continue
                     
                     # Skip if URL already exists in our database
                     if self.url_exists(property_url):
-                        self._log('info', f"Skipping already processed property: {property_url}")
+                        self._log('filtering', f"Skipping already processed property: {property_url}")
                         continue
                     
                     # Get property type and name

@@ -12,7 +12,7 @@ if str(current_dir) not in sys.path:
     sys.path.insert(0, str(current_dir))
 
 try:
-    from src.utils.logger import setup_logger
+    from src.utils.logger import ScraperLogger
     from src.scrapers.imovirtual import ImoVirtualScraper
     from src.scrapers.idealista import IdealistaScraper
     from src.scrapers.remax import RemaxScraper
@@ -20,7 +20,7 @@ try:
     from src.scrapers.casa_sapo import CasaSapoScraper
     from src.scrapers.super_casa import SuperCasaScraper
 except ImportError as e:
-    from utils.logger import setup_logger
+    from utils.logger import ScraperLogger
     from scrapers.imovirtual import ImoVirtualScraper
     from scrapers.idealista import IdealistaScraper
     from scrapers.remax import RemaxScraper
@@ -48,13 +48,13 @@ from config.settings import (
     SCRAPER_API_KEY,
 )
 
-# Setup logger
-logger = setup_logger(__name__)
+# Setup colored logger
+logger = ScraperLogger(__name__)
 
 def run_scraper(scraper_name, scraper_instance):
     """Run a scraper and handle any exceptions"""
     try:
-        logger.info(f"[{scraper_name}] Starting scraper...")
+        logger.initializing(f"[{scraper_name}] Starting scraper...")
         
         # Run the scraper (initialization is handled internally)
         scraper_instance.run()
@@ -63,7 +63,7 @@ def run_scraper(scraper_name, scraper_instance):
         total = scraper_instance.current_run.total_houses if scraper_instance.current_run else 0
         new = scraper_instance.current_run.new_houses if scraper_instance.current_run else 0
         
-        logger.info(f"[{scraper_name}] Finished scraper - Total Houses: {total}, New Houses: {new}")
+        logger.analyzing(f"[{scraper_name}] Finished scraper - Total Houses: {total}, New Houses: {new}")
         return total, new
     except Exception as e:
         logger.error(f"[{scraper_name}] Error in scraper: {str(e)}", exc_info=True)
@@ -110,11 +110,11 @@ def main(use_menu=True):
             print("Error: Django is not properly set up. Please run this script through run_scrapers.py")
             return
             
-        logger.info("[MAIN] Starting house scraping process")
+        logger.initializing("[MAIN] Starting house scraping process")
         
         # Create a new main run
         main_run = MainRun.objects.create(status='running')
-        logger.info(f"[MAIN] Created new main run: {main_run.id}")
+        logger.loading(f"[MAIN] Created new main run: {main_run.id}")
         
         # Initialize scrapers based on menu selection or all scrapers
         if len(sys.argv) > 1 and sys.argv[1] == '--all':
@@ -176,11 +176,11 @@ def main(use_menu=True):
         main_run.save()
 
         # Display final statistics
-        logger.info("[SUMMARY] === Scraping Statistics ===")
+        logger.analyzing("[SUMMARY] === Scraping Statistics ===")
         for scraper_name, stat in stats.items():
-            logger.info(f"[{scraper_name}] Total Houses: {stat['total']}, New Houses: {stat['new']}")
-        logger.info(f"[SUMMARY] Total: Total Houses: {total_houses}, New Houses: {total_new}")
-        logger.info("[MAIN] House scraping process completed")
+            logger.analyzing(f"[{scraper_name}] Total Houses: {stat['total']}, New Houses: {stat['new']}")
+        logger.analyzing(f"[SUMMARY] Total: Total Houses: {total_houses}, New Houses: {total_new}")
+        logger.analyzing("[MAIN] House scraping process completed")
         
         # Get today's runs for additional statistics
         today = timezone.now().date()
@@ -192,7 +192,7 @@ def main(use_menu=True):
         if today_runs.exists():
             total_today_houses = sum(run.total_houses for run in today_runs)
             total_today_new = sum(run.new_houses for run in today_runs)
-            logger.info(f"[SUMMARY] Today's Total: Total Houses: {total_today_houses}, New Houses: {total_today_new}")
+            logger.analyzing(f"[SUMMARY] Today's Total: Total Houses: {total_today_houses}, New Houses: {total_today_new}")
             
     except Exception as e:
         logger.error(f"[MAIN] An error occurred in the main process: {str(e)}", exc_info=True)

@@ -49,11 +49,14 @@ class RemaxScraper(BaseScraper):
             
             self._log('info', "Accessing website...")
             driver.get(url)
-            time.sleep(30)  # Fixed 30-second wait for page load
-
-            # Wait for the listings container to be present
-            try:
-                WebDriverWait(driver, 15).until(
+            
+            # Scroll to trigger lazy loading
+            for _ in range(6):
+                driver.execute_script("window.scrollBy(0, window.innerHeight);")
+                time.sleep(1)
+            try: 
+                # Wait for actual listing content
+                WebDriverWait(driver, 25).until(
                     EC.presence_of_element_located((By.CSS_SELECTOR, "div[data-id='listing-card-container']"))
                 )
             except Exception as e:
@@ -64,6 +67,10 @@ class RemaxScraper(BaseScraper):
             page_content = driver.page_source
             soup = BeautifulSoup(page_content, 'html.parser')
             self._log('info', "Successfully retrieved page content")
+
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            # Wait 5 seconds to allow dynamic content to load
+            time.sleep(5)
 
             driver.quit()
 
@@ -93,9 +100,11 @@ class RemaxScraper(BaseScraper):
                         name = f"{type_elem.text.strip()} Remax"
                     else:
                         # Try alternative selector for property type
-                        type_elem = house.find("div", class_="bg-lighter-blue").find("b")
-                        if type_elem and type_elem.text.strip() != "":
-                            name = f"{type_elem.text.strip()} Remax"
+                        alt_div = house.find("div", class_="bg-lighter-blue")
+                        if alt_div:
+                            type_elem = alt_div.find("b")
+                            if type_elem and type_elem.text.strip() != "":
+                                name = f"{type_elem.text.strip()} Remax"
                     self._log('debug', f"Found property type: {name}")
 
                     zone = "N/A"
@@ -172,7 +181,7 @@ class RemaxScraper(BaseScraper):
                                     area = value
                                 elif value.isdigit():
                                     bedrooms = f"T{value}"
-                    
+                                    
                     self._log('debug', f"Found bedrooms: {bedrooms}, area: {area}")
 
                     description = "N/A"  # Remax doesn't show description in listing cards

@@ -24,6 +24,18 @@ class ImoVirtualScraper(BaseScraper):
         self.location_manager = LocationManager()
         self._load_existing_urls()
         
+    def _extract_location_from_address(self, address):
+        """Extract freguesia and concelho from address string"""
+        try:
+            parts = [p.strip() for p in address.split(',')]
+            if len(parts) >= 3:
+                concelho = parts[-2]  # Second part
+                freguesia = parts[-3]  # Third to last part
+                return freguesia, concelho
+        except:
+            pass
+        return "N/A", "N/A"
+        
 
     def scrape(self):
         """Scrape houses from ImoVirtual website"""
@@ -613,8 +625,8 @@ class ImoVirtualScraper(BaseScraper):
                         # Get description from selenium results
                         description = selenium_descriptions[idx] if idx < len(selenium_descriptions) else "N/A"
                         
-                        # Extract freguesia and concelho
-                        freguesia, concelho = self.location_manager.extract_location(zone)
+                        # Extract freguesia and concelho from address
+                        freguesia, concelho = self._extract_location_from_address(zone)
                         
                         # Order: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Freguesia, Concelho, Source, ScrapedAt, ImageURLs
                         info_list = [
@@ -626,8 +638,8 @@ class ImoVirtualScraper(BaseScraper):
                             area,           # Area
                             floor,          # Floor (now extracted from the listing)
                             description,    # Description
-                            freguesia if freguesia else "N/A",
-                            concelho if concelho else "N/A",
+                            freguesia,
+                            concelho,
                             "Imovirtual",   # Source
                             None,           # ScrapedAt (will be filled by save_to_excel)
                             image_urls      # Pass the list of image URLs directly

@@ -103,12 +103,12 @@ struct AnalyticsView: View {
     private func calculateAverageArea() -> Double {
         guard !properties.isEmpty else { return 0 }
         
-        // Filter out properties with empty or invalid area_str
+        // Filter out properties with empty or invalid area strings 
         let propertiesWithArea = properties.filter { property in
-            let areaStr = property.areaStr
-            guard !areaStr.isEmpty else { return false }
+            let area = property.area
+            guard !area.isEmpty else { return false }
             // Extract numeric value from string (e.g., "100 m²" -> "100")
-            let numericStr = areaStr.components(separatedBy: CharacterSet.decimalDigits.inverted)
+            let numericStr = area.components(separatedBy: CharacterSet.decimalDigits.inverted)
                                   .joined()
             return Double(numericStr) ?? 0 > 0
         }

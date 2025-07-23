@@ -47,7 +47,6 @@ This file defines the project structure and naming conventions for the iOS app a
 - url → url
 - bedrooms → bedrooms
 - area → area
-- area_str → areaStr
 - contacted → contacted
 - favorite → isFavorite
 - discarded → discarded

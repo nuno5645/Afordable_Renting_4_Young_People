@@ -260,7 +260,7 @@ class BaseScraper(ABC):
             price_str = str(info_list[2]).strip() if len(info_list) > 2 and info_list[2] is not None else '0'
             url = str(info_list[3]).strip() if len(info_list) > 3 and info_list[3] is not None else ''
             bedrooms = str(info_list[4]).strip() if len(info_list) > 4 and info_list[4] is not None else ''
-            area_str = str(info_list[5]).strip() if len(info_list) > 5 and info_list[5] is not None else '0'
+            area = str(info_list[5]).strip() if len(info_list) > 5 and info_list[5] is not None else '0'
             floor = str(info_list[6]).strip() if len(info_list) > 6 and info_list[6] is not None else ''
             description = str(info_list[7]).strip() if len(info_list) > 7 and info_list[7] is not None else ''
             freguesia = str(info_list[8]).strip() if len(info_list) > 8 and info_list[8] is not None else ''
@@ -270,7 +270,7 @@ class BaseScraper(ABC):
             image_urls = info_list[12] if len(info_list) > 12 and info_list[12] is not None else info_list[11] if len(info_list) > 11 and info_list[11] is not None else []
             # Clean price and area
             price = self._clean_price(price_str)
-            area = area_str.replace('m²', '').strip()
+            area = area.replace('m²', '').strip()
 
             # Generate house_id
             house_id = str(uuid.uuid4())[:20]
@@ -298,8 +298,7 @@ class BaseScraper(ABC):
                         price=price,
                         url=normalized_url,  # Use normalized URL
                         bedrooms=bedrooms,
-                        area=Decimal(0),
-                        area_str=area,
+                        area=area,
                         floor=floor if floor and floor != 'N/A' else None,
                         description=description,
                         freguesia=freguesia,
@@ -329,7 +328,7 @@ class BaseScraper(ABC):
                             price=price,
                             url=url,
                             bedrooms=bedrooms,
-                            area=area_str,
+                            area=area,
                             floor=floor,
                             description=description
                         )

@@ -19,7 +19,6 @@ struct HouseResponse: Codable {
     let url: String
     let bedrooms: String
     let area: String
-    let area_str: String?
     let source: String
     let imageUrls: String?
     let is_contacted: Bool
@@ -29,7 +28,7 @@ struct HouseResponse: Codable {
     let scrapedAt: String
     
     enum CodingKeys: String, CodingKey {
-        case name, zone, price, url, bedrooms, area, area_str, source
+        case name, zone, price, url, bedrooms, area, source
         case imageUrls = "image_urls"
         case is_contacted, is_favorite, is_discarded
         case houseId = "house_id"
@@ -152,8 +151,8 @@ class NetworkService: NSObject, URLSessionDelegate {
                         let imageUrlArray = house.imageUrls?.components(separatedBy: "|||") ?? []
                         
                         // Log area values for debugging
-                        if house.area_str == nil {
-                            print("⚠️ NetworkService: House \(house.houseId) has null area_str, using numeric area: \(house.area)")
+                        if house.area == nil {
+                            print("⚠️ NetworkService: House \(house.houseId) has null area, using numeric area: \(house.area)")
                         }
                         
                         return Property(
@@ -163,7 +162,6 @@ class NetworkService: NSObject, URLSessionDelegate {
                             location: house.zone,
                             bedrooms: Int(house.bedrooms) ?? 0,
                             area: Double(house.area) ?? 0,
-                            areaStr: house.area_str ?? "",
                             source: house.source,
                             hasPhoto: !imageUrlArray.isEmpty,
                             isFavorite: house.is_favorite,

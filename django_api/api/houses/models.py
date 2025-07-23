@@ -10,7 +10,6 @@ class House(models.Model):
     url = models.URLField(max_length=500)
     bedrooms = models.CharField(max_length=50)  # Using CharField as it might contain text like "T2"
     area = models.DecimalField(max_digits=8, decimal_places=2)
-    area_str = models.CharField(max_length=50, null=True, blank=True)
     floor = models.CharField(max_length=50, null=True, blank=True)
     description = models.TextField()
     freguesia = models.CharField(max_length=100)

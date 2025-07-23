@@ -30,10 +30,12 @@ class ImoVirtualScraper(BaseScraper):
         for site_url in self.urls:
             self._log('info', f"Starting scrape for URL: {site_url}")
             page_num = 1
-            max_pages = 2  # Safety limit
+            max_pages = 50  # Increased safety limit
 
             while page_num <= max_pages:
-                if not self._process_page(site_url, page_num):
+                continue_scraping = self._process_page(site_url, page_num)
+                if not continue_scraping:
+                    self._log('info', f"Stopping scraping - no more pages or no new listings found")
                     break
                 page_num += 1
 
@@ -225,9 +227,7 @@ class ImoVirtualScraper(BaseScraper):
                                 if visible_img:
                                     img_url = visible_img.get_attribute('src')
                                     if img_url:
-                                        self._log('info', f"Found initial image: {img_url}")
                                         image_urls_for_article.add(img_url)
-                                        self._log('debug', f"[IMAGE_DEBUG] Added initial image, current count: {len(image_urls_for_article)}")
                                     else:
                                         self._log('warning', "Initial image found but src attribute is empty")
                                 else:
@@ -257,7 +257,6 @@ class ImoVirtualScraper(BaseScraper):
                                                     total_text = text
                                                     # Extract the total number from the format "1 / 13"
                                                     total_images = int(total_text.split('/')[-1].strip())
-                                                    self._log('info', f"Found image counter text: {total_text}, total: {total_images}")
                                                     break
                                             if total_images > 1:
                                                 break
@@ -268,8 +267,7 @@ class ImoVirtualScraper(BaseScraper):
                                         # Check if there's a next button as a fallback
                                         next_buttons = article.find_elements(By.CSS_SELECTOR, "button[aria-label='Next slide']")
                                         if next_buttons and len(next_buttons) > 0:
-                                            total_images = 10  # Assume there are multiple images if next button exists
-                                            self._log('info', f"No counter found, but next button exists. Assuming {total_images} images.")
+                                            total_images = 100  # Assume there are multiple images if next button exists (high limit)
                                 except Exception as counter_error:
                                     self._log('warning', f"Error finding image counter: {str(counter_error)}")
                                     total_images = 1  # Default to 1 if we can't find the counter
@@ -287,10 +285,9 @@ class ImoVirtualScraper(BaseScraper):
                                 
                                 # Click through remaining images
                                 if next_button:
-                                    for i in range(min(total_images - 1, 9)):  # -1 because we already have the first image, limit to 10 total
+                                    for i in range(total_images - 1):  # -1 because we already have the first image, no limit
                                         try:
                                             driver.execute_script("arguments[0].click();", next_button)
-                                            time.sleep(0.5)  # Increased wait for image to load
                                             
                                             # Get the current image from the next div - try multiple selectors
                                             try:
@@ -318,9 +315,7 @@ class ImoVirtualScraper(BaseScraper):
                                                 if current_img:
                                                     img_url = current_img.get_attribute('src')
                                                     if img_url and img_url not in image_urls_for_article:
-                                                        self._log('info', f"Found image {i+2}/{total_images}: {img_url}")
                                                         image_urls_for_article.add(img_url)
-                                                        self._log('debug', f"[IMAGE_DEBUG] Added image {i+2}, current count: {len(image_urls_for_article)}")
                                                 else:
                                                     self._log('warning', f"Could not find image {i+2} with any selector")
                                             except Exception as img_error:
@@ -334,8 +329,7 @@ class ImoVirtualScraper(BaseScraper):
                             except Exception as e:
                                 self._log('warning', f"Error cycling through images: {str(e)}")
                             
-                            self._log('info', f"Total unique images collected: {len(image_urls_for_article)}")
-                            self._log('debug', f"[IMAGE_DEBUG] Final image URLs for article {idx+1}: {list(image_urls_for_article)}")
+                            self._log('info', f"Article {idx+1}: Collected {len(image_urls_for_article)} images")
                             selenium_image_urls.append(list(image_urls_for_article))
                             
                             # Find and click "Ver descrição do anúncio"
@@ -581,7 +575,7 @@ class ImoVirtualScraper(BaseScraper):
                         # No need to convert to JSON string anymore - we'll pass the list directly
                         self._log('debug', f"[IMAGE_DEBUG] Image URLs to pass: {image_urls}")
                         
-                        price_elem = article.find('span', {'direction': 'horizontal'})
+                        price_elem = article.find('span', {'data-sentry-element': 'MainPrice'})
                         price = price_elem.text.strip() if price_elem else "N/A"
                         
                         location_elem = article.find('p', {'class': 'css-42r2ms eejmx80'})
@@ -590,20 +584,29 @@ class ImoVirtualScraper(BaseScraper):
                         details_elem = article.find('dl')
                         if details_elem:
                             dd_elements = details_elem.find_all('dd')
-                            bedrooms = dd_elements[0].text.strip() if len(dd_elements) > 0 else "N/A"
-                            area = dd_elements[1].text.strip() if len(dd_elements) > 1 else "N/A"
-                            
-                            # Extract floor information
+                            bedrooms = "N/A"
+                            area = "N/A"
                             floor = "N/A"
+                            
+                            # Extract bedrooms, area and floor from dd elements
                             for dd in dd_elements:
-                                floor_text = dd.text.strip()
-                                if "piso" in floor_text.lower():
-                                    # Extract the floor number from text like "6 piso"
-                                    try:
-                                        floor = floor_text.split()[0]  # Get the number before "piso"
-                                    except:
-                                        floor = floor_text
-                                    break
+                                dd_text = dd.text.strip()
+                                # Check for bedrooms (T0, T1, T2, etc.)
+                                if dd_text.startswith('T') and bedrooms == "N/A":
+                                    bedrooms = dd_text
+                                # Check for area (contains m²)
+                                elif 'm²' in dd_text and area == "N/A":
+                                    area = dd_text
+                                # Check for floor information
+                                elif floor == "N/A":
+                                    if "rés do chão" in dd_text.lower():
+                                        floor = "0"
+                                    elif "piso" in dd_text.lower():
+                                        # Extract number from "X piso" format
+                                        try:
+                                            floor = dd_text.split()[0]
+                                        except:
+                                            floor = dd_text
                         else:
                             bedrooms = area = floor = "N/A"
                         
@@ -662,7 +665,29 @@ class ImoVirtualScraper(BaseScraper):
                         self._log('error', f"Error processing house: {str(e)}")
                         continue
 
-                return found_new_listing
+                # Check if there's a next page
+                has_next_page = False
+                try:
+                    # Look for pagination component
+                    pagination = soup.find('ul', {'data-cy': 'nexus-pagination-component'})
+                    if pagination:
+                        # Find current page (aria-selected="true")
+                        current_page_elem = pagination.find('li', {'aria-selected': 'true'})
+                        current_page = int(current_page_elem.text.strip()) if current_page_elem else page_num
+                        
+                        # Check for next page button (not disabled)
+                        next_button = pagination.find('li', {'aria-label': 'Go to next Page'})
+                        if next_button and next_button.get('aria-disabled') != 'true':
+                            has_next_page = True
+                            self._log('info', f"Next page available after page {current_page}")
+                        else:
+                            self._log('info', f"No more pages after page {current_page}")
+                    else:
+                        self._log('warning', "Pagination component not found")
+                except Exception as pagination_error:
+                    self._log('warning', f"Error checking pagination: {str(pagination_error)}")
+
+                return found_new_listing and has_next_page
 
             except Exception as e:
                 self._log('error', f"Error initializing Chrome: {str(e)}")

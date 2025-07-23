@@ -18,7 +18,7 @@ class HouseSerializer(serializers.ModelSerializer):
     class Meta:
         model = House
         fields = [
-            'name', 'zone', 'price', 'url', 'bedrooms', 'area', 'area_str', 'floor',
+            'name', 'zone', 'price', 'url', 'bedrooms', 'area', 'floor',
             'description', 'freguesia', 'concelho', 'source', 'scraped_at',
             'house_id', 'is_favorite', 'is_contacted', 'is_discarded', 'photos'
         ]
@@ -45,10 +45,10 @@ class HouseSerializer(serializers.ModelSerializer):
         """
         if isinstance(obj.area, str):
             # Remove any non-numeric characters except decimal point
-            area_str = ''.join(c for c in obj.area if c.isdigit() or c == '.')
+            area = ''.join(c for c in obj.area if c.isdigit() or c == '.')
             try:
                 # Try to convert to float and then to string
-                return str(float(area_str))
+                return str(float(area))
             except ValueError:
                 return "0"
                 

@@ -17,7 +17,7 @@ class HouseViewSet(viewsets.ModelViewSet):
     pagination_class = None  # Disable pagination
     lookup_field = 'house_id'
     filter_backends = [filters.OrderingFilter]
-    ordering_fields = ['name', 'price', 'area_str', 'bedrooms', 'zone', 'freguesia', 'concelho', 'source', 'scraped_at']
+    ordering_fields = ['name', 'price', 'area', 'bedrooms', 'zone', 'freguesia', 'concelho', 'source', 'scraped_at']
     ordering = ['-scraped_at']
     # permission_classes = [permissions.IsAuthenticated]
 

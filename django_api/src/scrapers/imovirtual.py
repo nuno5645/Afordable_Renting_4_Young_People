@@ -97,11 +97,77 @@ class ImoVirtualScraper(BaseScraper):
                 
                 # Find and click all description expanders
                 try:
+                    self._log('info', "Attempting to find articles on the page...")
+                    
+                    # First, let's see what's actually on the page
+                    try:
+                        page_source_sample = driver.page_source[:2000]  # First 2000 chars
+                        self._log('debug', f"Page source sample: {page_source_sample}")
+                        
+                        # Check for common blocking indicators
+                        if "cloudflare" in page_source_sample.lower():
+                            self._log('error', "Cloudflare detected in page source")
+                        if "captcha" in page_source_sample.lower():
+                            self._log('error', "CAPTCHA detected in page source")
+                        if "blocked" in page_source_sample.lower():
+                            self._log('error', "Blocked message detected in page source")
+                        if "403" in page_source_sample or "forbidden" in page_source_sample.lower():
+                            self._log('error', "403/Forbidden detected in page source")
+                            
+                        # Check for different article selectors
+                        alternative_selectors = [
+                            "article[data-cy='listing-item']",
+                            "article",
+                            "div[data-cy='listing-item']",
+                            ".listing-item",
+                            "[data-testid*='listing']",
+                            ".property-item",
+                            ".search-result",
+                            ".listing"
+                        ]
+                        
+                        for selector in alternative_selectors:
+                            try:
+                                elements = driver.find_elements(By.CSS_SELECTOR, selector)
+                                self._log('debug', f"Selector '{selector}' found {len(elements)} elements")
+                                if len(elements) > 0:
+                                    # Log some details about the first element
+                                    first_elem = elements[0]
+                                    self._log('debug', f"First element HTML sample: {first_elem.get_attribute('outerHTML')[:500]}")
+                            except Exception as selector_error:
+                                self._log('debug', f"Selector '{selector}' failed: {str(selector_error)}")
+                        
+                        # Check for any divs or sections that might contain listings
+                        general_containers = [
+                            "main",
+                            ".search-results",
+                            ".results",
+                            ".listings",
+                            "#search-results",
+                            "[data-testid*='search']",
+                            "[data-testid*='result']"
+                        ]
+                        
+                        for container in general_containers:
+                            try:
+                                elements = driver.find_elements(By.CSS_SELECTOR, container)
+                                if len(elements) > 0:
+                                    self._log('debug', f"Container '{container}' found with {len(elements)} elements")
+                                    # Check if it has children
+                                    children = elements[0].find_elements(By.XPATH, ".//*")
+                                    self._log('debug', f"Container '{container}' has {len(children)} child elements")
+                            except Exception as container_error:
+                                self._log('debug', f"Container '{container}' check failed: {str(container_error)}")
+                                
+                    except Exception as debug_error:
+                        self._log('error', f"Error during page debugging: {str(debug_error)}")
+                    
                     # Wait for articles to be present with increased timeout
+                    # Updated selector based on actual HTML structure
                     articles = WebDriverWait(driver, 15).until(
-                        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "article[data-cy='listing-item']"))
+                        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "article[data-sentry-component='AdvertCard']"))
                     )
-                    self._log('info', f"Found {len(articles)} articles")
+                    self._log('info', f"Successfully found {len(articles)} articles")
                     
                     # Process each article with Selenium first
                     selenium_descriptions = []
@@ -109,6 +175,7 @@ class ImoVirtualScraper(BaseScraper):
                     
                     for idx, article in enumerate(articles):
                         try:
+                            self._log('debug', f"Processing article {idx + 1}/{len(articles)}...")
                             # Extract URL first to check if already processed
                             try:
                                 if self.current_run:
@@ -116,7 +183,7 @@ class ImoVirtualScraper(BaseScraper):
                                     self.current_run.save()
                                 link_elem = article.find_element(By.CSS_SELECTOR, "a[data-cy='listing-item-link']")
                                 url = link_elem.get_attribute('href') if link_elem else "N/A"
-                                self._log('info', f"Extracted URL: {url}")
+                                self._log('debug', f"Article {idx + 1} URL: {url}")
                                 # Skip if URL already exists in our database
                                 if self.url_exists(url):
                                     self._log('info', f"Skipping already processed property in Selenium phase: {url}")
@@ -125,7 +192,7 @@ class ImoVirtualScraper(BaseScraper):
                                     selenium_image_urls.append([])
                                     continue
                             except Exception as url_error:
-                                self._log('warning', f"Error extracting URL in Selenium phase: {str(url_error)}")
+                                self._log('warning', f"Error extracting URL in Selenium phase for article {idx + 1}: {str(url_error)}")
                                 url = "N/A"  # Could not extract URL, will process anyway
                             
                             # Get all images from the carousel
@@ -273,6 +340,7 @@ class ImoVirtualScraper(BaseScraper):
                             
                             # Find and click "Ver descrição do anúncio"
                             try:
+                                self._log('debug', f"Searching for description button in article {idx + 1}...")
                                 # Updated selector for the description button
                                 description_button = None
                                 button_selectors = [
@@ -282,22 +350,27 @@ class ImoVirtualScraper(BaseScraper):
                                     ".//div[contains(text(), 'Ver descrição')]"
                                 ]
                                 
-                                for selector in button_selectors:
+                                for selector_idx, selector in enumerate(button_selectors):
                                     try:
                                         elements = article.find_elements(By.XPATH, selector)
                                         if elements and len(elements) > 0:
                                             description_button = elements[0]
+                                            self._log('debug', f"Found description button using selector {selector_idx + 1}: {selector}")
                                             break
-                                    except:
+                                    except Exception as selector_error:
+                                        self._log('debug', f"Selector {selector_idx + 1} failed: {str(selector_error)}")
                                         continue
                                 
                                 if description_button:
+                                    self._log('debug', f"Clicking description button for article {idx + 1}...")
                                     driver.execute_script("arguments[0].click()", description_button)
                                     time.sleep(random.uniform(0.8, 1.2))  # Increased wait for description to load
+                                    self._log('debug', f"Description button clicked successfully for article {idx + 1}")
                                 else:
-                                    self._log('warning', "Description button not found with any selector")
+                                    self._log('warning', f"Description button not found with any selector for article {idx + 1}")
                                 
                                 # Try multiple selectors for the description text
+                                self._log('debug', f"Searching for description text in article {idx + 1}...")
                                 description_text = ""
                                 selectors = [
                                     "div.css-1b63dzw",  # Old selector
@@ -311,45 +384,133 @@ class ImoVirtualScraper(BaseScraper):
                                     "div.css-1s259kx + div"  # Div after the button
                                 ]
                                 
-                                for selector in selectors:
+                                for desc_selector_idx, selector in enumerate(selectors):
                                     try:
                                         elements = article.find_elements(By.CSS_SELECTOR, selector)
                                         if elements and len(elements) > 0:
-                                            for element in elements:
+                                            for element_idx, element in enumerate(elements):
                                                 text = element.text.strip()
                                                 if text and "Ver descrição do anúncio" not in text:
                                                     description_text = text
+                                                    self._log('debug', f"Found description using selector {desc_selector_idx + 1}, element {element_idx + 1}: {text[:100]}...")
                                                     break
                                             if description_text:
                                                 break
-                                    except:
+                                    except Exception as desc_selector_error:
+                                        self._log('debug', f"Description selector {desc_selector_idx + 1} failed: {str(desc_selector_error)}")
                                         continue
                                 
                                 # If still no description, try a more generic approach
                                 if not description_text:
                                     try:
+                                        self._log('debug', f"Trying fallback method for description in article {idx + 1}...")
                                         # Wait for the details to expand
                                         time.sleep(0.5)
                                         # Get all text from the details element
                                         details_elem = article.find_element(By.CSS_SELECTOR, "details")
                                         description_text = details_elem.text.replace("Ver descrição do anúncio", "").strip()
-                                    except:
+                                        if description_text:
+                                            self._log('debug', f"Found description using fallback method: {description_text[:100]}...")
+                                        else:
+                                            self._log('warning', f"Fallback method returned empty description for article {idx + 1}")
+                                    except Exception as fallback_error:
+                                        self._log('warning', f"Fallback description method failed for article {idx + 1}: {str(fallback_error)}")
                                         pass
                                 
+                                if not description_text:
+                                    self._log('warning', f"No description found for article {idx + 1} after trying all methods")
+                                
                             except Exception as click_error:
-                                self._log('warning', f"Error clicking or getting description: {str(click_error)}")
+                                self._log('error', f"Error clicking or getting description for article {idx + 1}: {str(click_error)}")
                                 description_text = "N/A"
                             
                             selenium_descriptions.append(description_text if description_text else "N/A")
                         except Exception as e:
-                            self._log('warning', f"Error processing article: {str(e)}")
+                            self._log('error', f"Error processing article {idx + 1}: {str(e)}")
                             selenium_descriptions.append("N/A")
                             selenium_image_urls.append([])
 
                     # Wait a bit for all descriptions to be fully expanded
+                    self._log('debug', "Waiting for all descriptions to be fully expanded...")
                     time.sleep(2)
+                    self._log('debug', f"Successfully processed {len(selenium_descriptions)} descriptions")
                 except Exception as e:
-                    self._log('warning', f"Error expanding descriptions: {str(e)}")
+                    self._log('error', f"Error expanding descriptions - Full details: {str(e)}")
+                    self._log('error', f"Error type: {type(e).__name__}")
+                    self._log('error', f"Error args: {e.args}")
+                    
+                    # Try to get more context about the current state
+                    try:
+                        current_url = driver.current_url
+                        self._log('error', f"Current URL when error occurred: {current_url}")
+                        page_title = driver.title
+                        self._log('error', f"Page title when error occurred: {page_title}")
+                        
+                        # Get full page source to analyze
+                        full_page_source = driver.page_source
+                        self._log('error', f"Full page source length: {len(full_page_source)} characters")
+                        
+                        # Save page source to file for debugging
+                        debug_file = "/tmp/imovirtual_debug.html"
+                        try:
+                            with open(debug_file, 'w', encoding='utf-8') as f:
+                                f.write(full_page_source)
+                            self._log('error', f"Page source saved to: {debug_file}")
+                        except Exception as save_error:
+                            self._log('error', f"Could not save page source: {str(save_error)}")
+                        
+                        # Check if we can still find articles
+                        articles_check = driver.find_elements(By.CSS_SELECTOR, "article[data-sentry-component='AdvertCard']")
+                        self._log('error', f"Articles still visible: {len(articles_check)}")
+                        
+                        # Try alternative selectors one more time
+                        alternative_selectors_final = [
+                            "article",
+                            "div[data-cy*='listing']",
+                            ".listing",
+                            "[class*='listing']",
+                            "[data-testid*='listing']"
+                        ]
+                        
+                        for selector in alternative_selectors_final:
+                            try:
+                                alt_elements = driver.find_elements(By.CSS_SELECTOR, selector)
+                                if len(alt_elements) > 0:
+                                    self._log('error', f"Alternative selector '{selector}' found {len(alt_elements)} elements")
+                                    # Show sample of first element
+                                    sample_html = alt_elements[0].get_attribute('outerHTML')[:300]
+                                    self._log('error', f"Sample HTML: {sample_html}")
+                            except Exception as alt_error:
+                                self._log('error', f"Alternative selector '{selector}' failed: {str(alt_error)}")
+                        
+                        # Check for any error messages on the page
+                        error_messages = driver.find_elements(By.XPATH, "//*[contains(text(), 'erro') or contains(text(), 'error') or contains(text(), 'blocked') or contains(text(), 'captcha') or contains(text(), 'forbidden')]")
+                        if error_messages:
+                            for msg in error_messages[:5]:  # Limit to first 5 messages
+                                msg_text = msg.text.strip()
+                                if msg_text:  # Only log non-empty messages
+                                    self._log('error', f"Error message found on page: {msg_text}")
+                        
+                        # Check specific error patterns in the page source
+                        error_patterns = [
+                            "cloudflare",
+                            "captcha", 
+                            "blocked",
+                            "forbidden",
+                            "403",
+                            "rate limit",
+                            "too many requests",
+                            "access denied",
+                            "bot detection"
+                        ]
+                        
+                        for pattern in error_patterns:
+                            if pattern.lower() in full_page_source.lower():
+                                self._log('error', f"Found '{pattern}' in page source")
+                        
+                    except Exception as context_error:
+                        self._log('error', f"Could not get additional context: {str(context_error)}")
+                    
                     selenium_descriptions = []
                     selenium_image_urls = []
                 
@@ -360,12 +521,31 @@ class ImoVirtualScraper(BaseScraper):
                 
                 # Check for blocking
                 if "Request blocked" in page_content or "ERROR: The request could not be satisfied" in page_content:
-                    self._log('error', "Access blocked by CloudFront - possible bot detection", exc_info=True)
+                    self._log('error', "Access blocked by CloudFront - possible bot detection")
                     return False
 
-                articles = soup.find_all('article', {'data-cy': 'listing-item'})
+                # Updated selector to match actual HTML structure
+                articles = soup.find_all('article', {'data-sentry-component': 'AdvertCard'})
                 if not articles:
                     self._log('warning', f"No articles found on page {page_num}")
+                    
+                    # Additional debugging for BeautifulSoup parsing
+                    self._log('debug', f"BeautifulSoup parsed {len(soup)} total elements")
+                    
+                    # Try alternative selectors with BeautifulSoup
+                    alt_articles = soup.find_all('article')
+                    self._log('debug', f"Found {len(alt_articles)} article elements (any type)")
+                    
+                    listing_divs = soup.find_all('div', {'class': lambda x: x and 'listing' in str(x).lower()})
+                    self._log('debug', f"Found {len(listing_divs)} divs with 'listing' in class")
+                    
+                    data_cy_elements = soup.find_all(attrs={'data-cy': True})
+                    self._log('debug', f"Found {len(data_cy_elements)} elements with data-cy attribute")
+                    
+                    # Log some data-cy values to see what's available
+                    cy_values = [elem.get('data-cy') for elem in data_cy_elements[:10]]
+                    self._log('debug', f"Sample data-cy values: {cy_values}")
+                    
                     return False
 
                 found_new_listing = False
@@ -479,15 +659,15 @@ class ImoVirtualScraper(BaseScraper):
                             self._log('debug', f"[IMAGE_DEBUG] House saved with image URLs: {image_urls}")
                         
                     except Exception as e:
-                        self._log('error', f"Error processing house: {str(e)}", exc_info=True)
+                        self._log('error', f"Error processing house: {str(e)}")
                         continue
 
                 return found_new_listing
 
             except Exception as e:
-                self._log('error', f"Error initializing Chrome: {str(e)}", exc_info=True)
+                self._log('error', f"Error initializing Chrome: {str(e)}")
                 return False
 
         except Exception as e:
-            self._log('error', f"Error processing page {page_num}: {str(e)}", exc_info=True)
+            self._log('error', f"Error processing page {page_num}: {str(e)}")
             return False

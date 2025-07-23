@@ -22,6 +22,51 @@ class RemaxScraper(BaseScraper):
         self.location_manager = LocationManager()
         self._load_existing_urls()
 
+    def _extract_detail_page_data(self, url):
+        """Extract additional data from property detail page"""
+        try:
+            # Create new driver for detail page
+            chrome_options = Options()
+            chrome_options.add_argument("--headless")
+            chrome_options.add_argument("--no-sandbox")
+            chrome_options.add_argument("--disable-dev-shm-usage")
+            chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
+            chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+            chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+            chrome_options.add_experimental_option('useAutomationExtension', False)
+
+            detail_driver = webdriver.Chrome(options=chrome_options)
+            detail_driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+            
+            detail_driver.get(url)
+            time.sleep(2)
+            detail_soup = BeautifulSoup(detail_driver.page_source, 'html.parser')
+            
+            # Extract description
+            description = "N/A"
+            desc_div = detail_soup.find('div', class_='text-sm lg:text-base leading-[170%] text-black text-left inline-block w-full')
+            if desc_div:
+                description = desc_div.get_text(strip=True)
+            
+            # Extract image URLs from detail page
+            image_urls = []
+            img_tags = detail_soup.find_all("img")
+            for img in img_tags:
+                img_url = img.get("src") or img.get("data-src")
+                if img_url and 'maxwork.pt' in img_url and img_url not in image_urls:
+                    image_urls.append(img_url)
+            
+            if not image_urls:
+                image_urls = [""]  # fallback_image_url as per rules
+            
+            detail_driver.quit()
+            return {"description": description, "image_urls": image_urls}
+        except Exception as e:
+            self._log('warning', f"Could not extract detail page data for {url}: {str(e)}")
+            if 'detail_driver' in locals():
+                detail_driver.quit()
+            return {"description": "N/A", "image_urls": [""]}
+
     def scrape(self):
         """Scrape houses from Remax website"""
         for site_url in self.urls:
@@ -72,8 +117,6 @@ class RemaxScraper(BaseScraper):
             # Wait 5 seconds to allow dynamic content to load
             time.sleep(5)
 
-            driver.quit()
-
             # Find all divs that have an ID starting with 'listing-list-card-'
             house_divs = soup.find_all(lambda tag: tag.name == 'div' and tag.get('id', '').startswith('listing-list-card-'))
             
@@ -81,6 +124,7 @@ class RemaxScraper(BaseScraper):
             
             if not house_divs:
                 self._log('warning', "No houses found. The website structure might have changed.")
+                driver.quit()
                 return
 
             for house_container in house_divs:
@@ -184,7 +228,10 @@ class RemaxScraper(BaseScraper):
                                     
                     self._log('debug', f"Found bedrooms: {bedrooms}, area: {area}")
 
-                    description = "N/A"  # Remax doesn't show description in listing cards
+                    # Extract additional data from detail page
+                    detail_data = self._extract_detail_page_data(url) if url != "N/A" else {"description": "N/A", "image_urls": [""]}
+                    description = detail_data.get("description", "N/A")
+                    image_urls = detail_data.get("image_urls", [""])
                     
                     # Skip listings with no location or price (likely ads or invalid listings)
                     if zone in ["N/A", "-"] or price in ["N/A", "0", "-"] or name in ["- Remax", "N/A"]:
@@ -194,7 +241,7 @@ class RemaxScraper(BaseScraper):
                     # Extract freguesia and concelho
                     freguesia, concelho = self.location_manager.extract_location(zone)
                     
-                    # Order: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Freguesia, Concelho, Source, ScrapedAt
+                    # Order: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Freguesia, Concelho, Source, ScrapedAt, Image URLs
                     info_list = [
                         name,           # Name
                         zone,           # Zone
@@ -207,7 +254,8 @@ class RemaxScraper(BaseScraper):
                         freguesia if freguesia else "N/A",
                         concelho if concelho else "N/A",
                         "Remax",        # Source
-                        None           # ScrapedAt (will be filled by save_to_excel)
+                        None,           # ScrapedAt (will be filled by save_to_excel)
+                        image_urls      # Image URLs as list
                     ]
                     
                     self._log('debug', f"Attempting to save listing: {info_list}")
@@ -216,6 +264,9 @@ class RemaxScraper(BaseScraper):
                 except Exception as e:
                     self._log('error', f"Error processing house: {str(e)}", exc_info=True)
                     continue
+
+            # Close driver after all processing is done
+            driver.quit()
 
         except Exception as e:
             self._log('error', f"Error accessing website: {str(e)}", exc_info=True)

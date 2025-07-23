@@ -1,6 +1,11 @@
 from rest_framework import serializers
-from .models import House
+from .models import House, Photo
 import re
+
+class PhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Photo
+        fields = ['image_url', 'order']
 
 class HouseSerializer(serializers.ModelSerializer):
     bedrooms = serializers.SerializerMethodField()
@@ -8,13 +13,14 @@ class HouseSerializer(serializers.ModelSerializer):
     is_favorite = serializers.SerializerMethodField()
     is_contacted = serializers.SerializerMethodField()
     is_discarded = serializers.SerializerMethodField()
+    photos = PhotoSerializer(many=True, read_only=True)
     
     class Meta:
         model = House
         fields = [
             'name', 'zone', 'price', 'url', 'bedrooms', 'area', 'area_str', 'floor',
             'description', 'freguesia', 'concelho', 'source', 'scraped_at',
-            'image_urls', 'house_id', 'is_favorite', 'is_contacted', 'is_discarded'
+            'house_id', 'is_favorite', 'is_contacted', 'is_discarded', 'photos'
         ]
     
     def get_bedrooms(self, obj):

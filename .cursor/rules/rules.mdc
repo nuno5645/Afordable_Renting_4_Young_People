@@ -1,6 +1,7 @@
 ---
 description: Lisbon Housing Scraper project structure and coding conventions for iOS-Django integration.
-globs:  *.swift, *.py, casas-lisboa/**, django_api/**
+globs: *.swift, *.py, casas-lisboa/**, django_api/**
+alwaysApply: false
 ---
 # Lisbon Housing Scraper - Cursor Rules
 This file defines the project structure and naming conventions for the iOS app and Django API
@@ -47,7 +48,6 @@ This file defines the project structure and naming conventions for the iOS app a
 - bedrooms → bedrooms
 - area → area
 - area_str → areaStr
-- image_urls → imageUrls
 - contacted → contacted
 - favorite → isFavorite
 - discarded → discarded

@@ -209,64 +209,66 @@ class SuperCasaScraper(BaseScraper):
                         # Get image URLs
                         image_urls = []
                         try:
-                            # Wait for images to be present
-                            WebDriverWait(driver, 10).until(
-                                EC.presence_of_element_located((By.CSS_SELECTOR, ".swiper-slide img"))
-                            )
+                            # Find swiper container in the property
+                            swiper_container = property_item.find_element(By.CSS_SELECTOR, ".property-media.swiper-container")
                             
-                            # Look for all images in the swiper container
-                            image_elements = property_item.find_elements(By.CSS_SELECTOR, ".swiper-slide img")
-                            self._log('info', f"Found {len(image_elements)} image elements")
-
-                            for img in image_elements:
+                            # Scroll to the swiper container to trigger lazy loading
+                            driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", swiper_container)
+                            time.sleep(1)  # Wait for lazy loading to trigger
+                            
+                            # Get the current active/loaded image
+                            active_img = swiper_container.find_element(By.CSS_SELECTOR, ".swiper-slide img.swiper-lazy-loaded")
+                            img_url = active_img.get_attribute("src")
+                            if img_url and not img_url.endswith('no-pic.png'):
+                                # Convert to high resolution
+                                high_res_url = img_url.replace("Z360x270", "Z1440x1080").replace("Z720x540", "Z1440x1080")
+                                image_urls.append(high_res_url)
+                                self._log('info', f"Found first image: {high_res_url}")
+                            
+                            # Get next button and click through the carousel to get more images
+                            next_button = swiper_container.find_element(By.CSS_SELECTOR, ".swiper-next")
+                            max_images = 25  # Limit to prevent infinite loops
+                            
+                            for i in range(max_images - 1):  # -1 because we already have the first image
                                 try:
-                                    # Wait for the src attribute to be populated
-                                    WebDriverWait(driver, 5).until(
-                                        lambda x: img.get_attribute("src") is not None
-                                    )
-                                    
-                                    img_url = img.get_attribute("src")
-                                    if img_url and not img_url.endswith('placeholder.jpg'):
-                                        self._log('info', f"Image URL: {img_url}")
-                                        # Get the highest resolution version
-                                        high_res_url = img_url.replace("Z360x270", "Z1440x1080")
-                                        image_urls.append(high_res_url)
-                                except:
-                                    continue
-                                    
-                            # If no images found, try alternative selectors
-                            if not image_urls:
-                                alternative_selectors = [
-                                    ".property-gallery img",
-                                    ".property-image img",
-                                    "[data-src]"
-                                ]
-                                for selector in alternative_selectors:
-                                    alt_images = property_item.find_elements(By.CSS_SELECTOR, selector)
-                                    for img in alt_images:
-                                        img_url = img.get_attribute("src") or img.get_attribute("data-src")
-                                        if img_url and not img_url.endswith('placeholder.jpg'):
-                                            high_res_url = img_url.replace("Z360x270", "Z1440x1080")
-                                            image_urls.append(high_res_url)
-                                    if image_urls:
+                                    # Check if next button is disabled (end of carousel)
+                                    if "swiper-button-disabled" in next_button.get_attribute("class"):
                                         break
                                         
-                            # Limit the number of images to prevent excessive data
-                            if len(image_urls) > 10:
-                                image_urls = image_urls[:10]
-                                self._log('info', "Limited to 10 images")
-                                
-                            # Add placeholder if no images found
+                                    # Click next button
+                                    driver.execute_script("arguments[0].click();", next_button)
+                                    time.sleep(1)  # Wait for image to load and lazy loading to trigger
+                                    
+                                    # Scroll to ensure the new image is in view for lazy loading
+                                    driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", swiper_container)
+                                    time.sleep(0.5)  # Additional wait for lazy loading
+                                    
+                                    # Get the new active image
+                                    new_active_img = swiper_container.find_element(By.CSS_SELECTOR, ".swiper-slide-active img")
+                                    new_img_url = new_active_img.get_attribute("src") or new_active_img.get_attribute("data-src")
+                                    
+                                    if new_img_url and not new_img_url.endswith('no-pic.png'):
+                                        # Convert to high resolution
+                                        high_res_url = new_img_url.replace("Z360x270", "Z1440x1080").replace("Z720x540", "Z1440x1080")
+                                        if high_res_url not in image_urls:  # Avoid duplicates
+                                            image_urls.append(high_res_url)
+                                            self._log('info', f"Found image {len(image_urls)}: {high_res_url}")
+                                    
+                                except Exception as e:
+                                    # Break if we can't get more images
+                                    break
+                            
+                            # If no images found, set empty list
                             if not image_urls:
-                                image_urls = ["https://supercasa.pt/img/no-image.jpg"]  # Update with actual placeholder URL
+                                image_urls = []
+                                self._log('info', "No images found")
+                            else:
+                                self._log('info', f"Successfully extracted {len(image_urls)} image URLs")
                                 
                         except Exception as e:
                             self._log('warning', f"Error extracting image URLs: {str(e)}")
-                            image_urls = ["https://supercasa.pt/img/no-image.jpg"]  # Update with actual placeholder URL
+                            image_urls = []
                             
-                        # Convert image_urls list to JSON string
-                        image_urls_json = json.dumps(image_urls, ensure_ascii=False)
-                        
                         # Store the property data
                         info_list = [
                             name,           # Name
@@ -281,7 +283,7 @@ class SuperCasaScraper(BaseScraper):
                             concelho if concelho else "N/A",    # Concelho
                             self.source,    # Source
                             None,           # ScrapedAt (will be filled by save_to_database)
-                            image_urls_json # Image URLs as JSON string
+                            image_urls # Image URLs as list
                         ]
                         
                         if self.save_to_database(info_list):

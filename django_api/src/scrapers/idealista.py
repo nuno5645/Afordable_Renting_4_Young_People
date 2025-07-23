@@ -113,6 +113,210 @@ class IdealistaScraper(BaseScraper):
 
         self._log('info', "Finished processing all URLs")
 
+    def _clean_image_url(self, img_url):
+        """Clean up image URL by removing query parameters and normalizing"""
+        if not img_url:
+            return None
+        
+        # Remove query parameters
+        if '?' in img_url:
+            img_url = img_url.split('?')[0]
+        
+        # Handle srcset with multiple resolutions - take the highest resolution
+        if ',' in img_url:
+            # Split by comma and take the last (usually highest resolution) URL
+            parts = img_url.split(',')
+            for part in reversed(parts):
+                part = part.strip()
+                if part and ('http' in part):
+                    img_url = part.split()[0]  # Take URL part, ignore resolution descriptor
+                    break
+        
+        return img_url.strip()
+
+    def _extract_gallery_images(self, house_element):
+        """Extract all images from the property gallery on the listing page"""
+        image_urls = []
+        
+        # Find the picture element with the gallery
+        picture_elem = house_element.find('picture', class_='item-multimedia')
+        if not picture_elem:
+            self._log('warning', "No picture element with item-multimedia class found")
+            # Try alternative selectors
+            picture_elem = house_element.find('picture')
+            if picture_elem:
+                self._log('debug', f"Found picture element with class: {picture_elem.get('class')}")
+            else:
+                self._log('warning', "No picture element found at all")
+                return image_urls
+        
+        # Check if there's a gallery with multiple images
+        gallery_container = picture_elem.find('div', class_='item-gallery')
+
+        if not gallery_container:
+            self._log('warning', "No item-gallery container found, trying to extract images directly from picture element")
+            return image_urls
+        
+        self._log('debug', "Found item-gallery container")
+        # Get total number of images from the counter
+        counter_spans = picture_elem.find_all('span')
+        self._log('debug', f"Found {len(counter_spans)} span elements in picture")
+        total_images = 1  # Default to 1 if we can't find the counter
+        
+        # Look for the image counter (e.g., "1/13")
+        for span in counter_spans:
+            span_text = span.get_text().strip()
+            if '/' in span_text:
+                try:
+                    total_images = int(span_text.split('/')[-1])
+                    self._log('debug', f"Found {total_images} total images in gallery counter")
+                    break
+                except (ValueError, IndexError):
+                    pass
+        
+        # Extract all images from gallery slides
+        gallery_slides = gallery_container.find_all('div', class_='image-gallery-slide')
+        self._log('debug', f"Found {len(gallery_slides)} gallery slides")
+        
+        for slide in gallery_slides:
+            # Skip map slides
+            if slide.find('div', class_='map-content'):
+                self._log('debug', "Skipping map slide")
+                continue
+                
+            # Find picture element in slide
+            slide_picture = slide.find('picture')
+            if slide_picture:
+                # Prefer WebP source
+                webp_source = slide_picture.find('source', type='image/webp')
+                if webp_source and webp_source.get('srcset'):
+                    img_url = self._clean_image_url(webp_source.get('srcset'))
+                    if img_url and img_url not in image_urls:
+                        image_urls.append(img_url)
+                        self._log('debug', f"Added WebP image: {img_url}")
+                        continue
+                
+                # Fallback to JPEG source
+                jpg_source = slide_picture.find('source', type='image/jpeg')
+                if jpg_source and jpg_source.get('srcset'):
+                    img_url = self._clean_image_url(jpg_source.get('srcset'))
+                    if img_url and img_url not in image_urls:
+                        image_urls.append(img_url)
+                        self._log('debug', f"Added JPEG image: {img_url}")
+                        continue
+                
+                # Final fallback to img tag
+                img = slide_picture.find('img')
+                if img and img.get('src') and not img.get('src').endswith('.gif'):
+                    img_url = self._clean_image_url(img.get('src'))
+                    if img_url and img_url not in image_urls:
+                        image_urls.append(img_url)
+                        self._log('debug', f"Added IMG tag image: {img_url}")
+        return image_urls
+
+    def _get_gallery_images(self, element_id):
+        """Fetch all gallery images for a specific property"""
+        gallery_images = []
+        
+        # Common Idealista gallery endpoint patterns
+        gallery_urls = [
+            f"https://www.idealista.pt/gallery/{element_id}",
+            f"https://www.idealista.pt/imovel/{element_id}/gallery",
+            f"https://www.idealista.pt/ajax/gallery/{element_id}",
+        ]
+        
+        for gallery_url in gallery_urls:
+            try:
+                self._log('debug', f"Trying gallery URL: {gallery_url}")
+                
+                # Use ScraperAPI for gallery requests too
+                payload = {"api_key": self.api_key, "url": gallery_url, "autoparse": "true"}
+                
+                # Track the request
+                self.track_request()
+                r = requests.get("https://api.scraperapi.com/", params=payload)
+                
+                if r.status_code == 200:
+                    # Try to parse as JSON first (common for AJAX endpoints)
+                    try:
+                        data = r.json()
+                        if isinstance(data, dict) and 'images' in data:
+                            for img_data in data['images']:
+                                if isinstance(img_data, dict) and 'url' in img_data:
+                                    gallery_images.append(img_data['url'])
+                                elif isinstance(img_data, str):
+                                    gallery_images.append(img_data)
+                        elif isinstance(data, list):
+                            for img_url in data:
+                                if isinstance(img_url, str) and 'idealista.pt' in img_url:
+                                    gallery_images.append(img_url)
+                    except ValueError:
+                        # Not JSON, try parsing as HTML
+                        soup = BeautifulSoup(r.text, "html.parser")
+                        
+                        # Look for image elements
+                        img_elements = soup.find_all(['img', 'source'])
+                        for img_elem in img_elements:
+                            img_url = img_elem.get('src') or img_elem.get('srcset')
+                            if img_url and 'idealista.pt' in img_url and not img_url.endswith('.gif'):
+                                gallery_images.append(img_url)
+                    
+                    if gallery_images:
+                        self._log('info', f"Successfully fetched {len(gallery_images)} images from gallery endpoint")
+                        break  # Found images, no need to try other URLs
+                        
+            except Exception as e:
+                self._log('debug', f"Gallery request failed for URL {gallery_url}: {str(e)}")
+                continue
+        
+        return gallery_images
+
+    def _get_property_page_images(self, property_url):
+        """Fetch all images by visiting the property detail page"""
+        property_images = []
+        
+        try:
+            self._log('debug', f"Fetching images from property page: {property_url}")
+            
+            # Use ScraperAPI to get the property page
+            payload = {"api_key": self.api_key, "url": property_url, "autoparse": "true"}
+            
+            # Track the request
+            self.track_request()
+            r = requests.get("https://api.scraperapi.com/", params=payload)
+            
+            if r.status_code == 200:
+                soup = BeautifulSoup(r.text, "html.parser")
+                
+                # Look for gallery containers and image elements
+                gallery_selectors = [
+                    '.gallery-image img',
+                    '.image-gallery img', 
+                    '.property-gallery img',
+                    '.media-gallery img',
+                    '[data-src*="idealista"]',
+                    'img[src*="idealista"]',
+                    'source[srcset*="idealista"]'
+                ]
+                
+                for selector in gallery_selectors:
+                    elements = soup.select(selector)
+                    for elem in elements:
+                        img_url = elem.get('src') or elem.get('srcset') or elem.get('data-src')
+                        if img_url and 'idealista.pt' in img_url and not img_url.endswith('.gif'):
+                            # Clean up the URL if it has multiple resolutions
+                            if ',' in img_url:
+                                img_url = img_url.split(',')[0].strip()
+                            if img_url not in property_images:
+                                property_images.append(img_url)
+                
+                self._log('info', f"Found {len(property_images)} images on property page")
+                
+        except Exception as e:
+            self._log('warning', f"Could not fetch property page images: {str(e)}")
+        
+        return property_images
+
     def _process_page(self, page_num, base_url):
         """Process a single page of listings"""
         if not self.can_make_request():
@@ -152,6 +356,15 @@ class IdealistaScraper(BaseScraper):
 
             soup = BeautifulSoup(r.text, "html.parser")
             self._log('info', "Successfully parsed page content with BeautifulSoup")
+
+            # Save page source to file for debugging
+            debug_file = "/tmp/idealista_debug.html"
+            try:
+                with open(debug_file, 'w', encoding='utf-8') as f:
+                    f.write(r.text)
+                self._log('info', f"Page source saved to: {debug_file}")
+            except Exception as save_error:
+                self._log('error', f"Could not save page source: {str(save_error)}")
 
             houses = soup.find_all("article", class_="item")
             self._log('info', f"Found {len(houses)} house listings on page {page_num}")
@@ -202,22 +415,14 @@ class IdealistaScraper(BaseScraper):
                             floor = detail.text.strip()
                             break
 
-                    # Extract image URLs
-                    image_urls = []
-                    picture_elem = house.find('picture')
-                    if picture_elem:
-                        # Try to get webp source first
-                        webp_source = picture_elem.find('source', type='image/webp')
-                        if webp_source and webp_source.get('srcset'):
-                            image_urls.append(webp_source.get('srcset'))
-                        # Fallback to jpg source
-                        jpg_source = picture_elem.find('source', type='image/jpeg')
-                        if jpg_source and jpg_source.get('srcset'):
-                            image_urls.append(jpg_source.get('srcset'))
-                        # Final fallback to img tag
-                        img = picture_elem.find('img')
-                        if img and img.get('src') and not img.get('src').endswith('.gif'):
-                            image_urls.append(img.get('src'))
+                    # Extract image URLs from the gallery
+                    image_urls = self._extract_gallery_images(house)
+                    
+                    # Log image extraction results
+                    if image_urls:
+                        self._log('info', f"Successfully extracted {len(image_urls)} image(s) for property: {name}")
+                    else:
+                        self._log('warning', f"No images found for property: {name}")
 
                     zone_elem = house.find("a", class_="item-link")
                     if zone_elem and zone_elem.get("title"):
@@ -255,7 +460,7 @@ class IdealistaScraper(BaseScraper):
                         concelho if concelho else "N/A",
                         "Idealista",
                         None,  # ScrapedAt will be filled by save_to_excel
-                        json.dumps(image_urls)  # Add image URLs as the last column
+                        image_urls  # Add image URLs as the last column
                     ]
 
                     self.save_to_database(info_list)

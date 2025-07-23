@@ -61,15 +61,15 @@ REMAX_URLS = [
 
 IDEALISTA_URLS = [
     f'https://www.idealista.pt/arrendar-casas/amadora/com-preco-max_{MAX_PRICE},t1,t2,t3,t4-t5/?ordem=atualizado-desc',
-    f'https://www.idealista.pt/arrendar-casas/cascais/com-preco-max_{MAX_PRICE},t1,t2,t3,t4-t5/?ordem=atualizado-desc',
-    f'https://www.idealista.pt/arrendar-casas/lisboa/com-preco-max_{MAX_PRICE},t1,t2,t3,t4-t5/?ordem=atualizado-desc',
-    f'https://www.idealista.pt/arrendar-casas/loures/com-preco-max_{MAX_PRICE},t1,t2,t3,t4-t5/?ordem=atualizado-desc',
-    f'https://www.idealista.pt/arrendar-casas/odivelas/com-preco-max_{MAX_PRICE},t1,t2,t3,t4-t5/?ordem=atualizado-desc',
-    f'https://www.idealista.pt/arrendar-casas/oeiras/com-preco-max_{MAX_PRICE},t1,t2,t3,t4-t5/?ordem=atualizado-desc',
+    # f'https://www.idealista.pt/arrendar-casas/cascais/com-preco-max_{MAX_PRICE},t1,t2,t3,t4-t5/?ordem=atualizado-desc',
+    # f'https://www.idealista.pt/arrendar-casas/lisboa/com-preco-max_{MAX_PRICE},t1,t2,t3,t4-t5/?ordem=atualizado-desc',
+    # f'https://www.idealista.pt/arrendar-casas/loures/com-preco-max_{MAX_PRICE},t1,t2,t3,t4-t5/?ordem=atualizado-desc',
+    # f'https://www.idealista.pt/arrendar-casas/odivelas/com-preco-max_{MAX_PRICE},t1,t2,t3,t4-t5/?ordem=atualizado-desc',
+    # f'https://www.idealista.pt/arrendar-casas/oeiras/com-preco-max_{MAX_PRICE},t1,t2,t3,t4-t5/?ordem=atualizado-desc',
 #    f'https://www.idealista.pt/arrendar-casas/sintra/com-preco-max_{MAX_PRICE},t1,t2,t3,t4-t5/?ordem=atualizado-desc'
 ]
 
-ERA_URL = 'https://www.era.pt/arrendar?ob=2&tp=1,2&sp=mwbkFn}hx@gm[_mEujLinc@cjG}re@xk[~lEjkL|zKbvJh`]gjB~d_@&page=1&ord=3'
+ERA_URL = 'https://www.era.pt/comprar?ob=2&tp=1,2&ord=3&paMax=800&ir=1&nr=0&dt=11&page=1'
 
 CASA_SAPO_URLS = [
     f'https://casa.sapo.pt/alugar-apartamentos/t1,t2,t3,t4,t5,t6-ou-superior/mais-recentes/lisboa/?gp={MAX_PRICE}',

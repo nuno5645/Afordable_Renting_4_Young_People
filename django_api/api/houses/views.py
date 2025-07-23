@@ -28,23 +28,10 @@ class HouseViewSet(viewsets.ModelViewSet):
         """
         queryset = House.objects.all()
         
-        # Clean up image URLs by removing duplicates while preserving extensions
-        for house in queryset:
-            if house.image_urls:
-                urls = house.image_urls.split('|||')
-                unique_urls = {}
-                for url in urls:
-                    base_url = url.rsplit('.', 1)[0]
-                    extension = url.rsplit('.', 1)[1] if '.' in url else ''
-                    if base_url not in unique_urls or extension == 'webp':
-                        unique_urls[base_url] = url
-                house.image_urls = '|||'.join(unique_urls.values())
-                house.save()
-        
         # Filter out houses discarded by the current user
         if self.request.user.is_authenticated:
             queryset = queryset.exclude(discarded_by=self.request.user)
-            
+        
         # Filter out room rentals based on title terms
         room_rental_filter = Q()
         for term in ROOM_RENTAL_TITLE_TERMS:
@@ -59,7 +46,7 @@ class HouseViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(favorited_by=self.request.user)
         if show_contacted:
             queryset = queryset.filter(contacted_by=self.request.user)
-            
+        
         return queryset
 
     @action(detail=True, methods=['post'])

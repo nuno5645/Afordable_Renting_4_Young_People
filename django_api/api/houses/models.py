@@ -17,7 +17,6 @@ class House(models.Model):
     concelho = models.CharField(max_length=100)
     source = models.CharField(max_length=50)
     scraped_at = models.DateTimeField()
-    image_urls = models.TextField(null=True, blank=True)  # Store as simple string with separator
     house_id = models.CharField(max_length=100, unique=True)
     
     # User relationships
@@ -44,34 +43,16 @@ class House(models.Model):
     def __str__(self):
         return f"{self.name} - {self.zone} ({self.price}€)"
 
-    def save(self, *args, **kwargs):
-        import logging
-        #logger = logging.getLogger('house_scrapers')
-        
-        # Only process image URLs if this is a new house (not yet saved)
-        if not self.pk and hasattr(self, '_image_urls_to_save') and self._image_urls_to_save:
-            #logger.debug(f"[IMAGE_DEBUG] Converting _image_urls_to_save to string: {self._image_urls_to_save}")
-            
-            # If it's a list, join with separator
-            if isinstance(self._image_urls_to_save, list):
-                self.image_urls = "|||".join(self._image_urls_to_save)
-            # If it's already a string, use it directly
-            elif isinstance(self._image_urls_to_save, str):
-                self.image_urls = self._image_urls_to_save
-            
-            #logger.debug(f"[IMAGE_DEBUG] Converted to string: {self.image_urls}")
-        
-        # Call the original save method
-        super().save(*args, **kwargs)
-        
-        # Log after save
-        #logger.debug(f"[IMAGE_DEBUG] House.save() - After save - House ID: {self.id}, URL: {self.url}")
-        
-    def get_image_urls_list(self):
-        """Get image URLs as a list"""
-        if not self.image_urls:
-            return []
-        return self.image_urls.split("|||")
+class Photo(models.Model):
+    house = models.ForeignKey('House', on_delete=models.CASCADE, related_name='photos')
+    image_url = models.URLField(max_length=500)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"Photo for {self.house.name} ({self.image_url})"
 
 class MainRun(models.Model):
     STATUS_CHOICES = [

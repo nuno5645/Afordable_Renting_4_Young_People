@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 from django.core.management.base import BaseCommand
-from houses.models import House
+from houses.models import House, Photo
 from decimal import Decimal, InvalidOperation
 
 class Command(BaseCommand):
@@ -23,7 +23,6 @@ class Command(BaseCommand):
         'Concelho': 'concelho',
         'Source': 'source',
         'Scraped At': 'scraped_at',
-        'Image URLs': 'image_urls',
         'house_id': 'house_id'
     }
 
@@ -126,7 +125,6 @@ class Command(BaseCommand):
                         'concelho': row.get('Concelho', '').strip(),
                         'source': row.get('Source', '').strip(),
                         'scraped_at': self.clean_date(row.get('Scraped At')),
-                        'image_urls': self.clean_image_urls(row.get('Image URLs')),
                         'house_id': house_id
                     }
 
@@ -152,7 +150,7 @@ class Command(BaseCommand):
                         self.stdout.write(self.style.SUCCESS(
                             f'Updated house: {house.name[:30]}... (ID: {house.house_id})'
                         ))
-
+                        
                 except Exception as e:
                     self.stdout.write(self.style.ERROR(f'Error processing row: {str(e)}'))
                     self.stdout.write(self.style.ERROR(f'Problematic row: {row}'))

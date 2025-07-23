@@ -74,7 +74,6 @@ model_property_mapping = {
     "area": "area",
     "area_str": "areaStr",
     "source": "source",
-    "image_urls": "imageUrls",
     "contacted": "contacted",
     "favorite": "isFavorite",
     "discarded": "discarded",

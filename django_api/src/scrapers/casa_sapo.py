@@ -123,7 +123,7 @@ class CasaSapoScraper(BaseScraper):
                     return False  # Signal to stop pagination
 
             except Exception as e:
-                self._log('error', f"Error initializing Chrome driver: {str(e)}", exc_info=True)
+                self._log('error', f"Error initializing Chrome driver: {str(e)}")
                 return False  # Signal to stop pagination
 
             for property_item in property_items:
@@ -480,11 +480,6 @@ class CasaSapoScraper(BaseScraper):
                             # Log the result
                             self._log('info', f"Found {len(image_urls)} images for property")
                             
-                            # Limit the number of images to prevent excessive data
-                            if len(image_urls) > 10:
-                                image_urls = image_urls[:10]
-                                self._log('info', f"Limited to 10 images")
-                            
                             # Safety check - if no images found at all, add a placeholder
                             if not image_urls:
                                 self._log('warning', "No images found after all attempts, using placeholder")
@@ -516,10 +511,6 @@ class CasaSapoScraper(BaseScraper):
                             bedrooms = name.split("T")[1][0]  # Get first character after T
                         except:
                             bedrooms = "N/A"
-                    
-                    # Convert image_urls list to JSON string
-                    image_urls_json = json.dumps(image_urls, ensure_ascii=False)
-                    
                     # Order: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Freguesia, Concelho, Source, ScrapedAt, ImageURLs
                     info_list = [
                         name,           # Name
@@ -534,7 +525,7 @@ class CasaSapoScraper(BaseScraper):
                         concelho if concelho else "N/A",    # Concelho
                         "Casa SAPO",    # Source
                         None,           # ScrapedAt (will be filled by save_to_excel)
-                        image_urls_json # Image URLs as JSON string
+                        image_urls # Image URLs as JSON string
                     ]
                     
                     if self.save_to_database(info_list):
@@ -542,12 +533,12 @@ class CasaSapoScraper(BaseScraper):
                         self.existing_urls.add(property_url)
                     
                 except Exception as e:
-                    self._log('error', f"Error processing house: {str(e)}", exc_info=True)
+                    self._log('error', f"Error processing house: {str(e)}")
                     continue
 
             driver.quit()
             return True  # Signal to continue pagination
 
         except Exception as e:
-            self._log('error', f"Error processing page {page_num}: {str(e)}", exc_info=True)
+            self._log('error', f"Error processing page {page_num}: {str(e)}")
             return False  # Signal to stop pagination

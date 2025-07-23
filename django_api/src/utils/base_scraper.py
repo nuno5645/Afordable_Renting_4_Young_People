@@ -268,23 +268,6 @@ class BaseScraper(ABC):
             source = str(info_list[10]).strip() if len(info_list) > 10 and info_list[10] is not None else self.source
             # Get image URLs - ensure it's a list
             image_urls = info_list[12] if len(info_list) > 12 and info_list[12] is not None else info_list[11] if len(info_list) > 11 and info_list[11] is not None else []
-            self._log('debug', f"\033[93m[IMAGE_DEBUG]\033[0m Image URLs from info_list[11]: {info_list[11]}")
-            self._log('debug', f"\033[93m[IMAGE_DEBUG]\033[0m Image URLs from info_list[12]: {info_list[12]}")
-            
-            self._log('debug', f"\033[93m[IMAGE_DEBUG]\033[0m Original image_urls type: {type(image_urls)}, value: {image_urls}")
-            
-            # Convert image_urls to a list if it's a string (JSON)
-            if isinstance(image_urls, str) and (image_urls.startswith('[') or image_urls.startswith('[')):
-                try:
-                    self._log('debug', f"\033[93m[IMAGE_DEBUG]\033[0m Attempting to parse JSON string: {image_urls}")
-                    image_urls = json.loads(image_urls)
-                    self._log('debug', f"\033[92m[IMAGE_DEBUG]\033[0m Successfully parsed JSON to list: {image_urls}")
-                except Exception as e:
-                    self._log('error', f"\033[91m[IMAGE_DEBUG]\033[0m Failed to parse JSON: {str(e)}")
-                    image_urls = []
-            
-            self._log('debug', f"\033[96m[IMAGE_DEBUG]\033[0m Final image URLs to save: {image_urls}")
-            
             # Clean price and area
             price = self._clean_price(price_str)
             area = area_str.replace('m²', '').strip()
@@ -328,11 +311,13 @@ class BaseScraper(ABC):
                     
                     self._log('debug', f"House object: {house}")
                     
-                    # Set image_urls using our special attribute
-                    house._image_urls_to_save = image_urls
-                    
                     # Save the house
                     house.save()
+
+                    # Save Photo objects for each image URL
+                    for idx, img_url in enumerate(image_urls):
+                        if img_url:
+                            house.photos.create(image_url=img_url, order=idx)
                     
                     self._log('scraping', f"New listing found: {name} in {zone} - {price}€")
                     
@@ -353,7 +338,7 @@ class BaseScraper(ABC):
                 return False
             
         except Exception as e:
-            self._log('error', f"Error saving to database: {str(e)}", exc_info=True)
+            self._log('error', f"Error saving to database: {str(e)}")
 
     def run(self):
         """Run the scraper - must be implemented by child classes"""

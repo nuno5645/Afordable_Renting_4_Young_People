@@ -182,36 +182,11 @@ class EraScraper(BaseScraper):
                 self._log('info', "Refreshing page and waiting longer...")
                 driver.refresh()
                 time.sleep(20)
-                
-            # Try clicking any filter/search buttons to trigger content load
-            try:
-                # Look for buttons that might trigger property loading
-                trigger_buttons = [
-                    "button.btn-multi-selection",
-                    "button[class*='search']",
-                    "button[class*='filter']",
-                    ".search-btn",
-                    ".filter-btn"
-                ]
-                
-                for btn_selector in trigger_buttons:
-                    try:
-                        button = driver.find_element(By.CSS_SELECTOR, btn_selector)
-                        if button.is_displayed() and button.is_enabled():
-                            driver.execute_script("arguments[0].click();", button)
-                            self._log('info', f"Clicked trigger button: {btn_selector}")
-                            time.sleep(5)  # Wait for potential AJAX response
-                            break
-                    except:
-                        continue
-                        
-            except Exception as e:
-                self._log('warning', f"Error clicking trigger buttons: {str(e)}")
-                        
+
             # Alternative approach: use WebDriverWait to wait for content
             try:
                 self._log('info', "Using WebDriverWait to wait for property content...")
-                wait = WebDriverWait(driver, 30)
+                wait = WebDriverWait(driver, 5)
                 
                 # Wait for any property-related content to appear
                 property_indicators = [
@@ -386,9 +361,9 @@ class EraScraper(BaseScraper):
                     is_development = 'is-development' in house.parent.get('class', []) if house.parent else False
                     
                     if is_development:
-                        self._process_development_property(house)
+                        self._process_development_property(house, soup)
                     else:
-                        self._process_regular_property(house)
+                        self._process_regular_property(house, soup)
                         
                 except Exception as e:
                     self._log('error', f"Error processing house: {str(e)}", exc_info=True)
@@ -399,7 +374,7 @@ class EraScraper(BaseScraper):
         except Exception as e:
             self._log('error', f"Error accessing website: {str(e)}", exc_info=True)
     
-    def _process_regular_property(self, house):
+    def _process_regular_property(self, house, soup):
         """Process regular property listing"""
         # Extract basic property information
         property_type_elem = house.find("div", class_="property_details--type")
@@ -417,11 +392,12 @@ class EraScraper(BaseScraper):
         
         zone = location_elem.text.strip() if location_elem else "N/A"
         
-        # Extract freguesia and concelho
-        freguesia, concelho = self.location_manager.extract_location(zone)
+        # Extract parish, county and district IDs from address
+        self._log('warning', f"Zone to process found: {zone}")
+        parish_id, county_id, district_id = self.location_manager.extract_location(zone)
         
         self._log('info', f"Processing: {name} in {zone}")
-        self._log('info', f"Freguesia: {freguesia}, Concelho: {concelho}")
+        self._log('info', f"Parish ID: {parish_id}, County ID: {county_id}, District ID: {district_id}")
         
         # Extract price
         price_elem = house.find('p', class_="price-value")
@@ -437,7 +413,11 @@ class EraScraper(BaseScraper):
         details = self._extract_property_details(house)
         
         # Extract images
-        images = self._extract_images(house)
+        images = self._extract_images(soup, url)
+        self._log('info', f"Found {len(images)} images")
+        ## log each image
+        for img in images:
+            self._log('info', f"Image URL: {img}")
         
         # Extract energy certificate
         energy_cert = self._extract_energy_certificate(house)
@@ -450,33 +430,27 @@ class EraScraper(BaseScraper):
         
         description = "No description"  # ERA website doesn't provide description in listing
         
-        # Enhanced info list with all possible values
+        # Match Imovirtual scraper structure exactly: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Parish_ID, County_ID, District_ID, Source, ScrapedAt, ImageURLs
         info_list = [
-            name,
-            zone,
-            price,
-            url,
-            details.get('bedrooms', 'N/A'),
-            details.get('area', 'N/A'),
-            details.get('floor', 'N/A'),
-            description,
-            freguesia if freguesia else "N/A",
-            concelho if concelho else "N/A",
-            "ERA",
-            None,  # ScrapedAt will be filled by save_to_excel
-            details.get('bathrooms', 'N/A'),
-            details.get('gross_area', 'N/A'),
-            details.get('land_area', 'N/A'),
-            details.get('parking', 'N/A'),
-            energy_cert,
-            status,
-            amenities,
-            images
+            name,           # Name
+            zone,           # Zone
+            price,          # Price
+            url,            # URL
+            details.get('bedrooms', 'N/A'),     # Bedrooms
+            details.get('area', 'N/A'),         # Area
+            details.get('floor', 'N/A'),        # Floor
+            description,    # Description
+            parish_id,      # Parish ID
+            county_id,      # County ID
+            district_id,    # District ID
+            "ERA",          # Source
+            None,           # ScrapedAt (will be filled by save_to_excel)
+            images          # Pass the list of image URLs directly
         ]
         
         self.save_to_database(info_list)
     
-    def _process_development_property(self, house):
+    def _process_development_property(self, house, soup):
         """Process development property listing"""
         try:
             # Extract development name
@@ -487,8 +461,9 @@ class EraScraper(BaseScraper):
             location_elem = house.find('div', class_="property_details--location")
             zone = location_elem.text.strip() if location_elem else "N/A"
             
-            # Extract freguesia and concelho
-            freguesia, concelho = self.location_manager.extract_location(zone)
+            # Extract parish, county and district IDs from address
+            self._log('warning', f"Zone to process found: {zone}")
+            parish_id, county_id, district_id = self.location_manager.extract_location(zone)
             
             # Extract prices (buy and rent)
             buy_price = "N/A"
@@ -520,32 +495,30 @@ class EraScraper(BaseScraper):
             fractions = self._extract_development_fractions(house)
             
             # Extract images
-            images = self._extract_images(house)
+            images = self._extract_images(soup, url)
+            self._log('info', f"Found {len(images)} images")
+            ## log each image
+            for img in images:
+                self._log('info', f"Image URL: {img}")
             
             self._log('info', f"Processing development: {name} in {zone}")
             
-            # Save development info
+            # Match Imovirtual scraper structure exactly: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Parish_ID, County_ID, District_ID, Source, ScrapedAt, ImageURLs
             info_list = [
-                name,
-                zone,
-                f"Comprar: {buy_price}, Arrendar: {rent_price}",
-                url,
-                fractions.get('types', 'N/A'),
-                fractions.get('details', 'N/A'),
-                "N/A",  # Floor
-                f"Empreendimento com {available}",
-                freguesia if freguesia else "N/A",
-                concelho if concelho else "N/A",
-                "ERA",
-                None,  # ScrapedAt
-                "N/A",  # Bathrooms
-                "N/A",  # Gross area
-                "N/A",  # Land area
-                "N/A",  # Parking
-                "N/A",  # Energy cert
-                "Empreendimento",
-                [],  # Amenities
-                images
+                name,           # Name
+                zone,           # Zone
+                f"Comprar: {buy_price}, Arrendar: {rent_price}",  # Price
+                url,            # URL
+                fractions.get('types', 'N/A'),  # Bedrooms (using fraction types for developments)
+                fractions.get('details', 'N/A'),  # Area (using fraction details)
+                "N/A",          # Floor
+                f"Empreendimento com {available}",  # Description
+                parish_id,      # Parish ID
+                county_id,      # County ID
+                district_id,    # District ID
+                "ERA",          # Source
+                None,           # ScrapedAt (will be filled by save_to_excel)
+                images          # Pass the list of image URLs directly
             ]
             
             self.save_to_database(info_list)
@@ -637,28 +610,37 @@ class EraScraper(BaseScraper):
             
         return details
     
-    def _extract_images(self, house):
-        """Extract property images"""
+    def _extract_images(self, soup, house_url):
+        """Extract property images from ERA carousel slides by finding the specific house card"""
         images = []
         
         try:
-            # Find carousel slides
-            carousel = house.find('div', class_="carousel")
-            if carousel:
-                slides = carousel.find_all('div', class_="slide")
-                
-                for slide in slides:
-                    style = slide.get('style', '')
-                    if 'background-image: url(' in style:
-                        # Extract URL from style attribute
-                        start = style.find('url("') + 5
-                        end = style.find('")', start)
-                        if start > 4 and end > start:
-                            image_url = style[start:end]
-                            cleaned_url = self._clean_image_url(image_url)
-                            if cleaned_url and cleaned_url not in images:
-                                images.append(cleaned_url)
-                                
+            # log url
+            self._log('info', f"Extracting images for property URL: {house_url}")
+            # Find the card__gallery anchor with matching href
+            gallery_link = soup.find('a', class_='card__gallery', href=house_url)
+            
+            if not gallery_link:
+                self._log('warning', f"Could not find card__gallery for URL: {house_url}")
+                return images
+            
+            # Find all carousel slide divs within this gallery
+            slides = gallery_link.find_all('div', class_='slide')
+            
+            for slide in slides:
+                style = slide.get('style', '')
+                if 'mediaredir' in style and 'background-image: url(' in style:
+                    # Extract URL from background-image: url("https://mediaredir2.era.pt/...")
+                    start = style.find('url("') + 5
+                    end = style.find('")', start)
+                    if start > 4 and end > start:
+                        image_url = style[start:end]
+                        # Only add unique URLs and skip cloned slides
+                        if image_url and image_url not in images and 'cloned' not in slide.get('class', []):
+                            images.append(image_url)
+            
+            self._log('debug', f"Extracted {len(images)} images from ERA listing: {house_url}")
+            
         except Exception as e:
             self._log('warning', f"Error extracting images: {str(e)}")
             

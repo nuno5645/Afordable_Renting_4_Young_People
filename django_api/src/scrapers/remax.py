@@ -42,30 +42,73 @@ class RemaxScraper(BaseScraper):
             time.sleep(2)
             detail_soup = BeautifulSoup(detail_driver.page_source, 'html.parser')
             
-            # Extract description
+            # Extract description from the custom-description div
             description = "N/A"
-            desc_div = detail_soup.find('div', class_='text-sm lg:text-base leading-[170%] text-black text-left inline-block w-full')
-            if desc_div:
-                description = desc_div.get_text(strip=True)
+            desc_container = detail_soup.find('div', class_='custom-description')
+            if desc_container:
+                # Get all paragraphs and join them
+                paragraphs = desc_container.find_all('p')
+                if paragraphs:
+                    description = ' '.join(p.get_text(strip=True) for p in paragraphs if p.get_text(strip=True))
             
-            # Extract image URLs from detail page
+            # Extract floor from details section
+            floor = "0"
+            details_section = detail_soup.find('div', id='details')
+            if details_section:
+                # Find all detail rows
+                detail_rows = details_section.find_all('div', class_='flex flex-row flex-nowrap items-center justify-start text-[0.875rem] lg:text-base font-medium text-black leading-[170%]')
+                for row in detail_rows:
+                    # Check if this row contains "Piso" text
+                    label_span = row.find('span', class_='ml-2.5')
+                    if label_span and 'Piso' in label_span.get_text():
+                        # Get the floor value
+                        value_span = row.find('span', class_='ml-auto text-grey-neutral whitespace-nowrap')
+                        if value_span:
+                            floor_text = value_span.get_text(strip=True)
+                            if floor_text and floor_text != '- -':
+                                # Parse floor value
+                                if 'R/C' in floor_text or 'RC' in floor_text:
+                                    floor = "0"
+                                else:
+                                    # Extract number from formats like "4º Piso", "4º", "4"
+                                    import re
+                                    floor_match = re.search(r'(\d+)', floor_text)
+                                    if floor_match:
+                                        floor = floor_match.group(1)
+                        break
+            
+            # Extract image URLs from detail page - only house photos
             image_urls = []
             img_tags = detail_soup.find_all("img")
             for img in img_tags:
                 img_url = img.get("src") or img.get("data-src")
-                if img_url and 'maxwork.pt' in img_url and img_url not in image_urls:
-                    image_urls.append(img_url)
+                if img_url and 'maxwork.pt' in img_url:
+                    # Filter out non-house photos
+                    # Skip: energy certificates, maps, user avatars, app store buttons, mini thumbnails
+                    if any(x in img_url for x in [
+                        'eficiencia-energetica',  # Energy certificates
+                        '/users/',                 # User avatars
+                        'app_icons',               # App store buttons
+                        '/AppStore/',              # App store buttons
+                        '/GooglePlay/',            # App store buttons
+                        '/bb'                      # Mini thumbnails
+                    ]):
+                        continue
+                    
+                    # Only add if not duplicate
+                    if img_url not in image_urls:
+                        image_urls.append(img_url)
             
             if not image_urls:
                 image_urls = [""]  # fallback_image_url as per rules
             
             detail_driver.quit()
-            return {"description": description, "image_urls": image_urls}
+            return {"description": description, "floor": floor, "image_urls": image_urls}
         except Exception as e:
             self._log('warning', f"Could not extract detail page data for {url}: {str(e)}")
             if 'detail_driver' in locals():
                 detail_driver.quit()
-            return {"description": "N/A", "image_urls": [""]}
+            return {"description": "N/A", "floor": "0", "image_urls": [""]}
 
     def scrape(self):
         """Scrape houses from Remax website"""
@@ -229,8 +272,9 @@ class RemaxScraper(BaseScraper):
                     self._log('debug', f"Found bedrooms: {bedrooms}, area: {area}")
 
                     # Extract additional data from detail page
-                    detail_data = self._extract_detail_page_data(url) if url != "N/A" else {"description": "N/A", "image_urls": [""]}
+                    detail_data = self._extract_detail_page_data(url) if url != "N/A" else {"description": "N/A", "floor": "0", "image_urls": [""]}
                     description = detail_data.get("description", "N/A")
+                    floor = detail_data.get("floor", "0")
                     image_urls = detail_data.get("image_urls", [""])
                     
                     # Skip listings with no location or price (likely ads or invalid listings)
@@ -238,10 +282,11 @@ class RemaxScraper(BaseScraper):
                         self._log('warning', f"Skipping invalid listing - name: {name}, zone: {zone}, price: {price}")
                         continue
                     
-                    # Extract freguesia and concelho
-                    freguesia, concelho = self.location_manager.extract_location(zone)
+                    # Extract parish, county and district IDs from address
+                    self._log('warning', f"Zone to process found: {zone}")
+                    parish_id, county_id, district_id = self.location_manager.extract_location(zone)
                     
-                    # Order: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Freguesia, Concelho, Source, ScrapedAt, Image URLs
+                    # Order: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Parish_ID, County_ID, District_ID, Source, ScrapedAt, ImageURLs
                     info_list = [
                         name,           # Name
                         zone,           # Zone
@@ -249,10 +294,11 @@ class RemaxScraper(BaseScraper):
                         url,            # URL
                         bedrooms,       # Bedrooms
                         area,           # Area
-                        "0",            # Floor (default to "0" as we don't have this info)
+                        floor,          # Floor (extracted from detail page)
                         description,    # Description
-                        freguesia if freguesia else "N/A",
-                        concelho if concelho else "N/A",
+                        parish_id,      # Parish ID
+                        county_id,      # County ID
+                        district_id,    # District ID
                         "Remax",        # Source
                         None,           # ScrapedAt (will be filled by save_to_excel)
                         image_urls      # Image URLs as list

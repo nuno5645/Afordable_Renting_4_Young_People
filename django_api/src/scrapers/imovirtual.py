@@ -24,18 +24,6 @@ class ImoVirtualScraper(BaseScraper):
         self.location_manager = LocationManager()
         self._load_existing_urls()
         
-    def _extract_location_from_address(self, address):
-        """Extract freguesia and concelho from address string"""
-        try:
-            parts = [p.strip() for p in address.split(',')]
-            if len(parts) >= 3:
-                concelho = parts[-2]  # Second part
-                freguesia = parts[-3]  # Third to last part
-                return freguesia, concelho
-        except:
-            pass
-        return "N/A", "N/A"
-        
 
     def scrape(self):
         """Scrape houses from ImoVirtual website"""
@@ -181,7 +169,7 @@ class ImoVirtualScraper(BaseScraper):
                     articles = WebDriverWait(driver, 15).until(
                         EC.presence_of_all_elements_located((By.CSS_SELECTOR, "article[data-sentry-component='AdvertCard']"))
                     )
-                    self._log('info', f"Successfully found {len(articles)} articles")
+                    self._log('info', f"Successfully found {len(articles)} articles, swipping photos with Selenium (can take a while)")
                     
                     # Process each article with Selenium first
                     selenium_descriptions = []
@@ -341,7 +329,6 @@ class ImoVirtualScraper(BaseScraper):
                             except Exception as e:
                                 self._log('warning', f"Error cycling through images: {str(e)}")
                             
-                            self._log('info', f"Article {idx+1}: Collected {len(image_urls_for_article)} images")
                             selenium_image_urls.append(list(image_urls_for_article))
                             
                             # Find and click "Ver descrição do anúncio"
@@ -590,7 +577,7 @@ class ImoVirtualScraper(BaseScraper):
                         price_elem = article.find('span', {'data-sentry-element': 'MainPrice'})
                         price = price_elem.text.strip() if price_elem else "N/A"
                         
-                        location_elem = article.find('p', {'class': 'css-42r2ms eejmx80'})
+                        location_elem = article.find('p', {'data-sentry-element': 'StyledParagraph'})
                         zone = location_elem.text.strip() if location_elem else "N/A"
                         
                         details_elem = article.find('dl')
@@ -625,10 +612,11 @@ class ImoVirtualScraper(BaseScraper):
                         # Get description from selenium results
                         description = selenium_descriptions[idx] if idx < len(selenium_descriptions) else "N/A"
                         
-                        # Extract freguesia and concelho from address
-                        freguesia, concelho = self._extract_location_from_address(zone)
+                        # Extract parish, county and district IDs from address
+                        self._log('warning', f"Zone to process found: {zone}")
+                        parish_id, county_id, district_id = self.location_manager.extract_location(zone)
                         
-                        # Order: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Freguesia, Concelho, Source, ScrapedAt, ImageURLs
+                        # Order: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Parish_ID, County_ID, District_ID, Source, ScrapedAt, ImageURLs
                         info_list = [
                             name,           # Name
                             zone,           # Zone
@@ -638,8 +626,9 @@ class ImoVirtualScraper(BaseScraper):
                             area,           # Area
                             floor,          # Floor (now extracted from the listing)
                             description,    # Description
-                            freguesia,
-                            concelho,
+                            parish_id,      # Parish ID
+                            county_id,      # County ID
+                            district_id,    # District ID
                             "Imovirtual",   # Source
                             None,           # ScrapedAt (will be filled by save_to_excel)
                             image_urls      # Pass the list of image URLs directly
@@ -657,9 +646,10 @@ class ImoVirtualScraper(BaseScraper):
                         self._log('debug', f"\033[93m[DEBUG] Area: {info_list[5]}\033[0m")
                         self._log('debug', f"\033[93m[DEBUG] Floor: {info_list[6]}\033[0m")
                         self._log('debug', f"\033[93m[DEBUG] Description: {info_list[7][:100]}...\033[0m")
-                        self._log('debug', f"\033[93m[DEBUG] Freguesia: {info_list[8]}\033[0m")
-                        self._log('debug', f"\033[93m[DEBUG] Concelho: {info_list[9]}\033[0m")
-                        self._log('debug', f"\033[93m[DEBUG] Source: {info_list[10]}\033[0m")
+                        self._log('debug', f"\033[93m[DEBUG] Parish ID: {info_list[8]}\033[0m")
+                        self._log('debug', f"\033[93m[DEBUG] County ID: {info_list[9]}\033[0m")
+                        self._log('debug', f"\033[93m[DEBUG] District ID: {info_list[10]}\033[0m")
+                        self._log('debug', f"\033[93m[DEBUG] Source: {info_list[11]}\033[0m")
                         self._log('debug', f"\033[93m[DEBUG] ScrapedAt: {info_list[11]}\033[0m")
                         self._log('debug', f"\033[93m[DEBUG] Image URLs: {info_list[12]}\033[0m")
                         self._log('debug', f"\033[93m{'='*50}\033[0m")

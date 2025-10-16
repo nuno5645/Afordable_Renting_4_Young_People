@@ -1,13 +1,9 @@
-import requests
-from unidecode import unidecode
 import logging
 from fuzzywuzzy import fuzz
+from unidecode import unidecode
 
-# Fallback data in case API fails
-FALLBACK_MUNICIPIOS = [
-    "Lisboa", "Amadora", "Cascais", "Loures", 
-    "Odivelas", "Oeiras", "Sintra"
-]
+# Note: For simplification terms of our app, the district is always Lisboa
+DEFAULT_DISTRICT = "Lisboa"
 
 class LocationManager:
     _instance = None
@@ -21,81 +17,60 @@ class LocationManager:
     def __init__(self):
         if not self._initialized:
             self.logger = logging.getLogger(__name__)
-            self.freguesias = []
-            self.municipios = []
-            self.freguesias_normalized = []
-            self.municipios_normalized = []
+            self.parishes = []
+            self.counties = []
+            self.districts = []
             self._initialize_location_data()
             LocationManager._initialized = True
 
     def _initialize_location_data(self):
-        """Initialize freguesia and município data from GeoAPI"""
+        """Initialize parish, county and district data from database models"""
         try:
-            # Fetch data from GeoAPI with timeout
-            freguesias_response = requests.get('https://json.geoapi.pt/distrito/lisboa/freguesias', timeout=10)
+            # Import Django models here to avoid circular imports
+            from houses.models import District, County, Parish
             
-            if freguesias_response.ok:
-                response_data = freguesias_response.json()
-                
-                # Extract freguesias and municipios from the correct response structure
-                self.freguesias = []
-                self.municipios = set()
-                
-                # Extract freguesias directly from the response_data['freguesias']
-                if 'freguesias' in response_data and response_data['freguesias']:
-                    self.freguesias = response_data['freguesias']
-                else:
-                    self.logger.warning("No freguesias found in API response, using empty list")
-                
-                # Extract municipios from the response_data['municipios'] 
-                if 'municipios' in response_data and response_data['municipios']:
-                    for municipio in response_data['municipios']:
-                        if isinstance(municipio, dict):
-                            municipio_name = municipio.get('nome', '')
-                            if municipio_name:
-                                self.municipios.add(municipio_name)
-                
-                # If no municipios found, use fallback data
-                if not self.municipios:
-                    self.logger.warning("No municipios found in API response, using fallback data")
-                    self.municipios = set(FALLBACK_MUNICIPIOS)
-                
-                # Convert municipios set to sorted list
-                self.municipios = sorted(list(self.municipios))
-                
-                # Create normalized lists for matching
-                try:
-                    self.freguesias_normalized = [unidecode(str(f).lower()) for f in self.freguesias]
-                    self.municipios_normalized = [unidecode(str(m).lower()) for m in self.municipios]
-                except Exception as e:
-                    self.logger.error(f"Error during normalization: {str(e)}")
-                    raise
-                
-                self.logger.info(f"Successfully loaded {len(self.freguesias)} freguesias and {len(self.municipios)} municipios")
-                
-            else:
-                self.logger.error(f"API request failed with status code: {freguesias_response.status_code}")
-                self.logger.error(f"API response content: {freguesias_response.text}")
-                self.logger.warning("Using fallback data for municipios")
-                self.municipios = FALLBACK_MUNICIPIOS
-                self.municipios_normalized = [unidecode(str(m).lower()) for m in self.municipios]
-                
-        except (requests.RequestException, Exception) as e:
-            self.logger.error(f"Error initializing location data: {str(e)}", exc_info=True)
-            self.logger.warning("Using fallback data for municipios")
-            self.municipios = FALLBACK_MUNICIPIOS
-            self.municipios_normalized = [unidecode(str(m).lower()) for m in self.municipios]
-            self.freguesias = []
-            self.freguesias_normalized = []
+            # Get Lisboa district (our default district)
+            self.districts = [{"id": None, "name": unidecode(DEFAULT_DISTRICT.lower())}]
+            try:
+                lisboa_district = District.objects.get(name=DEFAULT_DISTRICT)
+                self.districts = [{"id": lisboa_district.id, "name": unidecode(str(lisboa_district.name).lower())}]
+            except District.DoesNotExist:
+                pass
+            
+            # Get all counties in Lisboa district
+            counties = County.objects.filter(district__name=DEFAULT_DISTRICT).values('id', 'name')
+            self.counties = [{"id": c['id'], "name": unidecode(str(c['name']).lower())} for c in counties]
+            
+            # Get all parishes in Lisboa district counties
+            parishes = Parish.objects.filter(county__district__name=DEFAULT_DISTRICT).values('id', 'name')
+            self.parishes = [{"id": p['id'], "name": unidecode(str(p['name']).lower())} for p in parishes]
+            
+            self.logger.info(f"Successfully loaded {len(self.parishes)} parishes and {len(self.counties)} counties from database")
+            
+        except ImportError as e:
+            self.logger.error(f"Error importing Django models: {str(e)}")
+            self.parishes = []
+            self.counties = []
+            self.districts = [{"id": None, "name": unidecode(DEFAULT_DISTRICT.lower())}]
+            
+        except Exception as e:
+            self.logger.error(f"Error initializing location data from database: {str(e)}", exc_info=True)
+            self.parishes = []
+            self.counties = []
+            self.districts = [{"id": None, "name": unidecode(DEFAULT_DISTRICT.lower())}]
 
     def extract_location(self, location_str):
         """
-        Extract freguesia and município from a location string
-        Returns tuple (freguesia, município)
+        Extract parish, county and district IDs from a location string
+        Returns tuple (parish_id, county_id, district_id)
+        Note: For simplification, district is always Lisboa
         """
         try:
+            ## log the input location string
+            self.logger.info(f"Extracting location from string: '{location_str}'")
             if not location_str or location_str.strip() in ["N/A", "-"]:
-                return None, None
+                district_id = self.districts[0]["id"] if self.districts else None
+                return None, None, district_id
                 
             # Normalize and split the input string
             location_parts = [
@@ -104,43 +79,44 @@ class LocationManager:
                 if not part.strip().startswith('rua')
             ]
             
-            best_freguesia = None
-            best_municipio = None
+            best_parish_id = None
+            best_county_id = None
             
             # Try to match each part from left to right
             for part in location_parts:
-                # Try freguesia match first
-                if not best_freguesia:
-                    for idx, freguesia in enumerate(self.freguesias_normalized):
-                        ratio = fuzz.partial_ratio(part, freguesia)
+                # Try parish match first
+                if not best_parish_id:
+                    for parish in self.parishes:
+                        ratio = fuzz.partial_ratio(part, parish["name"])
                         if ratio > 85:
-                            best_freguesia = self.freguesias[idx]
+                            best_parish_id = parish["id"]
                             break
                             
-                # Try municipio match if no freguesia found yet
-                if not best_municipio:
-                    for idx, municipio in enumerate(self.municipios_normalized):
-                        ratio = fuzz.partial_ratio(part, municipio)
+                # Try county match if no parish found yet
+                if not best_county_id:
+                    for county in self.counties:
+                        ratio = fuzz.partial_ratio(part, county["name"])
                         if ratio > 85:
-                            best_municipio = self.municipios[idx]
+                            best_county_id = county["id"]
                             break
                             
-                if best_freguesia and best_municipio:
+                if best_parish_id and best_county_id:
                     break
-                    
-            self.logger.debug(f"Location match for '{location_str}': Freguesia='{best_freguesia}', Município='{best_municipio}'")
             
-            return best_freguesia, best_municipio
+            district_id = self.districts[0]["id"] if self.districts else None
+            self.logger.debug(f"Location match for '{location_str}': Parish_ID='{best_parish_id}', County_ID='{best_county_id}', District_ID='{district_id}'")
+            
+            return best_parish_id, best_county_id, district_id
             
         except Exception as e:
             self.logger.error(f"Error extracting location data: {str(e)}", exc_info=True)
-            return None, None
+            district_id = self.districts[0]["id"] if self.districts else None
+            return None, None, district_id
 
     def get_location_data(self):
         """Get the location data"""
         return {
-            'freguesias': self.freguesias,
-            'municipios': list(self.municipios),
-            'freguesias_normalized': self.freguesias_normalized,
-            'municipios_normalized': self.municipios_normalized
+            'parishes': self.parishes,
+            'counties': self.counties,
+            'districts': self.districts
         } 

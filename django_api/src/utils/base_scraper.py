@@ -1,10 +1,7 @@
 from abc import ABC, abstractmethod
 import pandas as pd
-import logging
 from datetime import datetime
-import os
 from pathlib import Path
-import json
 try:
     from config.settings import (
         EXCEL_HEADERS,
@@ -263,11 +260,12 @@ class BaseScraper(ABC):
             area = str(info_list[5]).strip() if len(info_list) > 5 and info_list[5] is not None else '0'
             floor = str(info_list[6]).strip() if len(info_list) > 6 and info_list[6] is not None else ''
             description = str(info_list[7]).strip() if len(info_list) > 7 and info_list[7] is not None else ''
-            freguesia = str(info_list[8]).strip() if len(info_list) > 8 and info_list[8] is not None else ''
-            concelho = str(info_list[9]).strip() if len(info_list) > 9 and info_list[9] is not None else ''
-            source = str(info_list[10]).strip() if len(info_list) > 10 and info_list[10] is not None else self.source
+            parish_id = info_list[8] if len(info_list) > 8 and info_list[8] is not None else None
+            county_id = info_list[9] if len(info_list) > 9 and info_list[9] is not None else None
+            district_id = info_list[10] if len(info_list) > 10 and info_list[10] is not None else None
+            source = str(info_list[11]).strip() if len(info_list) > 11 and info_list[11] is not None else self.source
             # Get image URLs - ensure it's a list
-            image_urls = info_list[12] if len(info_list) > 12 and info_list[12] is not None else info_list[11] if len(info_list) > 11 and info_list[11] is not None else []
+            image_urls = info_list[13] if len(info_list) > 13 and info_list[13] is not None else info_list[12] if len(info_list) > 12 and info_list[12] is not None else []
             # Clean price and area
             price = self._clean_price(price_str)
             area = area.replace('m²', '').strip()
@@ -301,8 +299,9 @@ class BaseScraper(ABC):
                         area=area,
                         floor=floor if floor and floor != 'N/A' else None,
                         description=description,
-                        freguesia=freguesia,
-                        concelho=concelho,
+                        parish_id=parish_id,
+                        county_id=county_id,
+                        district_id=district_id,
                         source=source,
                         scraped_at=timezone.now(),
                         house_id=house_id

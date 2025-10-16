@@ -128,13 +128,17 @@ class CasaSapoScraper(BaseScraper):
 
             for property_item in property_items:
                 try:
+                    self._log('debug', "=== Starting new property processing ===")
                     if self.current_run:
                         self.current_run.total_houses += 1
                         self.current_run.save()
                     # Extract basic information
+                    self._log('debug', "Finding property-info element...")
                     property_info = property_item.find_element(By.CLASS_NAME, "property-info")
+                    self._log('debug', "property-info element found")
                     
                     # Get URL first to check if already processed - improved extraction
+                    self._log('debug', "Extracting property URL...")
                     try:
                         # Direct href attribute extraction
                         href = property_info.get_attribute("href")
@@ -190,16 +194,57 @@ class CasaSapoScraper(BaseScraper):
                     name = type_elem.text.strip() if type_elem else "N/A"
                     
                     # Get location
+                    self._log('debug', "Extracting location information...")
                     location_elem = property_info.find_element(By.CLASS_NAME, "property-location")
                     zone = location_elem.text.strip() if location_elem else "N/A"
+                    self._log('debug', f"Zone extracted: {zone}")
                     
-                    # Extract freguesia and concelho
-                    freguesia, concelho = self.location_manager.extract_location(zone)
+                    # Initialize variables
+                    parish_id = county_id = district_id = None
+                    freguesia = concelho = None
+                    
+                    # Extract parish, county and district IDs
+                    self._log('debug', f"Calling extract_location with zone: {zone}")
+                    try:
+                        location_result = self.location_manager.extract_location(zone)
+                        self._log('debug', f"extract_location returned: {location_result} (type: {type(location_result)})")
+                        
+                        # Check how many values were returned
+                        if isinstance(location_result, tuple):
+                            self._log('debug', f"Number of values returned: {len(location_result)}")
+                            
+                            # Unpack based on what's returned
+                            if len(location_result) == 3:
+                                # New format: (parish_id, county_id, district_id)
+                                parish_id, county_id, district_id = location_result
+                                self._log('debug', f"Unpacked 3 values - Parish ID: {parish_id}, County ID: {county_id}, District ID: {district_id}")
+                            elif len(location_result) == 2:
+                                # Old format: (freguesia, concelho)
+                                freguesia, concelho = location_result
+                                self._log('debug', f"Unpacked 2 values - Freguesia: {freguesia}, Concelho: {concelho}")
+                            else:
+                                self._log('error', f"Unexpected number of return values: {len(location_result)}")
+                        else:
+                            self._log('error', f"extract_location did not return a tuple: {type(location_result)}")
+                    except Exception as location_error:
+                        self._log('error', f"Error in extract_location: {str(location_error)}")
+                        import traceback
+                        self._log('error', f"Traceback: {traceback.format_exc()}")
                     
                     # Get price
                     price_value_elem = property_info.find_element(By.CLASS_NAME, "property-price-value")
                     price = price_value_elem.text.strip() if price_value_elem else "N/A"
-                    
+
+                    # Get description of property-description
+                    property_info = property_item.find_element(By.CLASS_NAME, "property-info")
+
+                    description = "N/A"  # Default value
+                    try:
+                        description_elem = property_item.find_element(By.CLASS_NAME, "property-description")
+                        description = description_elem.text.strip() if description_elem else "N/A"
+                    except Exception as description_error:
+                        self._log('error', f"Error extracting description: {str(description_error)}")
+
                     # Initialize image URLs list
                     image_urls = []
                     
@@ -224,13 +269,6 @@ class CasaSapoScraper(BaseScraper):
                                     break
                             except:
                                 continue
-                        
-                        # Get description from detailed view
-                        try:
-                            description_elem = driver.find_element(By.CLASS_NAME, "property-description")
-                            description = description_elem.text.strip()
-                        except:
-                            description = "N/A"
                             
                         # Collect image URLs
                         try:
@@ -502,31 +540,60 @@ class CasaSapoScraper(BaseScraper):
                     except Exception as detail_error:
                         self._log('warning', f"Error getting detailed information: {str(detail_error)}")
                         area = "N/A"
-                        description = "N/A"
                     
                     # Extract bedrooms from property type (e.g., "Apartamento T2" -> "2")
+                    self._log('debug', "Extracting bedrooms from property type...")
                     bedrooms = "N/A"
                     if name and "T" in name:
                         try:
                             bedrooms = name.split("T")[1][0]  # Get first character after T
-                        except:
+                            self._log('debug', f"Extracted bedrooms: {bedrooms}")
+                        except Exception as bedroom_error:
+                            self._log('debug', f"Error extracting bedrooms: {str(bedroom_error)}")
                             bedrooms = "N/A"
-                    # Order: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Freguesia, Concelho, Source, ScrapedAt, ImageURLs
-                    info_list = [
-                        name,           # Name
-                        zone,           # Zone
-                        price,          # Price
-                        property_url,   # URL - Use the saved property URL here, not url which might have been changed
-                        bedrooms,       # Bedrooms
-                        area,           # Area
-                        "N/A",         # Floor (not available in Casa SAPO)
-                        description,    # Description
-                        freguesia if freguesia else "N/A",  # Freguesia
-                        concelho if concelho else "N/A",    # Concelho
-                        "Casa SAPO",    # Source
-                        None,           # ScrapedAt (will be filled by save_to_excel)
-                        image_urls # Image URLs as JSON string
-                    ]
+                    
+                    self._log('debug', "Building info_list...")
+                    # Check if we have the new format (IDs) or old format (names)
+                    if parish_id is not None:
+                        # New format: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Parish_ID, County_ID, District_ID, Source, ScrapedAt, ImageURLs
+                        self._log('debug', "Using new format with Parish/County/District IDs")
+                        info_list = [
+                            name,           # Name
+                            zone,           # Zone
+                            price,          # Price
+                            property_url,   # URL
+                            bedrooms,       # Bedrooms
+                            area,           # Area
+                            "N/A",          # Floor (not available in Casa SAPO)
+                            description,    # Description
+                            parish_id,      # Parish ID
+                            county_id,      # County ID
+                            district_id,    # District ID
+                            "Casa SAPO",    # Source
+                            None,           # ScrapedAt (will be filled by save_to_excel)
+                            image_urls      # Image URLs as list
+                        ]
+                    else:
+                        # Old format fallback: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Freguesia, Concelho, Source, ScrapedAt, ImageURLs
+                        self._log('debug', "Using old format with Freguesia/Concelho names")
+                        info_list = [
+                            name,           # Name
+                            zone,           # Zone
+                            price,          # Price
+                            property_url,   # URL
+                            bedrooms,       # Bedrooms
+                            area,           # Area
+                            "N/A",          # Floor (not available in Casa SAPO)
+                            description,    # Description
+                            freguesia if freguesia else "N/A",  # Freguesia
+                            concelho if concelho else "N/A",    # Concelho
+                            "Casa SAPO",    # Source
+                            None,           # ScrapedAt (will be filled by save_to_excel)
+                            image_urls      # Image URLs as list
+                        ]
+                    
+                    self._log('debug', f"info_list created with {len(info_list)} elements: {[type(x).__name__ for x in info_list]}")
+                    self._log('debug', f"Attempting to save to database...")
                     
                     if self.save_to_database(info_list):
                         # Add the URL to our existing URLs set to avoid duplicates in the same run

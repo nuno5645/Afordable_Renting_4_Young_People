@@ -1,7 +1,39 @@
 from django.db import models
 from django.conf import settings
 
-# Create your models here.
+class District(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    
+    class Meta:
+        db_table = 'districts'
+        ordering = ['name']
+    
+    def __str__(self):
+        return self.name
+
+class County(models.Model):
+    name = models.CharField(max_length=100)
+    district = models.ForeignKey(District, on_delete=models.CASCADE, related_name='counties')
+    
+    class Meta:
+        db_table = 'counties'
+        ordering = ['name']
+        unique_together = ['name', 'district']
+    
+    def __str__(self):
+        return f"{self.name} ({self.district.name})"
+
+class Parish(models.Model):
+    name = models.CharField(max_length=100)
+    county = models.ForeignKey(County, on_delete=models.CASCADE, related_name='parishes')
+    
+    class Meta:
+        db_table = 'parishes'
+        ordering = ['name']
+        unique_together = ['name', 'county']
+    
+    def __str__(self):
+        return f"{self.name} ({self.county.name})"
 
 class House(models.Model):
     name = models.CharField(max_length=255)
@@ -12,8 +44,10 @@ class House(models.Model):
     area = models.DecimalField(max_digits=8, decimal_places=2)
     floor = models.CharField(max_length=50, null=True, blank=True)
     description = models.TextField()
-    freguesia = models.CharField(max_length=100)
-    concelho = models.CharField(max_length=100)
+    # Foreign key relationships
+    parish = models.ForeignKey(Parish, on_delete=models.SET_NULL, null=True, blank=True, related_name='houses')
+    county = models.ForeignKey(County, on_delete=models.SET_NULL, null=True, blank=True, related_name='houses')
+    district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True, blank=True, related_name='houses')
     source = models.CharField(max_length=50)
     scraped_at = models.DateTimeField()
     house_id = models.CharField(max_length=100, unique=True)

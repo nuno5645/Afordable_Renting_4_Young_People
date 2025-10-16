@@ -174,8 +174,8 @@ class SuperCasaScraper(BaseScraper):
                         except:
                             zone = "N/A"
                             
-                        # Extract freguesia and concelho
-                        freguesia, concelho = self.location_manager.extract_location(zone)
+                        # Extract parish, county and district IDs from address
+                        parish_id, county_id, district_id = self.location_manager.extract_location(zone)
                         
                         try:
                             price_elem = property_item.find_element(By.CSS_SELECTOR, ".property-price span")
@@ -184,18 +184,30 @@ class SuperCasaScraper(BaseScraper):
                             price = "N/A"
                             
                         # Get area from features
+                        self._log('debug', "[SUPERCASA] Extracting area from features...")
                         try:
                             feature_elements = property_item.find_elements(By.CSS_SELECTOR, ".property-features-text")
+                            self._log('debug', f"[SUPERCASA] Found {len(feature_elements)} feature elements")
+                            
                             # Find the element containing "m²" or "m"
-                            area_text = next((feat.text.strip() for feat in feature_elements if "m²" in feat.text or " m " in feat.text), "N/A")
-                            if area_text != "N/A":
-                                # Extract just the number and m² using regex
+                            area_text = next((feat.text.strip() for feat in feature_elements if "m²" in feat.text or " m " in feat.text), None)
+                            self._log('debug', f"[SUPERCASA] Area text found: '{area_text}'")
+                            
+                            if area_text:
+                                # Extract just the number using regex
                                 area_match = re.search(r'(\d+)\s*m²', area_text)
-                                area = f"{area_match.group(1)} m²" if area_match else "N/A"
+                                if area_match:
+                                    area = f"{area_match.group(1)}"  # Just the number, no "m²"
+                                    self._log('debug', f"[SUPERCASA] Area extracted: '{area}'")
+                                else:
+                                    area = "0"  # Default to "0" if can't extract number
+                                    self._log('debug', "[SUPERCASA] Could not extract area number, set to 0")
                             else:
-                                area = "N/A"
-                        except:
-                            area = "N/A"
+                                area = "0"  # Default to "0" if not found
+                                self._log('debug', "[SUPERCASA] Area not found, set to 0")
+                        except Exception as area_error:
+                            self._log('warning', f"[SUPERCASA] Error extracting area: {str(area_error)}")
+                            area = "0"  # Default to "0" on error
                             
                         # Get floor (if available)
                         floor = "N/A"  # SuperCasa typically doesn't show floor information in listings
@@ -268,8 +280,24 @@ class SuperCasaScraper(BaseScraper):
                         except Exception as e:
                             self._log('warning', f"Error extracting image URLs: {str(e)}")
                             image_urls = []
+                        
+                        # Log all extracted values before creating info_list
+                        self._log('debug', "[SUPERCASA] Building info_list with extracted values:")
+                        self._log('debug', f"  - name: '{name}'")
+                        self._log('debug', f"  - zone: '{zone}'")
+                        self._log('debug', f"  - price: '{price}'")
+                        self._log('debug', f"  - url: '{url}'")
+                        self._log('debug', f"  - bedrooms: '{bedrooms}'")
+                        self._log('debug', f"  - area: '{area}' (MUST BE A NUMBER, NOT 'N/A')")
+                        self._log('debug', f"  - floor: '{floor}'")
+                        self._log('debug', f"  - description length: {len(description)}")
+                        self._log('debug', f"  - parish_id: {parish_id}")
+                        self._log('debug', f"  - county_id: {county_id}")
+                        self._log('debug', f"  - district_id: {district_id}")
+                        self._log('debug', f"  - source: {self.source}")
+                        self._log('debug', f"  - image_urls count: {len(image_urls)}")
                             
-                        # Store the property data
+                        # Match Imovirtual scraper structure exactly: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Parish_ID, County_ID, District_ID, Source, ScrapedAt, ImageURLs
                         info_list = [
                             name,           # Name
                             zone,           # Zone
@@ -279,12 +307,15 @@ class SuperCasaScraper(BaseScraper):
                             area,           # Area
                             floor,          # Floor
                             description,    # Description
-                            freguesia if freguesia else "N/A",  # Freguesia
-                            concelho if concelho else "N/A",    # Concelho
+                            parish_id,      # Parish ID
+                            county_id,      # County ID
+                            district_id,    # District ID
                             self.source,    # Source
                             None,           # ScrapedAt (will be filled by save_to_database)
-                            image_urls # Image URLs as list
+                            image_urls      # Image URLs as list
                         ]
+                        
+                        self._log('debug', f"[SUPERCASA] info_list created, attempting to save to database...")
                         
                         if self.save_to_database(info_list):
                             # Add the URL to our existing URLs set to avoid duplicates in the same run

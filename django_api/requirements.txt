@@ -24,3 +24,4 @@ django-extensions==3.2.3
 Werkzeug==3.0.1 
 djangorestframework-simplejwt 
 Pillow
+drf-spectacular

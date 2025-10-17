@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',  # Add corsheaders to INSTALLED_APPS
     'django_extensions',  # Add django-extensions
+    'drf_spectacular',  # Add drf-spectacular for OpenAPI/Swagger
     'houses',
     'users',
     'rest_framework_simplejwt.token_blacklist',
@@ -60,7 +61,36 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 100
+    'PAGE_SIZE': 100,
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+# drf-spectacular settings
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Casas Lisboa API',
+    'DESCRIPTION': 'API for finding affordable rental properties in Lisbon area',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': '/api/',
+    'SERVERS': [
+        {'url': 'http://localhost:8000', 'description': 'Local development server'},
+        {'url': 'https://localhost:8000', 'description': 'Local development server (HTTPS)'},
+    ],
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+        'persistAuthorization': True,
+        'displayOperationId': True,
+    },
+    'SECURITY': [
+        {
+            'Bearer': {
+                'type': 'http',
+                'scheme': 'bearer',
+                'bearerFormat': 'JWT',
+            }
+        }
+    ],
 }
 
 # JSON serialization settings

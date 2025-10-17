@@ -122,7 +122,7 @@ class SuperCasaScraper(BaseScraper):
                 # Wait for property listings to be present
                 try:
                     property_items = WebDriverWait(driver, 15).until(
-                        EC.presence_of_all_elements_located((By.CLASS_NAME, "property"))
+                        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.list-properties > .property"))
                     )
                     self._log('info', f"Found {len(property_items)} property items")
                 except Exception as e:
@@ -186,21 +186,14 @@ class SuperCasaScraper(BaseScraper):
                         # Get area from property-features spans
                         try:
                             feature_spans = property_item.find_elements(By.CSS_SELECTOR, ".property-features span")
-                            self._log('info', f"[SUPERCASA] Found {len(feature_spans)} feature spans")
-                            
                             area_span = next((span.text for span in feature_spans if "m²" in span.text), None)
-                            self._log('info', f"[SUPERCASA] Area span text: '{area_span}'")
-                            
                             if area_span:
                                 match = re.search(r'(\d+)', area_span)
                                 area = match.group(1) if match else "0"
-                                self._log('info', f"[SUPERCASA] ✓ Area extracted: {area} m²")
                             else:
                                 area = "0"
-                                self._log('info', "[SUPERCASA] ⚠ No area span found, defaulting to 0")
-                        except Exception as e:
+                        except:
                             area = "0"
-                            self._log('warning', f"[SUPERCASA] ✗ Error extracting area: {str(e)}")
                             
                         # Get floor (if available)
                         floor = "N/A"  # SuperCasa typically doesn't show floor information in listings
@@ -268,22 +261,6 @@ class SuperCasaScraper(BaseScraper):
                         except Exception as e:
                             self._log('warning', f"Error extracting image URLs: {str(e)}")
                             image_urls = []
-                        
-                        # Log all extracted values before creating info_list
-                        self._log('debug', "[SUPERCASA] Building info_list with extracted values:")
-                        self._log('debug', f"  - name: '{name}'")
-                        self._log('debug', f"  - zone: '{zone}'")
-                        self._log('debug', f"  - price: '{price}'")
-                        self._log('debug', f"  - url: '{url}'")
-                        self._log('debug', f"  - bedrooms: '{bedrooms}'")
-                        self._log('debug', f"  - area: '{area}' (MUST BE A NUMBER, NOT 'N/A')")
-                        self._log('debug', f"  - floor: '{floor}'")
-                        self._log('debug', f"  - description length: {len(description)}")
-                        self._log('debug', f"  - parish_id: {parish_id}")
-                        self._log('debug', f"  - county_id: {county_id}")
-                        self._log('debug', f"  - district_id: {district_id}")
-                        self._log('debug', f"  - source: {self.source}")
-                        self._log('debug', f"  - image_urls count: {len(image_urls)}")
                             
                         # Match Imovirtual scraper structure exactly: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Parish_ID, County_ID, District_ID, Source, ScrapedAt, ImageURLs
                         info_list = [
@@ -302,8 +279,6 @@ class SuperCasaScraper(BaseScraper):
                             None,           # ScrapedAt (will be filled by save_to_database)
                             image_urls      # Image URLs as list
                         ]
-                        
-                        self._log('debug', f"[SUPERCASA] info_list created, attempting to save to database...")
                         
                         if self.save_to_database(info_list):
                             # Add the URL to our existing URLs set to avoid duplicates in the same run

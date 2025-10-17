@@ -317,7 +317,7 @@ class BaseScraper(ABC):
                         if img_url:
                             house.photos.create(image_url=img_url, order=idx)
                     
-                    self._log('scraping', f"New listing found: {name} in {zone} - {price}€")
+                    self._log('scraping', f"New house saved: {name} in {zone} - {price}€")
                     
                     # Send notification if price is below threshold
                     if price > 0 and price <= self.price_threshold:

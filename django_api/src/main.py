@@ -177,24 +177,31 @@ def main(use_menu=True, selected_scraper_names=None):
         total_new = 0
 
         # Run scrapers concurrently using ThreadPoolExecutor
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            # Submit all scraping tasks
-            future_to_scraper = {
-                executor.submit(run_scraper, name, scraper): name 
-                for name, scraper in scrapers.items()
-            }
+        try:
+            with ThreadPoolExecutor(max_workers=4) as executor:
+                # Submit all scraping tasks
+                future_to_scraper = {
+                    executor.submit(run_scraper, name, scraper): name 
+                    for name, scraper in scrapers.items()
+                }
 
-            # Wait for all tasks to complete and collect statistics
-            for future in as_completed(future_to_scraper):
-                scraper_name = future_to_scraper[future]
-                try:
-                    total, new = future.result()
-                    stats[scraper_name] = {'total': total, 'new': new}
-                    total_houses += total
-                    total_new += new
-                except Exception as e:
-                    logger.error(f"[{scraper_name}] Scraper generated an exception: {str(e)}", exc_info=True)
-                    stats[scraper_name] = {'total': 0, 'new': 0}
+                # Wait for all tasks to complete and collect statistics
+                for future in as_completed(future_to_scraper):
+                    scraper_name = future_to_scraper[future]
+                    try:
+                        total, new = future.result()
+                        stats[scraper_name] = {'total': total, 'new': new}
+                        total_houses += total
+                        total_new += new
+                    except Exception as e:
+                        logger.error(f"[{scraper_name}] Scraper generated an exception: {str(e)}", exc_info=True)
+                        stats[scraper_name] = {'total': 0, 'new': 0}
+        except KeyboardInterrupt:
+            logger.error("[MAIN] ⚠️  Interrupted during scraping, shutting down threads...")
+            # Cancel all pending futures
+            for future in future_to_scraper:
+                future.cancel()
+            raise  # Re-raise to be caught by outer handler
 
         # Update main run with totals
         main_run.total_houses = total_houses
@@ -221,6 +228,17 @@ def main(use_menu=True, selected_scraper_names=None):
             total_today_houses = sum(run.total_houses for run in today_runs)
             total_today_new = sum(run.new_houses for run in today_runs)
             logger.analyzing(f"[SUMMARY] Today's Total: Total Houses: {total_today_houses}, New Houses: {total_today_new}")
+    
+    except KeyboardInterrupt:
+        logger.error("[MAIN] ⚠️  Scraping interrupted by user (Ctrl+C)")
+        # Mark main run as failed if it exists
+        if 'main_run' in locals():
+            main_run.status = 'failed'
+            main_run.error_message = 'Interrupted by user (Ctrl+C)'
+            main_run.end_time = timezone.now()
+            main_run.save()
+            logger.loading(f"[MAIN] Main run {main_run.id} marked as failed due to interruption")
+        sys.exit(1)
             
     except Exception as e:
         logger.error(f"[MAIN] An error occurred in the main process: {str(e)}", exc_info=True)

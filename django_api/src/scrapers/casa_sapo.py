@@ -287,7 +287,6 @@ class CasaSapoScraper(BaseScraper):
                                             EC.presence_of_element_located((By.CLASS_NAME, "swiper-wrapper"))
                                         )
                                         swiper_exists = True
-                                        self._log('info', "Swiper wrapper found quickly")
                                     except TimeoutException:
                                         # If timeout occurs, swiper doesn't exist or takes too long to load
                                         self._log('info', "No swiper found (timeout), moving to fallbacks")
@@ -301,7 +300,6 @@ class CasaSapoScraper(BaseScraper):
                                 if swiper_exists:
                                     # Get all swiper wrappers (there might be multiple on the page)
                                     swiper_wrappers = driver.find_elements(By.CLASS_NAME, "swiper-wrapper")
-                                    self._log('info', f"Found {len(swiper_wrappers)} swiper wrappers")
                                     
                                     # Process all swiper wrappers
                                     for swiper in swiper_wrappers:
@@ -514,9 +512,6 @@ class CasaSapoScraper(BaseScraper):
                                     self._log('info', f"Extracted {len(image_urls)} images from page source")
                                 except Exception as e:
                                     self._log('info', f"Page source extraction failed: {str(e)}")
-                            
-                            # Log the result
-                            self._log('info', f"Found {len(image_urls)} images for property")
                             
                             # Safety check - if no images found at all, add a placeholder
                             if not image_urls:

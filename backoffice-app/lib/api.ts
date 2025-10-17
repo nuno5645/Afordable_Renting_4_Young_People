@@ -200,6 +200,7 @@ export interface HouseFilters {
   source?: string;
   favorites?: boolean;
   contacted?: boolean;
+  search?: string;
 }
 
 export interface HouseStats {

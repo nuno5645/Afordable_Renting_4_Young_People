@@ -91,15 +91,6 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Pagination */}
-      <Pagination
-        currentPage={currentPage}
-        totalPages={Math.ceil(totalCount / pageSize)}
-        totalItems={totalCount}
-        itemsPerPage={pageSize}
-        onPageChange={handlePageChange}
-      />
-
       {/* Recent Houses */}
       <Card>
         <CardHeader>

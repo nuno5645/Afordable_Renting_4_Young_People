@@ -23,9 +23,9 @@ import toast from 'react-hot-toast';
 
 export default function HousesPage() {
   const [houses, setHouses] = useState<House[]>([]);
-  const [filteredHouses, setFilteredHouses] = useState<House[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeSearch, setActiveSearch] = useState(''); // The search term actually applied to the API
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -70,11 +70,7 @@ export default function HousesPage() {
 
   useEffect(() => {
     loadHouses();
-  }, [currentPage, filters.district, filters.county, filters.parish, filters.source]);
-
-  useEffect(() => {
-    applyFilters();
-  }, [houses, searchTerm, filters]);
+  }, [currentPage, filters.district, filters.county, filters.parish, filters.source, activeSearch]);
 
   // Load counties when district changes
   useEffect(() => {
@@ -102,7 +98,7 @@ export default function HousesPage() {
     if (currentPage !== 1) {
       setCurrentPage(1);
     }
-  }, [filters.district, filters.county, filters.parish, filters.source]);
+  }, [filters.district, filters.county, filters.parish, filters.source, activeSearch]);
 
   const loadLocations = async () => {
     try {
@@ -141,6 +137,7 @@ export default function HousesPage() {
         county: filters.county,
         parish: filters.parish,
         source: filters.source !== 'all' ? filters.source : undefined,
+        search: activeSearch || undefined,
       });
       setHouses(response.results);
       setTotalCount(response.count);
@@ -156,27 +153,20 @@ export default function HousesPage() {
     }
   };
 
+  const handleSearch = () => {
+    setActiveSearch(searchTerm);
+    setCurrentPage(1);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setActiveSearch('');
+    setCurrentPage(1);
+  };
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const applyFilters = () => {
-    let filtered = [...houses];
-
-    // Search filter (client-side only)
-    if (searchTerm) {
-      filtered = filtered.filter(house =>
-        house.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        house.zone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        house.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        house.parish?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        house.county?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        house.district?.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    setFilteredHouses(filtered);
   };
 
   const openEditModal = (house: House) => {
@@ -314,14 +304,29 @@ export default function HousesPage() {
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex-1 min-w-[200px]">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Search by name, zone, location, or description..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Search by name, zone, location, or description..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSearch();
+                      }
+                    }}
+                    className="pl-10"
+                  />
+                </div>
+                <Button onClick={handleSearch} variant="primary">
+                  Search
+                </Button>
+                {activeSearch && (
+                  <Button onClick={handleClearSearch} variant="outline">
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             </div>
             <select
@@ -437,26 +442,15 @@ export default function HousesPage() {
         </CardContent>
       </Card>
 
-      {/* Pagination - Top */}
-      {!searchTerm && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={Math.ceil(totalCount / pageSize)}
-          totalItems={totalCount}
-          itemsPerPage={pageSize}
-          onPageChange={handlePageChange}
-        />
-      )}
-
       {/* Results */}
-      {searchTerm && (
+      {activeSearch && (
         <div className="text-sm text-gray-500">
-          Showing {filteredHouses.length} filtered results
+          Showing {houses.length} results for &quot;{activeSearch}&quot; ({totalCount} total)
         </div>
       )}
 
       {/* Houses Grid */}
-      {filteredHouses.length === 0 ? (
+      {houses.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center text-gray-500">
             No houses found matching your filters
@@ -464,7 +458,7 @@ export default function HousesPage() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-6">
-          {filteredHouses.map((house) => (
+          {houses.map((house) => (
             <Card key={house.house_id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 <div className="flex gap-6">
@@ -572,7 +566,7 @@ export default function HousesPage() {
       )}
 
       {/* Pagination - Bottom */}
-      {!searchTerm && filteredHouses.length > 0 && (
+      {houses.length > 0 && (
         <Pagination
           currentPage={currentPage}
           totalPages={Math.ceil(totalCount / pageSize)}

@@ -61,6 +61,17 @@ class HouseViewSet(viewsets.ModelViewSet):
         if source:
             queryset = queryset.filter(source=source)
         
+        # Search filter - searches across multiple fields
+        search = self.request.query_params.get('search', '').strip()
+        if search:
+            search_filter = Q(name__icontains=search) | \
+                          Q(zone__icontains=search) | \
+                          Q(description__icontains=search) | \
+                          Q(parish__name__icontains=search) | \
+                          Q(county__name__icontains=search) | \
+                          Q(district__name__icontains=search)
+            queryset = queryset.filter(search_filter)
+        
         return queryset
 
     @action(detail=True, methods=['post'])

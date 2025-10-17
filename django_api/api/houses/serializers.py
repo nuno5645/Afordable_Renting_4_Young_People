@@ -1,6 +1,25 @@
 from rest_framework import serializers
-from .models import House, Photo
+from .models import House, Photo, Parish, County, District
 import re
+
+class DistrictSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = District
+        fields = ['id', 'name']
+
+class CountySerializer(serializers.ModelSerializer):
+    district = DistrictSerializer(read_only=True)
+    
+    class Meta:
+        model = County
+        fields = ['id', 'name', 'district']
+
+class ParishSerializer(serializers.ModelSerializer):
+    county = CountySerializer(read_only=True)
+    
+    class Meta:
+        model = Parish
+        fields = ['id', 'name', 'county']
 
 class PhotoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,6 +33,9 @@ class HouseSerializer(serializers.ModelSerializer):
     is_contacted = serializers.SerializerMethodField()
     is_discarded = serializers.SerializerMethodField()
     photos = PhotoSerializer(many=True, read_only=True)
+    parish = ParishSerializer(read_only=True)
+    county = CountySerializer(read_only=True)
+    district = DistrictSerializer(read_only=True)
     
     class Meta:
         model = House

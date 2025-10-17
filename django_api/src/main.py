@@ -103,7 +103,7 @@ def get_scraper_selection():
         except ValueError:
             print("Invalid input. Please enter numbers or 'all'")
 
-def main(use_menu=True):
+def main(use_menu=True, selected_scraper_names=None):
     try:
         # Check if Django models are available
         if ScraperRun is None or MainRun is None or timezone is None:
@@ -116,21 +116,49 @@ def main(use_menu=True):
         main_run = MainRun.objects.create(status='running')
         logger.loading(f"[MAIN] Created new main run: {main_run.id}")
         
-        # Initialize scrapers based on menu selection or all scrapers
-        if len(sys.argv) > 1 and sys.argv[1] == '--all':
-            use_menu = False
+        # All available scrapers
+        all_scrapers = {
+            1: ('ImoVirtual', ImoVirtualScraper, IMOVIRTUAL_URLS, None),
+            2: ('Idealista', IdealistaScraper, IDEALISTA_URLS, SCRAPER_API_KEY),
+            3: ('Remax', RemaxScraper, REMAX_URLS, None),
+            4: ('ERA', EraScraper, ERA_URL, None),
+            5: ('CasaSapo', CasaSapoScraper, CASA_SAPO_URLS, None),
+            6: ('SuperCasa', SuperCasaScraper, SUPER_CASA_URLS, None)
+        }
+        
+        # Initialize scrapers based on different sources
+        if selected_scraper_names:
+            # Specific scrapers passed as argument (from API or CLI)
+            logger.loading(f"[MAIN] Running specific scrapers: {', '.join(selected_scraper_names)}")
+            name_to_scraper = {name: data for _, (name, *data) in all_scrapers.items()}
+            selected_scrapers = {}
+            for idx, scraper_name in enumerate(selected_scraper_names, 1):
+                if scraper_name in name_to_scraper:
+                    selected_scrapers[idx] = (scraper_name, *name_to_scraper[scraper_name])
+                else:
+                    logger.error(f"[MAIN] Unknown scraper: {scraper_name}")
             
-        if use_menu:
+            if not selected_scrapers:
+                logger.error("[MAIN] No valid scrapers selected")
+                main_run.status = 'failed'
+                main_run.error_message = 'No valid scrapers selected'
+                main_run.end_time = timezone.now()
+                main_run.save()
+                return
+                
+        elif len(sys.argv) > 1 and sys.argv[1] == '--all':
+            # Run all scrapers (CLI flag)
+            use_menu = False
+            selected_scrapers = all_scrapers
+            logger.loading("[MAIN] Running all scrapers")
+            
+        elif use_menu:
+            # Interactive menu selection
             selected_scrapers = get_scraper_selection()
         else:
-            selected_scrapers = {
-                1: ('ImoVirtual', ImoVirtualScraper, IMOVIRTUAL_URLS, None),
-                2: ('Idealista', IdealistaScraper, IDEALISTA_URLS, SCRAPER_API_KEY),
-                3: ('Remax', RemaxScraper, REMAX_URLS, None),
-                4: ('ERA', EraScraper, ERA_URL, None),
-                5: ('Casa SAPO', CasaSapoScraper, CASA_SAPO_URLS, None),
-                6: ('Super Casa', SuperCasaScraper, SUPER_CASA_URLS, None)
-            }
+            # Default: run all scrapers
+            selected_scrapers = all_scrapers
+            logger.loading("[MAIN] Running all scrapers (default)")
         
         # Create scraper instances
         scrapers = {}

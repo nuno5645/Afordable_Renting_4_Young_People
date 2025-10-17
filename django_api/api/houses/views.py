@@ -14,7 +14,6 @@ from datetime import datetime
 
 class HouseViewSet(viewsets.ModelViewSet):
     serializer_class = HouseSerializer
-    pagination_class = None  # Disable pagination
     lookup_field = 'house_id'
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['name', 'price', 'area', 'bedrooms', 'zone', 'freguesia', 'concelho', 'source', 'scraped_at']
@@ -147,16 +146,67 @@ class HouseViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def run_scrapers(self, request):
-        """Trigger the run_scrapers management command"""
+        """
+        Trigger the run_scrapers management command
+        
+        Request body (optional):
+        {
+            "scrapers": ["ImoVirtual", "Idealista", "SuperCasa"],  // Optional: specific scrapers to run
+            "all": true  // Optional: run all scrapers (default if no scrapers specified)
+        }
+        
+        Available scrapers:
+        - ImoVirtual
+        - Idealista
+        - Remax
+        - ERA
+        - CasaSapo
+        - SuperCasa
+        """
         from django.core.management import call_command
         import io
+        
+        # Get scrapers selection from request body
+        scrapers = request.data.get('scrapers', [])
+        run_all = request.data.get('all', False)
+        
+        # Validate scraper names
+        valid_scrapers = ['ImoVirtual', 'Idealista', 'Remax', 'ERA', 'CasaSapo', 'SuperCasa']
+        
+        if scrapers:
+            # Validate that all requested scrapers are valid
+            invalid_scrapers = [s for s in scrapers if s not in valid_scrapers]
+            if invalid_scrapers:
+                return Response({
+                    'status': 'error',
+                    'error': f'Invalid scrapers: {", ".join(invalid_scrapers)}',
+                    'valid_scrapers': valid_scrapers
+                }, status=400)
         
         # Capture the output of the command
         out = io.StringIO()
         try:
-            call_command('run_scrapers', '--force', stdout=out)
-            return Response({'status': 'success', 'output': out.getvalue()})
-        except Exception as e:
+            # Build command arguments
+            cmd_args = ['--force']
             
+            if run_all or not scrapers:
+                # Run all scrapers if explicitly requested or no specific scrapers provided
+                cmd_args.append('--all')
+            else:
+                # Run specific scrapers
+                cmd_args.extend(['--scrapers'] + scrapers)
+            
+            call_command('run_scrapers', *cmd_args, stdout=out)
+            
+            return Response({
+                'status': 'success',
+                'output': out.getvalue(),
+                'scrapers_run': scrapers if scrapers else 'all',
+                'message': f'Started {"all scrapers" if (run_all or not scrapers) else ", ".join(scrapers)}'
+            })
+        except Exception as e:
             print(f"Error running scrapers: {e}")
-            return Response({'status': 'error', 'error': str(e)}, status=500)
+            return Response({
+                'status': 'error',
+                'error': str(e)
+            }, status=500)

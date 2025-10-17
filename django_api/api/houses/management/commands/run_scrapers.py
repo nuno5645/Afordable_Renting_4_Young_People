@@ -117,7 +117,12 @@ class Command(BaseCommand):
             '--scrapers',
             nargs='+',
             type=str,
-            help='Specify scrapers to run (imovirtual, idealista, remax, era, casasapo) or "all"'
+            help='Specify scrapers to run (ImoVirtual, Idealista, Remax, ERA, CasaSapo, SuperCasa) or "all"'
+        )
+        parser.add_argument(
+            '--all',
+            action='store_true',
+            help='Run all available scrapers'
         )
         parser.add_argument(
             '--force',
@@ -186,26 +191,43 @@ class Command(BaseCommand):
         
         try:
             main_start_time = timezone.now()
-            # Available scrapers
+            # Available scrapers - map both display names and lowercase keys
             available_scrapers = {
                 'imovirtual': ('ImoVirtual', ImoVirtualScraper, IMOVIRTUAL_URLS, None),
                 'idealista': ('Idealista', IdealistaScraper, IDEALISTA_URLS, SCRAPER_API_KEY),
                 'remax': ('Remax', RemaxScraper, REMAX_URLS, None),
                 'era': ('ERA', EraScraper, ERA_URL, None),
-                'casasapo': ('Casa SAPO', CasaSapoScraper, CASA_SAPO_URLS, None),
+                'casasapo': ('CasaSapo', CasaSapoScraper, CASA_SAPO_URLS, None),
                 'supercasa': ('SuperCasa', SuperCasaScraper, SUPER_CASA_URLS, None)
+            }
+            
+            # Create a mapping from display names to keys (case-insensitive)
+            name_to_key = {
+                'imovirtual': 'imovirtual',
+                'idealista': 'idealista',
+                'remax': 'remax',
+                'era': 'era',
+                'casasapo': 'casasapo',
+                'supercasa': 'supercasa',
             }
 
             # Determine which scrapers to run
             selected_scrapers = {}
-            if not options['scrapers'] or 'all' in options['scrapers']:
+            if options.get('all') or not options.get('scrapers') or 'all' in (options.get('scrapers') or []):
                 selected_scrapers = available_scrapers
+                self.stdout.write("Running all scrapers...")
             else:
                 for scraper in options['scrapers']:
-                    if scraper.lower() in available_scrapers:
-                        selected_scrapers[scraper.lower()] = available_scrapers[scraper.lower()]
+                    scraper_lower = scraper.lower()
+                    if scraper_lower in name_to_key:
+                        key = name_to_key[scraper_lower]
+                        selected_scrapers[key] = available_scrapers[key]
+                        self.stdout.write(f"Selected scraper: {available_scrapers[key][0]}")
                     else:
-                        self.stdout.write(self.style.WARNING(f"Unknown scraper: {scraper}"))
+                        self.stdout.write(self.style.WARNING(
+                            f"Unknown scraper: {scraper}. "
+                            f"Available: {', '.join([v[0] for v in available_scrapers.values()])}"
+                        ))
 
             if not selected_scrapers:
                 self.stdout.write(self.style.ERROR("No valid scrapers selected"))

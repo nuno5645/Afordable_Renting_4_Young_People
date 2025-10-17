@@ -4,6 +4,238 @@ info:
   version: 1.0.0
   description: API for finding affordable rental properties in Lisbon area
 paths:
+  /api/counties/:
+    get:
+      operationId: counties_list
+      description: |-
+        ViewSet for viewing counties.
+        Supports filtering by name and district.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - counties
+      security:
+      - jwtAuth: []
+      - Bearer:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/County'
+          description: ''
+  /api/counties/{id}/:
+    get:
+      operationId: counties_retrieve
+      description: |-
+        ViewSet for viewing counties.
+        Supports filtering by name and district.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this county.
+        required: true
+      tags:
+      - counties
+      security:
+      - jwtAuth: []
+      - Bearer:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/County'
+          description: ''
+  /api/counties/{id}/houses/:
+    get:
+      operationId: counties_houses_retrieve
+      description: Get all houses in this county
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this county.
+        required: true
+      tags:
+      - counties
+      security:
+      - jwtAuth: []
+      - Bearer:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/County'
+          description: ''
+  /api/counties/{id}/parishes/:
+    get:
+      operationId: counties_parishes_retrieve
+      description: Get all parishes in this county
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this county.
+        required: true
+      tags:
+      - counties
+      security:
+      - jwtAuth: []
+      - Bearer:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/County'
+          description: ''
+  /api/districts/:
+    get:
+      operationId: districts_list
+      description: |-
+        ViewSet for viewing districts.
+        Supports filtering by name.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - districts
+      security:
+      - jwtAuth: []
+      - Bearer:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/District'
+          description: ''
+  /api/districts/{id}/:
+    get:
+      operationId: districts_retrieve
+      description: |-
+        ViewSet for viewing districts.
+        Supports filtering by name.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this district.
+        required: true
+      tags:
+      - districts
+      security:
+      - jwtAuth: []
+      - Bearer:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/District'
+          description: ''
+  /api/districts/{id}/counties/:
+    get:
+      operationId: districts_counties_retrieve
+      description: Get all counties in this district
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this district.
+        required: true
+      tags:
+      - districts
+      security:
+      - jwtAuth: []
+      - Bearer:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/District'
+          description: ''
+  /api/districts/{id}/houses/:
+    get:
+      operationId: districts_houses_retrieve
+      description: Get all houses in this district
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this district.
+        required: true
+      tags:
+      - districts
+      security:
+      - jwtAuth: []
+      - Bearer:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/District'
+          description: ''
   /api/houses/:
     get:
       operationId: houses_list
@@ -287,7 +519,22 @@ paths:
   /api/houses/run_scrapers/:
     post:
       operationId: houses_run_scrapers_create
-      description: Trigger the run_scrapers management command
+      description: |-
+        Trigger the run_scrapers management command
+
+        Request body (optional):
+        {
+            "scrapers": ["ImoVirtual", "Idealista", "SuperCasa"],  // Optional: specific scrapers to run
+            "all": true  // Optional: run all scrapers (default if no scrapers specified)
+        }
+
+        Available scrapers:
+        - ImoVirtual
+        - Idealista
+        - Remax
+        - ERA
+        - CasaSapo
+        - SuperCasa
       tags:
       - houses
       requestBody:
@@ -334,10 +581,115 @@ paths:
               schema:
                 $ref: '#/components/schemas/House'
           description: ''
+  /api/parishes/:
+    get:
+      operationId: parishes_list
+      description: |-
+        ViewSet for viewing parishes.
+        Supports filtering by name, county, and district.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - parishes
+      security:
+      - jwtAuth: []
+      - Bearer:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Parish'
+          description: ''
+  /api/parishes/{id}/:
+    get:
+      operationId: parishes_retrieve
+      description: |-
+        ViewSet for viewing parishes.
+        Supports filtering by name, county, and district.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this parish.
+        required: true
+      tags:
+      - parishes
+      security:
+      - jwtAuth: []
+      - Bearer:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Parish'
+          description: ''
+  /api/parishes/{id}/houses/:
+    get:
+      operationId: parishes_houses_retrieve
+      description: Get all houses in this parish
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this parish.
+        required: true
+      tags:
+      - parishes
+      security:
+      - jwtAuth: []
+      - Bearer:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Parish'
+          description: ''
   /api/run-scrapers/:
     post:
       operationId: run_scrapers_create
-      description: Trigger the run_scrapers management command
+      description: |-
+        Trigger the run_scrapers management command
+
+        Request body (optional):
+        {
+            "scrapers": ["ImoVirtual", "Idealista", "SuperCasa"],  // Optional: specific scrapers to run
+            "all": true  // Optional: run all scrapers (default if no scrapers specified)
+        }
+
+        Available scrapers:
+        - ImoVirtual
+        - Idealista
+        - Remax
+        - ERA
+        - CasaSapo
+        - SuperCasa
       tags:
       - run-scrapers
       requestBody:

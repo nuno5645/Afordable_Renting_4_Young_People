@@ -1,23 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { housesAPI, House } from '@/lib/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Input } from '@/components/ui/Input';
+import { Modal } from '@/components/ui/Modal';
 import { Pagination } from '@/components/ui/Pagination';
+import { County, District, House, housesAPI, locationsAPI, Parish } from '@/lib/api';
 import { formatCurrency, formatDate } from '@/lib/utils';
-import toast from 'react-hot-toast';
-import { 
-  Star, 
-  MessageCircle, 
-  Trash2, 
-  ExternalLink, 
+import {
+  Edit2,
+  ExternalLink,
+  RefreshCw,
   Search,
-  Filter,
-  RefreshCw
+  Trash2,
+  X
 } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 export default function HousesPage() {
   const [houses, setHouses] = useState<House[]>([]);
@@ -27,27 +28,106 @@ export default function HousesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [pageSize, setPageSize] = useState(10);
+  
+  // Location data
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [counties, setCounties] = useState<County[]>([]);
+  const [parishes, setParishes] = useState<Parish[]>([]);
+  
   const [filters, setFilters] = useState({
-    favorites: false,
-    contacted: false,
-    discarded: false,
     source: 'all',
+    district: undefined as number | undefined,
+    county: undefined as number | undefined,
+    parish: undefined as number | undefined,
   });
+
+  // Edit modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingHouse, setEditingHouse] = useState<House | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    price: 0,
+    bedrooms: 0,
+    area: 0,
+    floor: '',
+    zone: '',
+    description: '',
+  });
+
+  // Delete confirmation modal state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [houseToDelete, setHouseToDelete] = useState<House | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    loadLocations();
+  }, []);
 
   useEffect(() => {
     loadHouses();
-  }, [currentPage]);
+  }, [currentPage, filters.district, filters.county, filters.parish]);
 
   useEffect(() => {
     applyFilters();
   }, [houses, searchTerm, filters]);
+
+  // Load counties when district changes
+  useEffect(() => {
+    if (filters.district) {
+      loadCounties(filters.district);
+      setFilters(prev => ({ ...prev, county: undefined, parish: undefined }));
+    } else {
+      setCounties([]);
+      setParishes([]);
+    }
+  }, [filters.district]);
+
+  // Load parishes when county changes
+  useEffect(() => {
+    if (filters.county) {
+      loadParishes(filters.county);
+      setFilters(prev => ({ ...prev, parish: undefined }));
+    } else {
+      setParishes([]);
+    }
+  }, [filters.county]);
+
+  const loadLocations = async () => {
+    try {
+      const districtsData = await locationsAPI.getDistricts();
+      setDistricts(districtsData);
+    } catch (error) {
+      console.error('Failed to load districts:', error);
+    }
+  };
+
+  const loadCounties = async (districtId: number) => {
+    try {
+      const countiesData = await locationsAPI.getCounties({ district: districtId });
+      setCounties(countiesData);
+    } catch (error) {
+      console.error('Failed to load counties:', error);
+    }
+  };
+
+  const loadParishes = async (countyId: number) => {
+    try {
+      const parishesData = await locationsAPI.getParishes({ county: countyId });
+      setParishes(parishesData);
+    } catch (error) {
+      console.error('Failed to load parishes:', error);
+    }
+  };
 
   const loadHouses = async () => {
     setLoading(true);
     try {
       const response = await housesAPI.getAll({ 
         ordering: '-scraped_at',
-        page: currentPage 
+        page: currentPage,
+        district: filters.district,
+        county: filters.county,
+        parish: filters.parish,
       });
       setHouses(response.results);
       setTotalCount(response.count);
@@ -83,17 +163,6 @@ export default function HousesPage() {
       );
     }
 
-    // Status filters
-    if (filters.favorites) {
-      filtered = filtered.filter(h => h.is_favorite);
-    }
-    if (filters.contacted) {
-      filtered = filtered.filter(h => h.is_contacted);
-    }
-    if (filters.discarded) {
-      filtered = filtered.filter(h => h.is_discarded);
-    }
-
     // Source filter
     if (filters.source !== 'all') {
       filtered = filtered.filter(h => h.source === filters.source);
@@ -102,49 +171,77 @@ export default function HousesPage() {
     setFilteredHouses(filtered);
   };
 
-  const toggleFavorite = async (house: House) => {
+  const openEditModal = (house: House) => {
+    setEditingHouse(house);
+    setEditForm({
+      name: house.name,
+      price: Number(house.price),
+      bedrooms: Number(house.bedrooms),
+      area: Number(house.area),
+      floor: house.floor || '',
+      zone: house.zone,
+      description: house.description,
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setEditingHouse(null);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingHouse) return;
+
     try {
-      const updated = await housesAPI.toggleFavorite(house.house_id);
-      setHouses(houses.map(h => h.house_id === house.house_id ? updated : h));
-      toast.success(updated.is_favorite ? 'Added to favorites' : 'Removed from favorites');
+      // Convert numbers to strings to match the API expected format
+      const updateData = {
+        name: editForm.name,
+        price: editForm.price.toString(),
+        bedrooms: editForm.bedrooms.toString(),
+        area: editForm.area.toString(),
+        floor: editForm.floor || null,
+        zone: editForm.zone,
+        description: editForm.description,
+      };
+      const updated = await housesAPI.update(editingHouse.house_id, updateData);
+      setHouses(houses.map(h => h.house_id === editingHouse.house_id ? updated : h));
+      toast.success('House updated successfully');
+      closeEditModal();
     } catch (error) {
-      toast.error('Failed to update favorite status');
+      toast.error('Failed to update house');
     }
   };
 
-  const toggleContacted = async (house: House) => {
-    try {
-      const updated = await housesAPI.toggleContacted(house.house_id);
-      setHouses(houses.map(h => h.house_id === house.house_id ? updated : h));
-      toast.success(updated.is_contacted ? 'Marked as contacted' : 'Unmarked as contacted');
-    } catch (error) {
-      toast.error('Failed to update contacted status');
-    }
+  const openDeleteModal = (house: House) => {
+    setHouseToDelete(house);
+    setIsDeleteModalOpen(true);
   };
 
-  const toggleDiscarded = async (house: House) => {
-    try {
-      const updated = await housesAPI.toggleDiscarded(house.house_id);
-      setHouses(houses.map(h => h.house_id === house.house_id ? updated : h));
-      toast.success(updated.is_discarded ? 'Marked as discarded' : 'Unmarked as discarded');
-    } catch (error) {
-      toast.error('Failed to update discarded status');
-    }
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setHouseToDelete(null);
   };
 
-  const deleteHouse = async (house: House) => {
-    if (!confirm('Are you sure you want to delete this house?')) return;
+  const confirmDelete = async () => {
+    if (!houseToDelete) return;
     
+    setIsDeleting(true);
     try {
-      await housesAPI.delete(house.house_id);
-      setHouses(houses.filter(h => h.house_id !== house.house_id));
+      await housesAPI.delete(houseToDelete.house_id);
+      setHouses(houses.filter(h => h.house_id !== houseToDelete.house_id));
       toast.success('House deleted successfully');
+      closeDeleteModal();
     } catch (error) {
       toast.error('Failed to delete house');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  const sources = ['all', ...new Set(houses.map(h => h.source))];
+  // Hardcoded sources list matching the available scrapers
+  const sources = ['all', 'ImoVirtual', 'Idealista', 'Remax', 'ERA', 'CasaSapo', 'SuperCasa'];
 
   if (loading) {
     return (
@@ -190,44 +287,104 @@ export default function HousesPage() {
               onChange={(e) => setFilters({ ...filters, source: e.target.value })}
               className="h-10 rounded-md border border-gray-300 px-3 text-sm"
             >
-              {sources.map(source => (
+              {sources.map((source: string) => (
                 <option key={source} value={source}>
                   {source === 'all' ? 'All Sources' : source}
                 </option>
               ))}
             </select>
           </div>
-          <div className="flex gap-2 flex-wrap">
-            <Button
-              variant={filters.favorites ? 'primary' : 'outline'}
-              size="sm"
-              onClick={() => setFilters({ ...filters, favorites: !filters.favorites })}
-            >
-              <Star className="w-4 h-4 mr-2" />
-              Favorites
-            </Button>
-            <Button
-              variant={filters.contacted ? 'primary' : 'outline'}
-              size="sm"
-              onClick={() => setFilters({ ...filters, contacted: !filters.contacted })}
-            >
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Contacted
-            </Button>
-            <Button
-              variant={filters.discarded ? 'primary' : 'outline'}
-              size="sm"
-              onClick={() => setFilters({ ...filters, discarded: !filters.discarded })}
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Discarded
-            </Button>
+          
+          {/* Location Filters */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">District</label>
+              <div className="flex gap-2">
+                <select
+                  value={filters.district || ''}
+                  onChange={(e) => setFilters({ ...filters, district: e.target.value ? Number(e.target.value) : undefined })}
+                  className="flex-1 h-10 rounded-md border border-gray-300 px-3 text-sm"
+                >
+                  <option value="">All Districts</option>
+                  {districts.map(district => (
+                    <option key={district.id} value={district.id}>
+                      {district.name}
+                    </option>
+                  ))}
+                </select>
+                {filters.district && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setFilters({ ...filters, district: undefined, county: undefined, parish: undefined })}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">County</label>
+              <div className="flex gap-2">
+                <select
+                  value={filters.county || ''}
+                  onChange={(e) => setFilters({ ...filters, county: e.target.value ? Number(e.target.value) : undefined })}
+                  className="flex-1 h-10 rounded-md border border-gray-300 px-3 text-sm"
+                  disabled={!filters.district}
+                >
+                  <option value="">All Counties</option>
+                  {counties.map(county => (
+                    <option key={county.id} value={county.id}>
+                      {county.name}
+                    </option>
+                  ))}
+                </select>
+                {filters.county && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setFilters({ ...filters, county: undefined, parish: undefined })}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Parish</label>
+              <div className="flex gap-2">
+                <select
+                  value={filters.parish || ''}
+                  onChange={(e) => setFilters({ ...filters, parish: e.target.value ? Number(e.target.value) : undefined })}
+                  className="flex-1 h-10 rounded-md border border-gray-300 px-3 text-sm"
+                  disabled={!filters.county}
+                >
+                  <option value="">All Parishes</option>
+                  {parishes.map(parish => (
+                    <option key={parish.id} value={parish.id}>
+                      {parish.name}
+                    </option>
+                  ))}
+                </select>
+                {filters.parish && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setFilters({ ...filters, parish: undefined })}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Pagination - Top */}
-      {!searchTerm && !filters.favorites && !filters.contacted && !filters.discarded && filters.source === 'all' && (
+      {!searchTerm && filters.source === 'all' && (
         <Pagination
           currentPage={currentPage}
           totalPages={Math.ceil(totalCount / pageSize)}
@@ -238,7 +395,7 @@ export default function HousesPage() {
       )}
 
       {/* Results */}
-      {(searchTerm || filters.favorites || filters.contacted || filters.discarded || filters.source !== 'all') && (
+      {(searchTerm || filters.source !== 'all') && (
         <div className="text-sm text-gray-500">
           Showing {filteredHouses.length} filtered results
         </div>
@@ -258,7 +415,7 @@ export default function HousesPage() {
               <CardContent className="p-6">
                 <div className="flex gap-6">
                   {/* Image */}
-                  {house.photos.length > 0 && (
+                  {house?.photos?.length > 0 && (
                     <div className="w-48 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
                       <img
                         src={house.photos[0].image_url}
@@ -332,28 +489,23 @@ export default function HousesPage() {
                     {/* Actions */}
                     <div className="flex items-center gap-2 mt-4">
                       <Button
-                        variant={house.is_favorite ? 'primary' : 'outline'}
+                        variant="outline"
                         size="sm"
-                        onClick={() => toggleFavorite(house)}
+                        onClick={() => openEditModal(house)}
+                        title="Edit house"
                       >
-                        <Star className="w-4 h-4" fill={house.is_favorite ? 'currentColor' : 'none'} />
+                        <Edit2 className="w-4 h-4" />
                       </Button>
                       <Button
-                        variant={house.is_contacted ? 'primary' : 'outline'}
+                        variant="danger"
                         size="sm"
-                        onClick={() => toggleContacted(house)}
-                      >
-                        <MessageCircle className="w-4 h-4" fill={house.is_contacted ? 'currentColor' : 'none'} />
-                      </Button>
-                      <Button
-                        variant={house.is_discarded ? 'danger' : 'outline'}
-                        size="sm"
-                        onClick={() => toggleDiscarded(house)}
+                        onClick={() => openDeleteModal(house)}
+                        title="Delete house"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
                       <Link href={house.url} target="_blank" rel="noopener noreferrer">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" title="View original listing">
                           <ExternalLink className="w-4 h-4" />
                         </Button>
                       </Link>
@@ -371,7 +523,7 @@ export default function HousesPage() {
       )}
 
       {/* Pagination - Bottom */}
-      {!searchTerm && !filters.favorites && !filters.contacted && !filters.discarded && filters.source === 'all' && filteredHouses.length > 0 && (
+      {!searchTerm && filters.source === 'all' && filteredHouses.length > 0 && (
         <Pagination
           currentPage={currentPage}
           totalPages={Math.ceil(totalCount / pageSize)}
@@ -380,6 +532,154 @@ export default function HousesPage() {
           onPageChange={handlePageChange}
         />
       )}
+
+      {/* Edit Modal */}
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={closeEditModal}
+        title="Edit House"
+        size="lg"
+      >
+        <form onSubmit={handleEditSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Name
+            </label>
+            <Input
+              type="text"
+              value={editForm.name}
+              onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Price (€)
+              </label>
+              <Input
+                type="number"
+                value={editForm.price}
+                onChange={(e) => setEditForm({ ...editForm, price: Number(e.target.value) })}
+                required
+                min="0"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Bedrooms
+              </label>
+              <Input
+                type="number"
+                value={editForm.bedrooms}
+                onChange={(e) => setEditForm({ ...editForm, bedrooms: Number(e.target.value) })}
+                required
+                min="0"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Area (m²)
+              </label>
+              <Input
+                type="number"
+                value={editForm.area}
+                onChange={(e) => setEditForm({ ...editForm, area: Number(e.target.value) })}
+                required
+                min="0"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Floor
+              </label>
+              <Input
+                type="text"
+                value={editForm.floor}
+                onChange={(e) => setEditForm({ ...editForm, floor: e.target.value })}
+                placeholder="e.g., 1, 2, Ground"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Zone
+            </label>
+            <Input
+              type="text"
+              value={editForm.zone}
+              onChange={(e) => setEditForm({ ...editForm, zone: e.target.value })}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Description
+            </label>
+            <textarea
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows={4}
+              value={editForm.description}
+              onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closeEditModal}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+            >
+              Save Changes
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={confirmDelete}
+        title="Delete House"
+        message={
+          houseToDelete ? (
+            <div>
+              <p className="font-medium mb-2">Are you sure you want to delete this house?</p>
+              <p className="text-sm text-gray-600 mb-1">
+                <strong>{houseToDelete.name}</strong>
+              </p>
+              <p className="text-sm text-gray-600">
+                {houseToDelete.zone} • {formatCurrency(houseToDelete.price)}
+              </p>
+              <p className="text-sm text-red-600 mt-3">
+                This action cannot be undone.
+              </p>
+            </div>
+          ) : (
+            'Are you sure you want to delete this house?'
+          )
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

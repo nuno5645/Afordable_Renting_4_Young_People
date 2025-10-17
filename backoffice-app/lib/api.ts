@@ -183,8 +183,18 @@ export const authAPI = {
   },
 };
 
+export interface HouseFilters {
+  ordering?: string;
+  page?: number;
+  district?: number;
+  county?: number;
+  parish?: number;
+  favorites?: boolean;
+  contacted?: boolean;
+}
+
 export const housesAPI = {
-  getAll: async (params?: { ordering?: string; page?: number }): Promise<PaginatedResponse<House>> => {
+  getAll: async (params?: HouseFilters): Promise<PaginatedResponse<House>> => {
     const { data } = await api.get('/api/houses/', { params });
     return data;
   },
@@ -194,19 +204,24 @@ export const housesAPI = {
     return data;
   },
   
-  toggleFavorite: async (id: string): Promise<House> => {
-    const { data } = await api.post(`/api/houses/${id}/toggle_favorite/`);
+  toggleFavorite: async (houseId: string): Promise<{ is_favorite: boolean }> => {
+    const { data } = await api.post(`/api/houses/${houseId}/toggle_favorite/`);
     return data;
   },
   
-  toggleContacted: async (id: string): Promise<House> => {
+  toggleContacted: async (id: string): Promise<{ is_contacted: boolean }> => {
     const { data } = await api.post(`/api/houses/${id}/toggle_contacted/`);
     return data;
   },
   
-  toggleDiscarded: async (id: string): Promise<House> => {
+  toggleDiscarded: async (id: string): Promise<{ is_discarded: boolean }> => {
     const { data } = await api.post(`/api/houses/${id}/toggle_discarded/`);
     return data;
+  },
+  
+  update: async (id: string, data: Partial<House>): Promise<House> => {
+    const response = await api.patch(`/api/houses/${id}/`, data);
+    return response.data;
   },
   
   delete: async (id: string): Promise<void> => {
@@ -214,14 +229,92 @@ export const housesAPI = {
   },
 };
 
+export interface RunScrapersRequest {
+  scrapers?: string[];  // Optional: specific scrapers to run (e.g., ['ImoVirtual', 'Idealista'])
+  all?: boolean;        // Optional: run all scrapers
+}
+
+export interface RunScrapersResponse {
+  status: 'success' | 'error';
+  output?: string;
+  error?: string;
+  scrapers_run?: string | string[];
+  message?: string;
+}
+
 export const scrapersAPI = {
   getStatus: async (): Promise<ScrapersStatusResponse> => {
     const { data } = await api.get('/api/scraper-status/');
     return data;
   },
   
-  runScrapers: async (): Promise<any> => {
-    const { data } = await api.post('/api/run-scrapers/');
+  runScrapers: async (request?: RunScrapersRequest): Promise<RunScrapersResponse> => {
+    const { data } = await api.post('/api/run-scrapers/', request || {});
+    return data;
+  },
+};
+
+export const locationsAPI = {
+  // Districts
+  getDistricts: async (): Promise<District[]> => {
+    const { data } = await api.get('/api/districts/', { params: { page_size: 1000 } });
+    // Handle both paginated and non-paginated responses
+    return data.results || data;
+  },
+  
+  getDistrictById: async (id: number): Promise<District> => {
+    const { data } = await api.get(`/api/districts/${id}/`);
+    return data;
+  },
+  
+  getDistrictCounties: async (id: number): Promise<County[]> => {
+    const { data } = await api.get(`/api/districts/${id}/counties/`);
+    // This endpoint returns an array directly, not paginated
+    return data;
+  },
+  
+  getDistrictHouses: async (id: number, page?: number): Promise<PaginatedResponse<House>> => {
+    const { data } = await api.get(`/api/districts/${id}/houses/`, { params: { page } });
+    return data;
+  },
+  
+  // Counties
+  getCounties: async (params?: { district?: number }): Promise<County[]> => {
+    const { data } = await api.get('/api/counties/', { params: { ...params, page_size: 1000 } });
+    // Handle both paginated and non-paginated responses
+    return data.results || data;
+  },
+  
+  getCountyById: async (id: number): Promise<County> => {
+    const { data } = await api.get(`/api/counties/${id}/`);
+    return data;
+  },
+  
+  getCountyParishes: async (id: number): Promise<Parish[]> => {
+    const { data } = await api.get(`/api/counties/${id}/parishes/`);
+    // This endpoint returns an array directly, not paginated
+    return data;
+  },
+  
+  getCountyHouses: async (id: number, page?: number): Promise<PaginatedResponse<House>> => {
+    const { data } = await api.get(`/api/counties/${id}/houses/`, { params: { page } });
+    return data;
+  },
+  
+  // Parishes
+  getParishes: async (params?: { county?: number; district?: number }): Promise<Parish[]> => {
+    const { data } = await api.get('/api/parishes/', { params: { ...params, page_size: 1000 } });
+    // Handle both paginated and non-paginated responses
+    return data.results || data;
+  },
+  
+  getParishById: async (id: number): Promise<Parish> => {
+    const { data } = await api.get(`/api/parishes/${id}/`);
+    return data;
+  },
+  
+  getParishHouses: async (id: number, page?: number): Promise<PaginatedResponse<House>> => {
+    const { data } = await api.get(`/api/parishes/${id}/houses/`, { params: { page } });
     return data;
   },
 };

@@ -13,7 +13,9 @@ export function formatCurrency(value: number | string): string {
   }).format(numValue)
 }
 
-export function formatDate(date: string | Date): string {
+export function formatDate(date: string | Date | undefined): string {
+  if (!date) return '';
+
   return new Intl.DateTimeFormat('pt-PT', {
     year: 'numeric',
     month: 'long',

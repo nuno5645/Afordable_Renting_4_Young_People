@@ -4,8 +4,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
-from .models import House, MainRun
-from .serializers import HouseSerializer
+from .models import House, MainRun, District, County, Parish
+from .serializers import HouseSerializer, DistrictSerializer, CountySerializer, ParishSerializer
 from .settings import ROOM_RENTAL_TITLE_TERMS
 import json
 from pathlib import Path
@@ -45,6 +45,18 @@ class HouseViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(favorited_by=self.request.user)
         if show_contacted:
             queryset = queryset.filter(contacted_by=self.request.user)
+        
+        # Location filters
+        district_id = self.request.query_params.get('district')
+        county_id = self.request.query_params.get('county')
+        parish_id = self.request.query_params.get('parish')
+        
+        if district_id:
+            queryset = queryset.filter(district_id=district_id)
+        if county_id:
+            queryset = queryset.filter(county_id=county_id)
+        if parish_id:
+            queryset = queryset.filter(parish_id=parish_id)
         
         return queryset
 
@@ -210,3 +222,125 @@ class HouseViewSet(viewsets.ModelViewSet):
                 'status': 'error',
                 'error': str(e)
             }, status=500)
+
+
+class DistrictViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet for viewing districts.
+    Supports filtering by name.
+    """
+    queryset = District.objects.all()
+    serializer_class = DistrictSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name']
+    ordering_fields = ['name']
+    ordering = ['name']
+    pagination_class = None  # Disable pagination for location endpoints
+
+    @action(detail=True, methods=['get'])
+    def counties(self, request, pk=None):
+        """Get all counties in this district"""
+        district = self.get_object()
+        counties = district.counties.all()
+        serializer = CountySerializer(counties, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def houses(self, request, pk=None):
+        """Get all houses in this district"""
+        district = self.get_object()
+        houses = House.objects.filter(district=district)
+        
+        # Apply pagination
+        page = self.paginate_queryset(houses)
+        if page is not None:
+            serializer = HouseSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = HouseSerializer(houses, many=True, context={'request': request})
+        return Response(serializer.data)
+
+
+class CountyViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet for viewing counties.
+    Supports filtering by name and district.
+    """
+    queryset = County.objects.all()
+    serializer_class = CountySerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name', 'district__name']
+    ordering_fields = ['name', 'district__name']
+    ordering = ['name']
+    pagination_class = None  # Disable pagination for location endpoints
+
+    def get_queryset(self):
+        queryset = County.objects.all()
+        district_id = self.request.query_params.get('district')
+        if district_id:
+            queryset = queryset.filter(district_id=district_id)
+        return queryset
+
+    @action(detail=True, methods=['get'])
+    def parishes(self, request, pk=None):
+        """Get all parishes in this county"""
+        county = self.get_object()
+        parishes = county.parishes.all()
+        serializer = ParishSerializer(parishes, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def houses(self, request, pk=None):
+        """Get all houses in this county"""
+        county = self.get_object()
+        houses = House.objects.filter(county=county)
+        
+        # Apply pagination
+        page = self.paginate_queryset(houses)
+        if page is not None:
+            serializer = HouseSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = HouseSerializer(houses, many=True, context={'request': request})
+        return Response(serializer.data)
+
+
+class ParishViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet for viewing parishes.
+    Supports filtering by name, county, and district.
+    """
+    queryset = Parish.objects.all()
+    serializer_class = ParishSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name', 'county__name', 'county__district__name']
+    ordering_fields = ['name', 'county__name']
+    ordering = ['name']
+    pagination_class = None  # Disable pagination for location endpoints
+
+    def get_queryset(self):
+        queryset = Parish.objects.all()
+        county_id = self.request.query_params.get('county')
+        district_id = self.request.query_params.get('district')
+        
+        if county_id:
+            queryset = queryset.filter(county_id=county_id)
+        if district_id:
+            queryset = queryset.filter(county__district_id=district_id)
+        
+        return queryset
+
+    @action(detail=True, methods=['get'])
+    def houses(self, request, pk=None):
+        """Get all houses in this parish"""
+        parish = self.get_object()
+        houses = House.objects.filter(parish=parish)
+        
+        # Apply pagination
+        page = self.paginate_queryset(houses)
+        if page is not None:
+            serializer = HouseSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = HouseSerializer(houses, many=True, context={'request': request})
+        return Response(serializer.data)

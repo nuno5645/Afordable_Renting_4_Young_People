@@ -12,6 +12,10 @@ export default function ScrapersPage() {
   const [statusData, setStatusData] = useState<ScrapersStatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
+  const [selectedScrapers, setSelectedScrapers] = useState<string[]>([]);
+  const [showScraperSelection, setShowScraperSelection] = useState(false);
+
+  const availableScrapers = ['ImoVirtual', 'Idealista', 'Remax', 'ERA', 'CasaSapo', 'SuperCasa'];
 
   useEffect(() => {
     loadScrapers();
@@ -39,18 +43,38 @@ export default function ScrapersPage() {
     }
   };
 
-  const runScrapers = async () => {
+  const runScrapers = async (scrapers?: string[]) => {
     setRunning(true);
     try {
-      await scrapersAPI.runScrapers();
-      toast.success('Scrapers started successfully! Check back in a few minutes.');
+      const request = scrapers && scrapers.length > 0 
+        ? { scrapers } 
+        : { all: true };
+      
+      const response = await scrapersAPI.runScrapers(request);
+      
+      if (response.status === 'success') {
+        toast.success(response.message || 'Scrapers started successfully! Check back in a few minutes.');
+      } else {
+        toast.error(response.error || 'Failed to start scrapers');
+      }
+      
       setTimeout(loadScrapers, 3000);
+      setShowScraperSelection(false);
+      setSelectedScrapers([]);
     } catch (error: any) {
-      toast.error('Failed to start scrapers');
+      toast.error(error.response?.data?.error || 'Failed to start scrapers');
       console.error(error);
     } finally {
       setRunning(false);
     }
+  };
+
+  const toggleScraperSelection = (scraper: string) => {
+    setSelectedScrapers(prev => 
+      prev.includes(scraper)
+        ? prev.filter(s => s !== scraper)
+        : [...prev, scraper]
+    );
   };
 
   const getStatusColor = (status: string | null) => {
@@ -108,7 +132,14 @@ export default function ScrapersPage() {
             Refresh
           </Button>
           <Button 
-            onClick={runScrapers} 
+            onClick={() => setShowScraperSelection(!showScraperSelection)} 
+            variant="outline"
+            disabled={running || statusData?.main_run?.status === 'running'}
+          >
+            {showScraperSelection ? 'Cancel' : 'Select Scrapers'}
+          </Button>
+          <Button 
+            onClick={() => runScrapers()} 
             disabled={running || statusData?.main_run?.status === 'running'}
           >
             <Play className="w-4 h-4 mr-2" />
@@ -116,6 +147,58 @@ export default function ScrapersPage() {
           </Button>
         </div>
       </div>
+
+      {/* Scraper Selection Modal */}
+      {showScraperSelection && (
+        <Card className="border-2 border-blue-500">
+          <CardHeader>
+            <CardTitle>Select Scrapers to Run</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {availableScrapers.map((scraper) => (
+                  <label
+                    key={scraper}
+                    className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-colors ${
+                      selectedScrapers.includes(scraper)
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedScrapers.includes(scraper)}
+                      onChange={() => toggleScraperSelection(scraper)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm font-medium">{scraper}</span>
+                  </label>
+                ))}
+              </div>
+              
+              <div className="flex gap-2 justify-end pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowScraperSelection(false);
+                    setSelectedScrapers([]);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => runScrapers(selectedScrapers)}
+                  disabled={selectedScrapers.length === 0 || running}
+                >
+                  <Play className="w-4 h-4 mr-2" />
+                  Run Selected ({selectedScrapers.length})
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Main Run Status Card */}
       {statusData?.main_run && (

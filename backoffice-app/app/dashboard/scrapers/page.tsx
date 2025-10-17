@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { scrapersAPI, ScrapersStatusResponse, ScraperInfo } from '@/lib/api';
+import { scrapersAPI, ScrapersStatusResponse } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { formatDate } from '@/lib/utils';
@@ -19,15 +19,18 @@ export default function ScrapersPage() {
 
   useEffect(() => {
     loadScrapers();
-    // Auto-refresh every 10 seconds if main run is running
+  }, []); // Only run once on mount
+
+  useEffect(() => {
+    // Auto-refresh every 10 seconds if latest main run is running
     const interval = setInterval(() => {
-      if (statusData?.main_run?.status === 'running') {
+      if (statusData?.results?.[0]?.status === 'running') {
         loadScrapers();
       }
     }, 10000);
     
     return () => clearInterval(interval);
-  }, [statusData?.main_run?.status]);
+  }, [statusData?.results?.[0]?.status]); // Only depend on the status, not the entire results array
 
   const loadScrapers = async () => {
     setLoading(true);
@@ -134,16 +137,16 @@ export default function ScrapersPage() {
           <Button 
             onClick={() => setShowScraperSelection(!showScraperSelection)} 
             variant="outline"
-            disabled={running || statusData?.main_run?.status === 'running'}
+            disabled={running || statusData?.results?.[0]?.status === 'running'}
           >
             {showScraperSelection ? 'Cancel' : 'Select Scrapers'}
           </Button>
           <Button 
             onClick={() => runScrapers()} 
-            disabled={running || statusData?.main_run?.status === 'running'}
+            disabled={running || statusData?.results?.[0]?.status === 'running'}
           >
             <Play className="w-4 h-4 mr-2" />
-            {statusData?.main_run?.status === 'running' ? 'Running...' : 'Run All Scrapers'}
+            {statusData?.results?.[0]?.status === 'running' ? 'Running...' : 'Run All Scrapers'}
           </Button>
         </div>
       </div>
@@ -200,133 +203,115 @@ export default function ScrapersPage() {
         </Card>
       )}
 
-      {/* Main Run Status Card */}
-      {statusData?.main_run && (
-        <Card className="border-2">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xl">Main Run Status</CardTitle>
-              {getStatusIcon(statusData.main_run.status)}
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {statusData.main_run.status ? (
-              <>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Status</p>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(statusData.main_run.status)}`}>
-                      {statusData.main_run.status}
-                    </span>
-                  </div>
-                  
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Total Houses</p>
-                    <p className="text-lg font-semibold">{statusData.main_run.total_houses}</p>
-                  </div>
-                  
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">New Houses</p>
-                    <p className="text-lg font-semibold text-green-600">{statusData.main_run.new_houses}</p>
-                  </div>
-                  
-                  {statusData.main_run.start_time && (
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Start Time</p>
-                      <p className="text-sm">{formatDate(statusData.main_run.start_time)}</p>
-                    </div>
-                  )}
-                </div>
-
-                {statusData.main_run.end_time && (
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">End Time</p>
-                    <p className="text-sm">{formatDate(statusData.main_run.end_time)}</p>
-                  </div>
-                )}
-
-                {statusData.main_run.last_run_date && (
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Last Run Date</p>
-                    <p className="text-sm">{formatDate(statusData.main_run.last_run_date)}</p>
-                  </div>
-                )}
-
-                {statusData.main_run.error_message && (
-                  <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-                    <p className="text-xs font-semibold text-red-800 mb-1">Error:</p>
-                    <p className="text-xs text-red-700">{statusData.main_run.error_message}</p>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <Clock className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                <p className="text-sm font-medium">No scraper runs yet</p>
-                <p className="text-xs mt-1">Click &quot;Run All Scrapers&quot; to start the first run</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Individual Scrapers */}
-      {statusData?.scrapers && Object.keys(statusData.scrapers).length > 0 ? (
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Individual Scrapers</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Object.entries(statusData.scrapers).map(([key, scraper]) => (
-              <Card key={key}>
+      {/* All Main Runs */}
+      {statusData?.results && statusData.results.length > 0 ? (
+        <div className="space-y-6">
+          <h2 className="text-xl font-semibold text-gray-900">Main Scraper Runs</h2>
+          {statusData.results.map((mainRun) => {
+            const scraperRuns = mainRun.scraper_runs || [];
+            return (
+              <Card key={mainRun.id} className="border-2">
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{scraper.name}</CardTitle>
-                    {getStatusIcon(scraper.status)}
+                    <div>
+                      <CardTitle className="text-xl">Run #{mainRun.id}</CardTitle>
+                      {mainRun.start_time && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          {formatDate(mainRun.start_time)}
+                        </p>
+                      )}
+                    </div>
+                    {getStatusIcon(mainRun.status)}
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Status:</span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(scraper.status)}`}>
-                      {scraper.status || 'N/A'}
-                    </span>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Status</p>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(mainRun.status)}`}>
+                        {mainRun.status || 'N/A'}
+                      </span>
+                    </div>
+                    
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Total Houses</p>
+                      <p className="text-lg font-semibold">{mainRun.total_houses}</p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">New Houses</p>
+                      <p className="text-lg font-semibold text-green-600">{mainRun.new_houses}</p>
+                    </div>
+                    
+                    {mainRun.end_time && (
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">End Time</p>
+                        <p className="text-sm">{formatDate(mainRun.end_time)}</p>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Houses Found:</span>
-                    <span className="font-semibold text-green-600">{scraper.houses_found}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Houses Processed:</span>
-                    <span className="font-semibold">{scraper.houses_processed}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Last Updated:</span>
-                    <span className="text-gray-900 text-xs">{formatDate(scraper.timestamp)}</span>
-                  </div>
-
-                  {scraper.error_message && (
-                    <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                  {mainRun.error_message && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-md">
                       <p className="text-xs font-semibold text-red-800 mb-1">Error:</p>
-                      <p className="text-xs text-red-700">{scraper.error_message}</p>
+                      <p className="text-xs text-red-700">{mainRun.error_message}</p>
+                    </div>
+                  )}
+
+                  {/* Scraper Runs for this Main Run */}
+                  {scraperRuns.length > 0 && (
+                    <div className="mt-4 pt-4 border-t">
+                      <p className="text-sm font-medium text-gray-700 mb-3">Individual Scrapers</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {scraperRuns.map((scraper) => (
+                          <div key={scraper.id} className="p-3 border rounded-lg bg-gray-50">
+                            <div className="flex items-center justify-between mb-2">
+                              <p className="font-medium text-sm">{scraper.name}</p>
+                              {getStatusIcon(scraper.status)}
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-gray-500">Status:</span>
+                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(scraper.status)}`}>
+                                  {scraper.status || 'N/A'}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-gray-500">New Houses:</span>
+                                <span className="font-semibold text-green-600">{scraper.new_houses}</span>
+                              </div>
+
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-gray-500">Processed:</span>
+                                <span className="font-semibold">{scraper.total_houses}</span>
+                              </div>
+
+                              {scraper.error_message && (
+                                <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded">
+                                  <p className="text-xs text-red-700">{scraper.error_message}</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </CardContent>
               </Card>
-            ))}
-          </div>
+            );
+          })}
         </div>
       ) : (
-        statusData?.main_run?.status && (
-          <Card>
-            <CardContent className="py-12 text-center text-gray-500">
-              <AlertCircle className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p className="text-sm font-medium">No individual scraper data available</p>
-              <p className="text-xs mt-1">Scraper details will appear here during and after runs</p>
-            </CardContent>
-          </Card>
-        )
+        <Card>
+          <CardContent className="py-12 text-center text-gray-500">
+            <Clock className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+            <p className="text-sm font-medium">No scraper runs yet</p>
+            <p className="text-xs mt-1">Click &quot;Run All Scrapers&quot; to start the first run</p>
+          </CardContent>
+        </Card>
       )}
 
     </div>

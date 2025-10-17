@@ -2,29 +2,39 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { housesAPI, scrapersAPI, House, ScrapersStatusResponse } from '@/lib/api';
+import { Pagination } from '@/components/ui/Pagination';
+import { housesAPI, scrapersAPI, House, ScrapersStatusResponse, HouseStats } from '@/lib/api';
 import { Home, TrendingUp, Activity, AlertCircle } from 'lucide-react';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
 export default function DashboardPage() {
   const [houses, setHouses] = useState<House[]>([]);
-  const [totalHouses, setTotalHouses] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [stats, setStats] = useState<HouseStats>({ total_houses: 0, average_price: 0 });
   const [scraperStatus, setScraperStatus] = useState<ScrapersStatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [currentPage]);
 
   const loadData = async () => {
+    setLoading(true);
     try {
-      const [housesResponse, statusData] = await Promise.all([
-        housesAPI.getAll({ ordering: '-scraped_at', page: 1 }),
+      const [housesResponse, statsData, statusData] = await Promise.all([
+        housesAPI.getAll({ ordering: '-scraped_at', page: currentPage }),
+        housesAPI.getStats(),
         scrapersAPI.getStatus()
       ]);
       setHouses(housesResponse.results);
-      setTotalHouses(housesResponse.count);
+      setTotalCount(housesResponse.count);
+      if (housesResponse.results.length > 0) {
+        setPageSize(housesResponse.results.length);
+      }
+      setStats(statsData);
       setScraperStatus(statusData);
     } catch (error: any) {
       toast.error('Failed to load dashboard data');
@@ -34,17 +44,13 @@ export default function DashboardPage() {
     }
   };
 
-  const stats = {
-    total: totalHouses,
-    favorites: houses.filter(h => h.is_favorite).length,
-    contacted: houses.filter(h => h.is_contacted).length,
-    avgPrice: houses.length > 0 
-      ? houses.reduce((sum, h) => sum + parseFloat(h.price), 0) / houses.length 
-      : 0,
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const recentHouses = houses.slice(0, 5);
-  const scrapers = scraperStatus?.scrapers ? Object.entries(scraperStatus.scrapers) : [];
+  const latestMainRun = scraperStatus?.results?.[0];
+  const latestScraperRuns = latestMainRun?.scraper_runs || [];
 
   if (loading) {
     return (
@@ -69,44 +75,30 @@ export default function DashboardPage() {
             <Home className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
+            <div className="text-2xl font-bold">{stats.total_houses}</div>
             <p className="text-xs text-gray-500 mt-1">Available properties</p>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Favorites</CardTitle>
-            <Activity className="h-4 w-4 text-gray-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.favorites}</div>
-            <p className="text-xs text-gray-500 mt-1">Marked as favorites</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Contacted</CardTitle>
-            <AlertCircle className="h-4 w-4 text-gray-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.contacted}</div>
-            <p className="text-xs text-gray-500 mt-1">Already contacted</p>
-          </CardContent>
-        </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Avg. Price</CardTitle>
             <TrendingUp className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.avgPrice)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(stats.average_price)}</div>
             <p className="text-xs text-gray-500 mt-1">Average rental price</p>
           </CardContent>
         </Card>
       </div>
+
+      {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={Math.ceil(totalCount / pageSize)}
+        totalItems={totalCount}
+        itemsPerPage={pageSize}
+        onPageChange={handlePageChange}
+      />
 
       {/* Recent Houses */}
       <Card>
@@ -114,11 +106,11 @@ export default function DashboardPage() {
           <CardTitle>Recent Properties</CardTitle>
         </CardHeader>
         <CardContent>
-          {recentHouses.length === 0 ? (
+          {houses.length === 0 ? (
             <p className="text-gray-500 text-center py-8">No properties found</p>
           ) : (
             <div className="space-y-4">
-              {recentHouses.map((house) => (
+              {houses.map((house) => (
                 <div key={house.house_id} className="flex items-start justify-between border-b pb-4 last:border-0">
                   <div className="flex-1">
                     <h3 className="font-medium text-gray-900">{house.name}</h3>
@@ -144,8 +136,19 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
+      {/* Pagination - Bottom */}
+      {houses.length > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(totalCount / pageSize)}
+          totalItems={totalCount}
+          itemsPerPage={pageSize}
+          onPageChange={handlePageChange}
+        />
+      )}
+
       {/* Scraper Status */}
-      {scraperStatus?.main_run && (
+      {latestMainRun && (
         <Card>
           <CardHeader>
             <CardTitle>Latest Scraper Run</CardTitle>
@@ -157,39 +160,39 @@ export default function DashboardPage() {
                 <div>
                   <p className="font-medium text-gray-900">Main Run</p>
                   <p className="text-xs text-gray-500">
-                    {scraperStatus.main_run.start_time 
-                      ? `Started: ${formatDate(scraperStatus.main_run.start_time)}`
+                    {latestMainRun.start_time 
+                      ? `Started: ${formatDate(latestMainRun.start_time)}`
                       : 'No runs yet'}
                   </p>
                 </div>
                 <div className="text-right">
                   <span className={`inline-block px-2 py-1 text-xs rounded-full ${
-                    scraperStatus.main_run.status === 'completed' || scraperStatus.main_run.status === 'success'
+                    latestMainRun.status === 'completed' || latestMainRun.status === 'success'
                       ? 'bg-green-100 text-green-800'
-                      : scraperStatus.main_run.status === 'running'
+                      : latestMainRun.status === 'running'
                       ? 'bg-blue-100 text-blue-800'
-                      : scraperStatus.main_run.status === 'failed' || scraperStatus.main_run.status === 'error'
+                      : latestMainRun.status === 'failed' || latestMainRun.status === 'error'
                       ? 'bg-red-100 text-red-800'
                       : 'bg-gray-100 text-gray-800'
                   }`}>
-                    {scraperStatus.main_run.status || 'N/A'}
+                    {latestMainRun.status || 'N/A'}
                   </span>
                   <p className="text-xs text-gray-500 mt-1">
-                    {scraperStatus.main_run.new_houses} new houses
+                    {latestMainRun.new_houses} new houses
                   </p>
                 </div>
               </div>
 
               {/* Individual Scrapers */}
-              {scrapers.length > 0 && (
+              {latestScraperRuns.length > 0 && (
                 <div className="space-y-3">
                   <p className="text-sm font-medium text-gray-700">Individual Scrapers</p>
-                  {scrapers.map(([key, scraper]) => (
-                    <div key={key} className="flex items-center justify-between">
+                  {latestScraperRuns.map((scraper) => (
+                    <div key={scraper.id} className="flex items-center justify-between">
                       <div>
                         <p className="font-medium text-gray-900">{scraper.name}</p>
                         <p className="text-xs text-gray-500">
-                          Last run: {formatDate(scraper.timestamp)}
+                          Last run: {formatDate(scraper.start_time || '')}
                         </p>
                       </div>
                       <div className="text-right">
@@ -205,7 +208,7 @@ export default function DashboardPage() {
                           {scraper.status || 'N/A'}
                         </span>
                         <p className="text-xs text-gray-500 mt-1">
-                          {scraper.houses_found} houses found
+                          {scraper.new_houses} houses found
                         </p>
                       </div>
                     </div>

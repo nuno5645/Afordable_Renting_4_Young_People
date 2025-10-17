@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { ImageCarousel } from '@/components/ui/ImageCarousel';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Pagination } from '@/components/ui/Pagination';
@@ -59,13 +60,17 @@ export default function HousesPage() {
   const [houseToDelete, setHouseToDelete] = useState<House | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Delete all confirmation modal state
+  const [isDeleteAllModalOpen, setIsDeleteAllModalOpen] = useState(false);
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
+
   useEffect(() => {
     loadLocations();
   }, []);
 
   useEffect(() => {
     loadHouses();
-  }, [currentPage, filters.district, filters.county, filters.parish]);
+  }, [currentPage, filters.district, filters.county, filters.parish, filters.source]);
 
   useEffect(() => {
     applyFilters();
@@ -91,6 +96,13 @@ export default function HousesPage() {
       setParishes([]);
     }
   }, [filters.county]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    if (currentPage !== 1) {
+      setCurrentPage(1);
+    }
+  }, [filters.district, filters.county, filters.parish, filters.source]);
 
   const loadLocations = async () => {
     try {
@@ -128,6 +140,7 @@ export default function HousesPage() {
         district: filters.district,
         county: filters.county,
         parish: filters.parish,
+        source: filters.source !== 'all' ? filters.source : undefined,
       });
       setHouses(response.results);
       setTotalCount(response.count);
@@ -151,7 +164,7 @@ export default function HousesPage() {
   const applyFilters = () => {
     let filtered = [...houses];
 
-    // Search filter
+    // Search filter (client-side only)
     if (searchTerm) {
       filtered = filtered.filter(house =>
         house.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -161,11 +174,6 @@ export default function HousesPage() {
         house.county?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         house.district?.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
-    }
-
-    // Source filter
-    if (filters.source !== 'all') {
-      filtered = filtered.filter(h => h.source === filters.source);
     }
 
     setFilteredHouses(filtered);
@@ -240,8 +248,32 @@ export default function HousesPage() {
     }
   };
 
+  const openDeleteAllModal = () => {
+    setIsDeleteAllModalOpen(true);
+  };
+
+  const closeDeleteAllModal = () => {
+    setIsDeleteAllModalOpen(false);
+  };
+
+  const confirmDeleteAll = async () => {
+    setIsDeletingAll(true);
+    try {
+      const result = await housesAPI.deleteAll();
+      toast.success(result.message);
+      setHouses([]);
+      setTotalCount(0);
+      closeDeleteAllModal();
+      await loadHouses(); // Reload to refresh
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || 'Failed to delete all houses');
+    } finally {
+      setIsDeletingAll(false);
+    }
+  };
+
   // Hardcoded sources list matching the available scrapers
-  const sources = ['all', 'ImoVirtual', 'Idealista', 'Remax', 'ERA', 'CasaSapo', 'SuperCasa'];
+  const sources = ['all', 'Imovirtual', 'Idealista', 'Remax', 'ERA', 'Casa SAPO', 'SuperCasa'];
 
   if (loading) {
     return (
@@ -258,10 +290,20 @@ export default function HousesPage() {
           <h1 className="text-3xl font-bold text-gray-900">Houses</h1>
           <p className="text-gray-500 mt-1">Manage your rental properties</p>
         </div>
-        <Button onClick={loadHouses} variant="outline">
-          <RefreshCw className="w-4 h-4 mr-2" />
-          Refresh
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={openDeleteAllModal} 
+            variant="danger"
+            disabled={houses.length === 0}
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete All
+          </Button>
+          <Button onClick={loadHouses} variant="outline">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -325,12 +367,18 @@ export default function HousesPage() {
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">County</label>
+              <label className={`text-sm font-medium ${!filters.district ? 'text-gray-400' : 'text-gray-700'}`}>
+                County {!filters.district && '(Select district first)'}
+              </label>
               <div className="flex gap-2">
                 <select
                   value={filters.county || ''}
                   onChange={(e) => setFilters({ ...filters, county: e.target.value ? Number(e.target.value) : undefined })}
-                  className="flex-1 h-10 rounded-md border border-gray-300 px-3 text-sm"
+                  className={`flex-1 h-10 rounded-md border px-3 text-sm ${
+                    !filters.district 
+                      ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed' 
+                      : 'border-gray-300 bg-white text-gray-900'
+                  }`}
                   disabled={!filters.district}
                 >
                   <option value="">All Counties</option>
@@ -353,12 +401,18 @@ export default function HousesPage() {
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Parish</label>
+              <label className={`text-sm font-medium ${!filters.county ? 'text-gray-400' : 'text-gray-700'}`}>
+                Parish {!filters.county && '(Select county first)'}
+              </label>
               <div className="flex gap-2">
                 <select
                   value={filters.parish || ''}
                   onChange={(e) => setFilters({ ...filters, parish: e.target.value ? Number(e.target.value) : undefined })}
-                  className="flex-1 h-10 rounded-md border border-gray-300 px-3 text-sm"
+                  className={`flex-1 h-10 rounded-md border px-3 text-sm ${
+                    !filters.county 
+                      ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed' 
+                      : 'border-gray-300 bg-white text-gray-900'
+                  }`}
                   disabled={!filters.county}
                 >
                   <option value="">All Parishes</option>
@@ -384,7 +438,7 @@ export default function HousesPage() {
       </Card>
 
       {/* Pagination - Top */}
-      {!searchTerm && filters.source === 'all' && (
+      {!searchTerm && (
         <Pagination
           currentPage={currentPage}
           totalPages={Math.ceil(totalCount / pageSize)}
@@ -395,7 +449,7 @@ export default function HousesPage() {
       )}
 
       {/* Results */}
-      {(searchTerm || filters.source !== 'all') && (
+      {searchTerm && (
         <div className="text-sm text-gray-500">
           Showing {filteredHouses.length} filtered results
         </div>
@@ -414,19 +468,14 @@ export default function HousesPage() {
             <Card key={house.house_id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 <div className="flex gap-6">
-                  {/* Image */}
-                  {house?.photos?.length > 0 && (
-                    <div className="w-48 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
-                      <img
-                        src={house.photos[0].image_url}
-                        alt={house.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
-                      />
-                    </div>
-                  )}
+                  {/* Image Carousel */}
+                  <div className="w-48 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                    <ImageCarousel
+                      images={house.photos || []}
+                      alt={house.name}
+                      className="w-full h-full"
+                    />
+                  </div>
 
                   {/* Content */}
                   <div className="flex-1 min-w-0">
@@ -523,7 +572,7 @@ export default function HousesPage() {
       )}
 
       {/* Pagination - Bottom */}
-      {!searchTerm && filters.source === 'all' && filteredHouses.length > 0 && (
+      {!searchTerm && filteredHouses.length > 0 && (
         <Pagination
           currentPage={currentPage}
           totalPages={Math.ceil(totalCount / pageSize)}
@@ -679,6 +728,37 @@ export default function HousesPage() {
         cancelText="Cancel"
         variant="danger"
         isLoading={isDeleting}
+      />
+
+      {/* Delete All Confirmation Modal */}
+      <ConfirmModal
+        isOpen={isDeleteAllModalOpen}
+        onClose={closeDeleteAllModal}
+        onConfirm={confirmDeleteAll}
+        title="Delete All Houses"
+        message={
+          <div>
+            <p className="font-medium mb-2 text-red-600">⚠️ DANGER: This will delete ALL houses!</p>
+            <p className="text-sm text-gray-600 mb-2">
+              You are about to delete <strong>{totalCount} houses</strong> from the database.
+            </p>
+            <p className="text-sm text-gray-600 mb-2">
+              This will also permanently delete:
+            </p>
+            <ul className="text-sm text-gray-600 list-disc list-inside mb-3 space-y-1">
+              <li>All house photos</li>
+              <li>All favorite/contacted/discarded relationships</li>
+              <li>All associated metadata</li>
+            </ul>
+            <p className="text-sm font-bold text-red-600">
+              ⚠️ THIS ACTION CANNOT BE UNDONE! ⚠️
+            </p>
+          </div>
+        }
+        confirmText="Yes, Delete Everything"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isDeletingAll}
       />
     </div>
   );

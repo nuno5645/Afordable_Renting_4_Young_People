@@ -98,28 +98,36 @@ export interface PaginatedResponse<T> {
   results: T[];
 }
 
-export interface ScraperInfo {
+export interface ScraperRunStatus {
+  id: number;
+  scraper: string;
   name: string;
   status: string | null;
-  timestamp: string;
-  houses_processed: number;
-  houses_found: number;
+  start_time: string | null;
+  end_time: string | null;
+  execution_time: number | null;
+  total_houses: number;
+  new_houses: number;
   error_message: string | null;
 }
 
 export interface MainRunStatus {
+  id: number;
   status: string | null;
   start_time: string | null;
   end_time: string | null;
+  execution_time: number | null;
   total_houses: number;
   new_houses: number;
   error_message: string | null;
-  last_run_date: string | null;
+  scraper_runs: ScraperRunStatus[];
 }
 
 export interface ScrapersStatusResponse {
-  main_run: MainRunStatus;
-  scrapers: Record<string, ScraperInfo>;
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: MainRunStatus[];
 }
 
 // Legacy interface for backward compatibility
@@ -189,8 +197,14 @@ export interface HouseFilters {
   district?: number;
   county?: number;
   parish?: number;
+  source?: string;
   favorites?: boolean;
   contacted?: boolean;
+}
+
+export interface HouseStats {
+  total_houses: number;
+  average_price: number;
 }
 
 export const housesAPI = {
@@ -201,6 +215,11 @@ export const housesAPI = {
   
   getById: async (id: string): Promise<House> => {
     const { data } = await api.get(`/api/houses/${id}/`);
+    return data;
+  },
+  
+  getStats: async (): Promise<HouseStats> => {
+    const { data } = await api.get('/api/houses/stats/');
     return data;
   },
   
@@ -227,6 +246,11 @@ export const housesAPI = {
   delete: async (id: string): Promise<void> => {
     await api.delete(`/api/houses/${id}/`);
   },
+
+  deleteAll: async (): Promise<{ status: string; deleted_count: number; deleted_objects: number; message: string }> => {
+    const { data } = await api.post('/api/houses/delete_all/');
+    return data;
+  },
 };
 
 export interface RunScrapersRequest {
@@ -243,8 +267,8 @@ export interface RunScrapersResponse {
 }
 
 export const scrapersAPI = {
-  getStatus: async (): Promise<ScrapersStatusResponse> => {
-    const { data } = await api.get('/api/scraper-status/');
+  getStatus: async (page?: number): Promise<ScrapersStatusResponse> => {
+    const { data } = await api.get('/api/main-runs/', { params: { page } });
     return data;
   },
   

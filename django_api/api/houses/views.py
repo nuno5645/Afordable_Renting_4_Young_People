@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from .models import House, MainRun, District, County, Parish
-from .serializers import HouseSerializer, DistrictSerializer, CountySerializer, ParishSerializer
+from .serializers import HouseSerializer, DistrictSerializer, CountySerializer, ParishSerializer, MainRunSerializer
 from .settings import ROOM_RENTAL_TITLE_TERMS
 import json
 from pathlib import Path
@@ -50,6 +50,7 @@ class HouseViewSet(viewsets.ModelViewSet):
         district_id = self.request.query_params.get('district')
         county_id = self.request.query_params.get('county')
         parish_id = self.request.query_params.get('parish')
+        source = self.request.query_params.get('source')
         
         if district_id:
             queryset = queryset.filter(district_id=district_id)
@@ -57,6 +58,8 @@ class HouseViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(county_id=county_id)
         if parish_id:
             queryset = queryset.filter(parish_id=parish_id)
+        if source:
+            queryset = queryset.filter(source=source)
         
         return queryset
 
@@ -97,64 +100,68 @@ class HouseViewSet(viewsets.ModelViewSet):
         return Response({'is_favorite': is_favorite})
 
     @action(detail=False, methods=['get'])
-    def scraper_status(self, request):
-        """Get the status of all scrapers"""
-        status_data = {
-            "main_run": {
-                "status": None,
-                "start_time": None,
-                "end_time": None,
-                "total_houses": 0,
-                "new_houses": 0,
-                "error_message": None
-            },
-            "scrapers": {}
+    def stats(self, request):
+        """
+        Get statistics about houses in the database
+        
+        Returns:
+        {
+            "total_houses": 1234,
+            "average_price": 850.50
         }
+        """
+        from django.db.models import Avg, Count
         
-        # Get the most recent main run
+        queryset = self.get_queryset()
+        
+        # Calculate statistics
+        stats = queryset.aggregate(
+            total_houses=Count('house_id'),
+            average_price=Avg('price')
+        )
+
+        
+        return Response({
+            'total_houses': stats['total_houses'] or 0,
+            'average_price': float(stats['average_price']) if stats['average_price'] else 0.0
+        })
+
+    @action(detail=False, methods=['post'])
+    def delete_all(self, request):
+        """
+        Delete all houses from the database
+        
+        This will cascade delete all related data including:
+        - Photos (due to ForeignKey with on_delete=CASCADE)
+        - Many-to-Many relationships (favorited_by, contacted_by, discarded_by)
+        
+        Returns:
+        {
+            "status": "success",
+            "deleted_count": 1234,
+            "message": "Successfully deleted 1234 houses and related data"
+        }
+        """
         try:
-            main_run = MainRun.objects.order_by('-start_time').first()
-            print(f"Main run fields:")
-            print(f"Status: {main_run.status}")
-            print(f"Start time: {main_run.start_time}")
-            print(f"End time: {main_run.end_time}")
-            print(f"Total houses: {main_run.total_houses}")
-            print(f"New houses: {main_run.new_houses}")
-            print(f"Error message: {main_run.error_message}")
-            print("---")
+            # Get count before deletion
+            house_count = House.objects.count()
             
-            if main_run:
-                # Update main run status
-                status_data["main_run"] = {
-                    "status": main_run.status,
-                    "start_time": main_run.start_time.isoformat() if main_run.start_time else None,
-                    "end_time": main_run.end_time.isoformat() if main_run.end_time else None,
-                    "total_houses": main_run.total_houses,
-                    "new_houses": main_run.new_houses,
-                    "error_message": main_run.error_message,
-                    "last_run_date": MainRun.objects.exclude(id=main_run.id).order_by('-start_time').values_list('start_time', flat=True).first().isoformat() if MainRun.objects.exclude(id=main_run.id).exists() else None
-                }
-                
-                # Get all scraper runs associated with this main run
-                scraper_runs = main_run.scraper_runs.all()
-                
-                for run in scraper_runs:
-                    # Format the scraper name to be more readable
-                    display_name = run.scraper.replace('_', ' ').title()
-                    status_data["scrapers"][run.scraper] = {
-                        "name": display_name,
-                        "status": run.status,
-                        "timestamp": run.start_time.isoformat(),
-                        "houses_processed": run.total_houses,
-                        "houses_found": run.new_houses,
-                        "error_message": run.error_message
-                    }
+            # Delete all houses (cascades to photos and clears M2M relationships)
+            deleted_info = House.objects.all().delete()
+            
+            return Response({
+                'status': 'success',
+                'deleted_count': house_count,
+                'deleted_objects': deleted_info[0],  # Total number of objects deleted (houses + photos + m2m)
+                'message': f'Successfully deleted {house_count} houses and related data'
+            })
+            
         except Exception as e:
-            print(f"Error in scraper_status: {str(e)}")
-            # If there's an error, we'll return the default status_data
-            pass
-        
-        return Response(status_data)
+            print(f"Error deleting all houses: {str(e)}")
+            return Response({
+                'status': 'error',
+                'error': str(e)
+            }, status=500)
 
     @action(detail=False, methods=['post'])
     def run_scrapers(self, request):
@@ -199,7 +206,7 @@ class HouseViewSet(viewsets.ModelViewSet):
         out = io.StringIO()
         try:
             # Build command arguments
-            cmd_args = ['--force']
+            cmd_args = []
             
             if run_all or not scrapers:
                 # Run all scrapers if explicitly requested or no specific scrapers provided
@@ -344,3 +351,15 @@ class ParishViewSet(viewsets.ReadOnlyModelViewSet):
         
         serializer = HouseSerializer(houses, many=True, context={'request': request})
         return Response(serializer.data)
+
+
+class MainRunViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Read-only ViewSet for viewing main scraper runs with nested scraper runs.
+    
+    list: Returns paginated main runs with nested scraper runs
+    retrieve: Returns a single main run with its scraper runs
+    """
+    queryset = MainRun.objects.prefetch_related('scraper_runs').order_by('-start_time')
+    serializer_class = MainRunSerializer
+    # permission_classes = [permissions.IsAuthenticated]

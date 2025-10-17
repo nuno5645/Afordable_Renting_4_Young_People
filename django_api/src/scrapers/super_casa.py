@@ -183,31 +183,24 @@ class SuperCasaScraper(BaseScraper):
                         except:
                             price = "N/A"
                             
-                        # Get area from features
-                        self._log('debug', "[SUPERCASA] Extracting area from features...")
+                        # Get area from property-features spans
                         try:
-                            feature_elements = property_item.find_elements(By.CSS_SELECTOR, ".property-features-text")
-                            self._log('debug', f"[SUPERCASA] Found {len(feature_elements)} feature elements")
+                            feature_spans = property_item.find_elements(By.CSS_SELECTOR, ".property-features span")
+                            self._log('info', f"[SUPERCASA] Found {len(feature_spans)} feature spans")
                             
-                            # Find the element containing "m²" or "m"
-                            area_text = next((feat.text.strip() for feat in feature_elements if "m²" in feat.text or " m " in feat.text), None)
-                            self._log('debug', f"[SUPERCASA] Area text found: '{area_text}'")
+                            area_span = next((span.text for span in feature_spans if "m²" in span.text), None)
+                            self._log('info', f"[SUPERCASA] Area span text: '{area_span}'")
                             
-                            if area_text:
-                                # Extract just the number using regex
-                                area_match = re.search(r'(\d+)\s*m²', area_text)
-                                if area_match:
-                                    area = f"{area_match.group(1)}"  # Just the number, no "m²"
-                                    self._log('debug', f"[SUPERCASA] Area extracted: '{area}'")
-                                else:
-                                    area = "0"  # Default to "0" if can't extract number
-                                    self._log('debug', "[SUPERCASA] Could not extract area number, set to 0")
+                            if area_span:
+                                match = re.search(r'(\d+)', area_span)
+                                area = match.group(1) if match else "0"
+                                self._log('info', f"[SUPERCASA] ✓ Area extracted: {area} m²")
                             else:
-                                area = "0"  # Default to "0" if not found
-                                self._log('debug', "[SUPERCASA] Area not found, set to 0")
-                        except Exception as area_error:
-                            self._log('warning', f"[SUPERCASA] Error extracting area: {str(area_error)}")
-                            area = "0"  # Default to "0" on error
+                                area = "0"
+                                self._log('info', "[SUPERCASA] ⚠ No area span found, defaulting to 0")
+                        except Exception as e:
+                            area = "0"
+                            self._log('warning', f"[SUPERCASA] ✗ Error extracting area: {str(e)}")
                             
                         # Get floor (if available)
                         floor = "N/A"  # SuperCasa typically doesn't show floor information in listings
@@ -235,7 +228,6 @@ class SuperCasaScraper(BaseScraper):
                                 # Convert to high resolution
                                 high_res_url = img_url.replace("Z360x270", "Z1440x1080").replace("Z720x540", "Z1440x1080")
                                 image_urls.append(high_res_url)
-                                self._log('info', f"Found first image: {high_res_url}")
                             
                             # Get next button and click through the carousel to get more images
                             next_button = swiper_container.find_element(By.CSS_SELECTOR, ".swiper-next")
@@ -264,7 +256,6 @@ class SuperCasaScraper(BaseScraper):
                                         high_res_url = new_img_url.replace("Z360x270", "Z1440x1080").replace("Z720x540", "Z1440x1080")
                                         if high_res_url not in image_urls:  # Avoid duplicates
                                             image_urls.append(high_res_url)
-                                            self._log('info', f"Found image {len(image_urls)}: {high_res_url}")
                                     
                                 except Exception as e:
                                     # Break if we can't get more images
@@ -273,9 +264,6 @@ class SuperCasaScraper(BaseScraper):
                             # If no images found, set empty list
                             if not image_urls:
                                 image_urls = []
-                                self._log('info', "No images found")
-                            else:
-                                self._log('info', f"Successfully extracted {len(image_urls)} image URLs")
                                 
                         except Exception as e:
                             self._log('warning', f"Error extracting image URLs: {str(e)}")

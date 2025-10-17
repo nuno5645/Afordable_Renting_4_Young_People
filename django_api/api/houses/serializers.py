@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import House, Photo, Parish, County, District
+from .models import House, Photo, Parish, County, District, MainRun, ScraperRun
 import re
 
 class DistrictSerializer(serializers.ModelSerializer):
@@ -96,4 +96,30 @@ class HouseSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.discarded_by.filter(id=request.user.id).exists()
-        return False 
+        return False
+
+
+class ScraperRunSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = ScraperRun
+        fields = [
+            'id', 'scraper', 'name', 'status', 'start_time', 'end_time',
+            'execution_time', 'total_houses', 'new_houses', 'error_message'
+        ]
+    
+    def get_name(self, obj):
+        """Format the scraper name to be more readable"""
+        return obj.scraper.replace('_', ' ').title()
+
+
+class MainRunSerializer(serializers.ModelSerializer):
+    scraper_runs = ScraperRunSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = MainRun
+        fields = [
+            'id', 'status', 'start_time', 'end_time', 'execution_time',
+            'total_houses', 'new_houses', 'error_message', 'scraper_runs'
+        ] 

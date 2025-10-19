@@ -28,7 +28,7 @@ export default function HousesPage() {
   const [activeSearch, setActiveSearch] = useState(''); // The search term actually applied to the API
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(10);
   
   // Location data
   const [districts, setDistricts] = useState<District[]>([]);
@@ -141,10 +141,6 @@ export default function HousesPage() {
       });
       setHouses(response.results);
       setTotalCount(response.count);
-      // Calculate page size from the response
-      if (response.results.length > 0) {
-        setPageSize(response.results.length);
-      }
     } catch (error: any) {
       toast.error('Failed to load houses');
       console.error(error);

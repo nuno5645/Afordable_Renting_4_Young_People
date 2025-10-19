@@ -44,18 +44,18 @@ class EraScraper(BaseScraper):
             driver = webdriver.Chrome(options=chrome_options)
             
             # Set page load timeout
-            driver.set_page_load_timeout(30)
+            driver.set_page_load_timeout(15)
             
             self._log('info', "Accessing website...")
             driver.get(self.url)
             
             # Wait much longer and trigger multiple interactions
             self._log('info', "Waiting extended time for AJAX content to load...")
-            time.sleep(5)
+            time.sleep(3)
             
             # Scroll down to trigger lazy loading
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(3)
+            time.sleep(2)
             
             # Click the Prédios button to load property content
             try:
@@ -76,7 +76,7 @@ class EraScraper(BaseScraper):
                 self._log('error', f"Error clicking Prédios button: {str(e)}")
                 
             # Final long wait for content
-            time.sleep(10)
+            time.sleep(5)
             
             # Check current URL to see if we were redirected
             current_url = driver.current_url
@@ -99,26 +99,18 @@ class EraScraper(BaseScraper):
             if not era_indicators:
                 self._log('warning', "No ERA-specific elements found. We might not be on ERA website.")
             
-            # Save initial page content for debugging
-            initial_content = driver.page_source
-            debug_file = '/home/hugoa/repos/Afordable_Renting_4_Young_People/debug_output.html'
-            with open(debug_file, 'w', encoding='utf-8') as f:
-                f.write(initial_content)
-                self._log('info', f"Saved initial page content to {debug_file}")
-            
             # Wait for dynamic content to load by checking for actual property listings
             self._log('info', "Waiting for property listings to load...")
             
-            # Wait up to 30 seconds for properties to appear
+            # Wait up to 15 seconds for properties to appear
             property_loaded = False
-            for attempt in range(30):
+            for attempt in range(15):
                 try:
                     # Check for actual ERA property cards based on the real HTML structure
                     property_elements = driver.find_elements(By.CSS_SELECTOR, 
                         "div.card.col-12, .content.p-3, div.property_details--container")
                     
                     if property_elements:
-                        self._log('info', f"Found {len(property_elements)} property elements after {attempt + 1} seconds")
                         property_loaded = True
                         break
                     
@@ -135,10 +127,6 @@ class EraScraper(BaseScraper):
                             self._log('info', f"Found {len(property_elements)} property elements in results container")
                             property_loaded = True
                             break
-                    
-                    # Log progress every 5 seconds instead of 10
-                    if (attempt + 1) % 5 == 0:
-                        self._log('info', f"Still waiting for properties... ({attempt + 1}/30 seconds)")
                     
                     time.sleep(1)
                     
@@ -205,7 +193,6 @@ class EraScraper(BaseScraper):
                     try:
                         element = wait.until(EC.presence_of_element_located((by, selector)))
                         if element:
-                            self._log('info', f"Found property content using selector: {selector}")
                             element_found = True
                             break
                     except:
@@ -223,21 +210,6 @@ class EraScraper(BaseScraper):
             self._log('info', "Successfully retrieved page content")
 
             driver.quit()
-
-            # Check if we're actually on ERA by looking for ERA-specific elements
-            era_specific_elements = soup.find_all(string=lambda text: text and 'era' in text.lower())
-            idealista_elements = soup.find_all(string=lambda text: text and 'idealista' in text.lower())
-            
-            if idealista_elements and not era_specific_elements:
-                self._log('error', "Page content indicates we are on Idealista, not ERA!")
-                self._log('error', f"Found {len(idealista_elements)} Idealista references")
-                return
-
-            # Extract search results metadata
-            self._extract_search_metadata(soup)
-
-            # Debug: Check what elements we can find
-            self._log('info', "Debugging page structure...")
             
             # Try different selectors to find houses - updated for current ERA structure
             possible_selectors = [
@@ -272,11 +244,9 @@ class EraScraper(BaseScraper):
                     # Log first element's classes for debugging
                     first_elem = elements[0]
                     classes = first_elem.get('class', [])
-                    self._log('info', f"First element classes: {classes}")
                     
                     # Exclude modal elements and other non-property elements
                     if any(cls in ' '.join(classes).lower() for cls in ['modal', 'popup', 'dialog', 'overlay']):
-                        self._log('info', f"Skipping selector '{selector}' - contains modal/popup elements")
                         continue
                     
                     # Check if this looks like property listings
@@ -290,13 +260,11 @@ class EraScraper(BaseScraper):
                     if has_price or has_location or has_property_info or has_property_type:
                         house_div = elements
                         selected_selector = selector
-                        self._log('info', f"Selected selector '{selector}' with {len(house_div)} property elements (has property data)")
                         break
                     elif 'content' in ' '.join(classes).lower() and len(elements) >= 3:
                         # Accept content elements if there are several (ERA uses div.content.p-3)
                         house_div = elements
                         selected_selector = selector
-                        self._log('info', f"Selected selector '{selector}' with {len(house_div)} potential property elements")
                         # Don't break yet, continue looking for better matches
                         
             # Additional check: if we still haven't found good property listings, 
@@ -315,14 +283,12 @@ class EraScraper(BaseScraper):
                 for container_sel in container_selectors:
                     container = soup.select(container_sel)
                     if container:
-                        self._log('info', f"Found results container: {container_sel}")
                         # Look for properties within the container
                         for prop_sel in possible_selectors[:10]:  # Try top selectors
                             container_props = container[0].select(prop_sel)
                             if container_props and len(container_props) > len(house_div):
                                 house_div = container_props
                                 selected_selector = f"{container_sel} {prop_sel}"
-                                self._log('info', f"Found {len(house_div)} properties in container with {prop_sel}")
                                 break
                         if house_div:
                             break
@@ -355,26 +321,34 @@ class EraScraper(BaseScraper):
 
             self._log('info', f"Found {len(house_div)} houses to process using selector: {selected_selector}")
 
-            for house in house_div:
-                try:
-                    # Check if this is a development property
-                    is_development = 'is-development' in house.parent.get('class', []) if house.parent else False
-                    
-                    if is_development:
-                        self._process_development_property(house, soup)
-                    else:
-                        self._process_regular_property(house, soup)
+            # Re-initialize driver for detail page navigation
+            detail_driver = webdriver.Chrome(options=chrome_options)
+            detail_driver.set_page_load_timeout(15)
+            
+            try:
+                for house in house_div:
+                    try:
+                        # Check if this is a development property
+                        is_development = 'is-development' in house.parent.get('class', []) if house.parent else False
                         
-                except Exception as e:
-                    self._log('error', f"Error processing house: {str(e)}", exc_info=True)
-                    continue
+                        if is_development:
+                            self._process_development_property(house, soup)
+                        else:
+                            self._process_regular_property(house, soup, detail_driver)
+                            
+                    except Exception as e:
+                        self._log('error', f"Error processing house: {str(e)}", exc_info=True)
+                        continue
+            finally:
+                # Clean up detail driver
+                detail_driver.quit()
 
             self._log('info', f"Finished processing URL: {self.url}")
 
         except Exception as e:
             self._log('error', f"Error accessing website: {str(e)}", exc_info=True)
     
-    def _process_regular_property(self, house, soup):
+    def _process_regular_property(self, house, soup, driver):
         """Process regular property listing"""
         # Extract basic property information
         property_type_elem = house.find("div", class_="property_details--type")
@@ -393,14 +367,12 @@ class EraScraper(BaseScraper):
         zone = location_elem.text.strip() if location_elem else "N/A"
         
         # Extract parish, county and district IDs from address
-        self._log('warning', f"Zone to process found: {zone}")
         parish_id, county_id, district_id = self.location_manager.extract_location(zone)
         
-        self._log('info', f"Processing: {name} in {zone}")
-        self._log('info', f"Parish ID: {parish_id}, County ID: {county_id}, District ID: {district_id}")
-        
         # Extract price
-        price_elem = house.find('p', class_="price-value")
+        price_elem = house.find('div', class_='arrendar price d-flex')
+        if price_elem:
+            price_elem = price_elem.find('p', class_="price-value")
         price = price_elem.text.strip() if price_elem else "N/A"
         
         # Extract URL
@@ -412,43 +384,27 @@ class EraScraper(BaseScraper):
         # Extract property details
         details = self._extract_property_details(house)
         
-        # Extract images
-        images = self._extract_images(soup, url)
-        self._log('info', f"Found {len(images)} images")
-        ## log each image
-        for img in images:
-            self._log('info', f"Image URL: {img}")
+        # Extract images using the shared driver
+        images = self._extract_images(url, driver)
         
-        # Extract energy certificate
-        energy_cert = self._extract_energy_certificate(house)
+        # Extract description from detail page using the shared driver
+        description = self._extract_description(url, driver)
         
-        # Extract amenities/features
-        amenities = self._extract_amenities(house)
-        
-        # Extract status (new, reserved, sold)
-        status = self._extract_property_status(house)
-        
-        description = "No description"  # ERA website doesn't provide description in listing
-        
-        # Match Imovirtual scraper structure exactly: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Parish_ID, County_ID, District_ID, Source, ScrapedAt, ImageURLs
-        info_list = [
-            name,           # Name
-            zone,           # Zone
-            price,          # Price
-            url,            # URL
-            details.get('bedrooms', 'N/A'),     # Bedrooms
-            details.get('area', 'N/A'),         # Area
-            details.get('floor', 'N/A'),        # Floor
-            description,    # Description
-            parish_id,      # Parish ID
-            county_id,      # County ID
-            district_id,    # District ID
-            "ERA",          # Source
-            None,           # ScrapedAt (will be filled by save_to_excel)
-            images          # Pass the list of image URLs directly
-        ]
-        
-        self.save_to_database(info_list)
+        # Save to database using helper function
+        self._save_property_to_database(
+            name=name,
+            zone=zone,
+            price=price,
+            url=url,
+            bedrooms=details.get('bedrooms', 'N/A'),
+            area=details.get('area', 'N/A'),
+            floor=details.get('floor', 'N/A'),
+            description=description,
+            parish_id=parish_id,
+            county_id=county_id,
+            district_id=district_id,
+            images=images
+        )
     
     def _process_development_property(self, house, soup):
         """Process development property listing"""
@@ -494,34 +450,43 @@ class EraScraper(BaseScraper):
             # Extract fraction details
             fractions = self._extract_development_fractions(house)
             
-            # Extract images
-            images = self._extract_images(soup, url)
+            # Extract images from soup
+            images = []
+            try:
+                gallery_link = soup.find('a', class_='card__gallery', href=url)
+                if gallery_link:
+                    slides = gallery_link.find_all('div', class_='slide')
+                    for slide in slides:
+                        style = slide.get('style', '')
+                        if 'mediaredir' in style and 'background-image: url(' in style:
+                            start = style.find('url("') + 5
+                            end = style.find('")', start)
+                            if start > 4 and end > start:
+                                image_url = style[start:end]
+                                if image_url and image_url not in images and 'cloned' not in slide.get('class', []):
+                                    images.append(image_url)
+            except Exception as e:
+                self._log('warning', f"Error extracting development images: {str(e)}")
+            
             self._log('info', f"Found {len(images)} images")
-            ## log each image
-            for img in images:
-                self._log('info', f"Image URL: {img}")
             
             self._log('info', f"Processing development: {name} in {zone}")
             
-            # Match Imovirtual scraper structure exactly: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Parish_ID, County_ID, District_ID, Source, ScrapedAt, ImageURLs
-            info_list = [
-                name,           # Name
-                zone,           # Zone
-                f"Comprar: {buy_price}, Arrendar: {rent_price}",  # Price
-                url,            # URL
-                fractions.get('types', 'N/A'),  # Bedrooms (using fraction types for developments)
-                fractions.get('details', 'N/A'),  # Area (using fraction details)
-                "N/A",          # Floor
-                f"Empreendimento com {available}",  # Description
-                parish_id,      # Parish ID
-                county_id,      # County ID
-                district_id,    # District ID
-                "ERA",          # Source
-                None,           # ScrapedAt (will be filled by save_to_excel)
-                images          # Pass the list of image URLs directly
-            ]
-            
-            self.save_to_database(info_list)
+            # Save to database using helper function
+            self._save_property_to_database(
+                name=name,
+                zone=zone,
+                price=f"Comprar: {buy_price}, Arrendar: {rent_price}",
+                url=url,
+                bedrooms=fractions.get('types', 'N/A'),
+                area=fractions.get('details', 'N/A'),
+                floor='N/A',
+                description=f"Empreendimento com {available}",
+                parish_id=parish_id,
+                county_id=county_id,
+                district_id=district_id,
+                images=images
+            )
             
         except Exception as e:
             self._log('error', f"Error processing development: {str(e)}", exc_info=True)
@@ -610,22 +575,27 @@ class EraScraper(BaseScraper):
             
         return details
     
-    def _extract_images(self, soup, house_url):
-        """Extract property images from ERA carousel slides by finding the specific house card"""
+    def _extract_images(self, house_url, driver):
+        """Extract property images from ERA carousel slides"""
         images = []
         
         try:
-            # log url
-            self._log('info', f"Extracting images for property URL: {house_url}")
-            # Find the card__gallery anchor with matching href
-            gallery_link = soup.find('a', class_='card__gallery', href=house_url)
+            # Navigate and click next button once
+            driver.get(house_url)
+            time.sleep(2)
             
-            if not gallery_link:
-                self._log('warning', f"Could not find card__gallery for URL: {house_url}")
-                return images
+            # Click btn-next once to load carousel images
+            try:
+                next_btn = driver.find_element(By.CSS_SELECTOR, "button.btn-next")
+                if next_btn.is_displayed():
+                    driver.execute_script("arguments[0].click();", next_btn)
+                    time.sleep(0.5)
+            except:
+                pass
             
-            # Find all carousel slide divs within this gallery
-            slides = gallery_link.find_all('div', class_='slide')
+            # Extract images from page
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
+            slides = soup.find_all('div', class_='slide')
             
             for slide in slides:
                 style = slide.get('style', '')
@@ -646,114 +616,52 @@ class EraScraper(BaseScraper):
             
         return images
     
-    def _extract_energy_certificate(self, house):
-        """Extract energy certificate information"""
-        try:
-            # Look for energy certificate icon/indicator
-            energy_elem = house.find('svg', {'data-original-title': 'Certificado Energético'})
-            if energy_elem:
-                return "Available"
-            
-            # Check if there's any energy-related information
-            if house.find(string=lambda text: text and 'energético' in text.lower()):
-                return "Available"
-                
-        except Exception as e:
-            self._log('warning', f"Error extracting energy certificate: {str(e)}")
-            
-        return "N/A"
-    
-    def _extract_amenities(self, house):
-        """Extract property amenities and features"""
-        amenities = []
+    def _extract_description(self, url, driver):
+        """Extract property description from detail page using the provided driver"""
+        description = "No description"
+        
+        if url == "N/A":
+            return description
         
         try:
-            # Look for elevator
-            if house.find('svg', {'data-original-title': 'Elevador'}):
-                amenities.append('Elevador')
-                
-            # Look for parking
-            if house.find('svg', {'data-original-title': 'Estacionamento'}):
-                amenities.append('Estacionamento')
-                
-            # Look for energy certificate
-            if house.find('svg', {'data-original-title': 'Certificado Energético'}):
-                amenities.append('Certificado Energético')
-                
-            # Look for other amenities in icons-badge
-            icons_badge = house.find('div', class_="icons-badge")
-            if icons_badge:
-                # Could contain additional amenity icons
-                pass
-                
+            self._log('debug', f"Navigating to property detail page: {url}")
+            driver.get(url)
+            time.sleep(3)  # Wait for page to load
+            
+            # Find the detail-description div
+            try:
+                detail_description = driver.find_element(By.ID, "detail-description")
+                # Find the specific div with class inside it
+                description_elem = detail_description.find_element(By.CSS_SELECTOR, "div.col.px-md-2.white-space-pre-wrap")
+                description = description_elem.text.strip() if description_elem else "No description"
+                self._log('debug', f"Extracted description: {description[:100]}...")  # Log first 100 chars
+            except Exception as e:
+                self._log('warning', f"Could not find description element: {str(e)}")
+            
         except Exception as e:
-            self._log('warning', f"Error extracting amenities: {str(e)}")
-            
-        return amenities
-    
-    def _extract_property_status(self, house):
-        """Extract property status (new, reserved, sold, etc.)"""
-        try:
-            # Check for status labels
-            if house.find('div', class_="card-label"):
-                label = house.find('span', class_="group-2")
-                if label:
-                    return label.text.strip()
-                    
-            # Check for highlights (reserved, sold)
-            if house.find('div', class_="card-highlight"):
-                if house.find('div', class_="card-highlight sold"):
-                    return "Vendido"
-                elif house.find('div', class_="card-highlight"):
-                    highlight = house.find('div', class_="card-highlight")
-                    if highlight and 'reserved' in highlight.get('class', []):
-                        return "Reservado"
-                        
-            # Check for development properties
-            if 'is-development' in house.get('class', []):
-                return "Empreendimento"
-                
-        except Exception as e:
-            self._log('warning', f"Error extracting property status: {str(e)}")
-            
-        return "Disponível"
-    
-    def _extract_search_metadata(self, soup):
-        """Extract search results metadata"""
-        try:
-            # Extract total results count
-            results_elem = soup.find('span', class_="mobile-results__label")
-            if results_elem:
-                results_text = results_elem.text.strip()
-                self._log('info', f"Search results: {results_text}")
-            
-            # Extract current sorting option
-            sorting_elem = soup.find('span', class_="selected-value")
-            if sorting_elem:
-                sorting = sorting_elem.text.strip()
-                self._log('info', f"Current sorting: {sorting}")
-                
-            # Extract available sorting options
-            sort_options = soup.find_all('span', class_="position-relative d-block mx-2 p-2 pt-3 border-bottom")
-            if sort_options:
-                options = [opt.text.strip() for opt in sort_options]
-                self._log('info', f"Available sorting options: {', '.join(options)}")
-                
-        except Exception as e:
-            self._log('warning', f"Error extracting search metadata: {str(e)}")
-    
-    def _clean_image_url(self, url):
-        """Clean and validate image URLs"""
-        if not url:
-            return None
-            
-        # Remove URL encoding artifacts
-        url = url.replace('%2b', '+').replace('%3d', '=').replace('%2f', '/')
+            self._log('warning', f"Error extracting description from {url}: {str(e)}")
         
-        # Ensure proper HTTPS
-        if url.startswith('//'):
-            url = 'https:' + url
-        elif not url.startswith('http'):
-            url = 'https://' + url
-            
-        return url
+        return description
+    
+    def _save_property_to_database(self, name, zone, price, url, bedrooms, area, floor, 
+                                     description, parish_id, county_id, district_id, images):
+        """Helper function to save property data to database"""
+        # Match Imovirtual scraper structure exactly: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Parish_ID, County_ID, District_ID, Source, ScrapedAt, ImageURLs
+        info_list = [
+            name,           # Name
+            zone,           # Zone
+            price,          # Price
+            url,            # URL
+            bedrooms,       # Bedrooms
+            area,           # Area
+            floor,          # Floor
+            description,    # Description
+            parish_id,      # Parish ID
+            county_id,      # County ID
+            district_id,    # District ID
+            "ERA",          # Source
+            None,           # ScrapedAt (will be filled by save_to_excel)
+            images          # Pass the list of image URLs directly
+        ]
+        
+        self.save_to_database(info_list)

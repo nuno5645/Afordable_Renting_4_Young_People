@@ -206,18 +206,11 @@ class RemaxScraper(BaseScraper):
                     self._log('debug', f"Found location: {zone}")
 
                     price = "N/A"
-                    price_elem = house.find("b", class_="relative leading-[140%]")
-                    if price_elem:
-                        price_text = price_elem.text.strip()
-                        # Extract just the numeric price value
-                        if "€" in price_text:
-                            price = price_text.split("/")[0].strip().replace(" ", "")
-                    else:
-                        # Try alternative selector for price
-                        price_elem = house.find("span", class_="")
-                        if price_elem and "€" in price_elem.text:
-                            price = price_elem.text.strip().split("/")[0].strip().replace(" ", "")
-                    self._log('debug', f"Found price: {price}")
+                    
+                    price_elem = house.find("span", class_="")
+                    if price_elem and "€" in price_elem.text:
+                        price = price_elem.text.strip().split("/")[0].strip().replace(" ", "")
+                    self._log('info', f"Found price: {price}")
 
                     url = "N/A"
                     # First try finding the link in the immediate parent
@@ -286,6 +279,9 @@ class RemaxScraper(BaseScraper):
                     self._log('warning', f"Zone to process found: {zone}")
                     parish_id, county_id, district_id = self.location_manager.extract_location(zone)
                     
+
+                    self._log('warning', f"PRICE: {price}")
+
                     # Order: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Parish_ID, County_ID, District_ID, Source, ScrapedAt, ImageURLs
                     info_list = [
                         name,           # Name

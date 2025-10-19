@@ -12,7 +12,7 @@ export default function DashboardPage() {
   const [houses, setHouses] = useState<House[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(10);
   const [stats, setStats] = useState<HouseStats>({ total_houses: 0, average_price: 0 });
   const [scraperStatus, setScraperStatus] = useState<ScrapersStatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -31,9 +31,6 @@ export default function DashboardPage() {
       ]);
       setHouses(housesResponse.results);
       setTotalCount(housesResponse.count);
-      if (housesResponse.results.length > 0) {
-        setPageSize(housesResponse.results.length);
-      }
       setStats(statsData);
       setScraperStatus(statusData);
     } catch (error: any) {

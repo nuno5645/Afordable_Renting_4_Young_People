@@ -188,10 +188,6 @@ class BaseScraper(ABC):
             # Convert to Decimal
             price = Decimal(cleaned)
             
-            # If price is less than 100, assume it's thousands (e.g., 1.15 means 1150)
-            if price < 100:
-                price = price * 1000
-            
             return price
             
         except (InvalidOperation, ValueError) as e:

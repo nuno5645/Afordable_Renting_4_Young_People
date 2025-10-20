@@ -15,8 +15,8 @@ except Exception as e:
 from houses.models import House
 
 class RemaxScraper(BaseScraper):
-    def __init__(self, logger, urls):
-        super().__init__(logger)
+    def __init__(self, logger, urls, listing_type='rent'):
+        super().__init__(logger, listing_type)
         self.urls = urls if isinstance(urls, list) else [urls]
         self.source = "Remax"
         self.location_manager = LocationManager()

@@ -17,8 +17,8 @@ import os
 from houses.models import House
 
 class ImoVirtualScraper(BaseScraper):
-    def __init__(self, logger, urls):
-        super().__init__(logger)
+    def __init__(self, logger, urls, listing_type='rent'):
+        super().__init__(logger, listing_type)
         self.urls = urls if isinstance(urls, list) else [urls]
         self.source = "Imovirtual"
         self.location_manager = LocationManager()

@@ -113,9 +113,18 @@ export default function DashboardPage() {
                     <p className="text-lg font-semibold text-gray-900">
                       {formatCurrency(house.price)}
                     </p>
-                    <span className="inline-block px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 mt-1">
-                      {house.source}
-                    </span>
+                    <div className="flex gap-1 justify-end mt-1">
+                      <span className="inline-block px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                        {house.source}
+                      </span>
+                      <span className={`inline-block px-2 py-1 text-xs rounded-full ${
+                        house.listing_type === 'buy' 
+                          ? 'bg-purple-100 text-purple-800' 
+                          : 'bg-green-100 text-green-800'
+                      }`}>
+                        {house.listing_type === 'buy' ? '💰' : '🏠'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}

@@ -15,8 +15,8 @@ from houses.models import House
 
 
 class IdealistaScraper(BaseScraper):
-    def __init__(self, logger, url, api_key):
-        super().__init__(logger)
+    def __init__(self, logger, url, api_key, listing_type='rent'):
+        super().__init__(logger, listing_type)
         # Convert single URL to list if needed
         self.url = [url] if isinstance(url, str) else url
         self.api_key = api_key

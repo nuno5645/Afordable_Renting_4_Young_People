@@ -12,10 +12,13 @@ export default function ScrapersPage() {
   const [statusData, setStatusData] = useState<ScrapersStatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
+  const [stopping, setStopping] = useState(false);
   const [selectedScrapers, setSelectedScrapers] = useState<string[]>([]);
   const [showScraperSelection, setShowScraperSelection] = useState(false);
+  const [listingType, setListingType] = useState<'rent' | 'buy' | 'all'>('buy');
 
   const availableScrapers = ['ImoVirtual', 'Idealista', 'Remax', 'ERA', 'CasaSapo', 'SuperCasa'];
+  const isScraperRunning = statusData?.results?.[0]?.status === 'running';
 
   useEffect(() => {
     loadScrapers();
@@ -50,8 +53,8 @@ export default function ScrapersPage() {
     setRunning(true);
     try {
       const request = scrapers && scrapers.length > 0 
-        ? { scrapers } 
-        : { all: true };
+        ? { scrapers, listing_type: listingType } 
+        : { all: true, listing_type: listingType };
       
       const response = await scrapersAPI.runScrapers(request);
       
@@ -129,8 +132,8 @@ export default function ScrapersPage() {
           <h1 className="text-3xl font-bold text-gray-900">Scrapers</h1>
           <p className="text-gray-500 mt-1">Manage and monitor your data scrapers</p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={loadScrapers} variant="outline" disabled={loading || running}>
+        <div className="flex gap-2 items-center">
+          <Button onClick={loadScrapers} variant="outline" disabled={loading || running || stopping}>
             <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
@@ -159,6 +162,23 @@ export default function ScrapersPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
+              {/* Listing Type Selector */}
+              <div className="p-4 rounded-lg border border-gray-200">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Listing Type
+                </label>
+                <select
+                  value={listingType}
+                  onChange={(e) => setListingType(e.target.value as 'rent' | 'buy' | 'all')}
+                  className="w-full h-10 rounded-md border border-gray-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={running || stopping}
+                >
+                  <option value="buy">💰 Buy (Comprar)</option>
+                  <option value="rent">🏠 Rent (Arrendar)</option>
+                  <option value="all">🔄 Both</option>
+                </select>
+              </div>
+
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {availableScrapers.map((scraper) => (
                   <label

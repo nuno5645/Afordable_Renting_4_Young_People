@@ -63,6 +63,12 @@ try:
             ERA_URL,
             CASA_SAPO_URLS,
             SUPER_CASA_URLS,
+            IMOVIRTUAL_URLS_BUY,
+            REMAX_URLS_BUY,
+            IDEALISTA_URLS_BUY,
+            ERA_URL_BUY,
+            CASA_SAPO_URLS_BUY,
+            SUPER_CASA_URLS_BUY,
             SCRAPER_API_KEY,
         )
     except ImportError:
@@ -76,6 +82,12 @@ try:
             ERA_URL,
             CASA_SAPO_URLS,
             SUPER_CASA_URLS,
+            IMOVIRTUAL_URLS_BUY,
+            REMAX_URLS_BUY,
+            IDEALISTA_URLS_BUY,
+            ERA_URL_BUY,
+            CASA_SAPO_URLS_BUY,
+            SUPER_CASA_URLS_BUY,
             SCRAPER_API_KEY,
         )
     
@@ -109,6 +121,45 @@ except ImportError as e:
 # Create a global lock for database operations
 db_lock = threading.Lock()
 
+def get_scraper_config(listing_type):
+    """Get scraper configuration based on listing type
+    
+    Args:
+        listing_type: 'rent', 'buy', or 'all'
+        
+    Returns:
+        dict: Scraper configurations with URLs for the specified listing type
+    """
+    configs = []
+    
+    if listing_type in ['rent', 'all']:
+        configs.append({
+            'imovirtual': ('ImoVirtual', ImoVirtualScraper, IMOVIRTUAL_URLS, None, 'rent'),
+            'idealista': ('Idealista', IdealistaScraper, IDEALISTA_URLS, SCRAPER_API_KEY, 'rent'),
+            'remax': ('Remax', RemaxScraper, REMAX_URLS, None, 'rent'),
+            'era': ('ERA', EraScraper, ERA_URL, None, 'rent'),
+            'casasapo': ('CasaSapo', CasaSapoScraper, CASA_SAPO_URLS, None, 'rent'),
+            'supercasa': ('SuperCasa', SuperCasaScraper, SUPER_CASA_URLS, None, 'rent')
+        })
+    
+    if listing_type in ['buy', 'all']:
+        configs.append({
+            'imovirtual_buy': ('ImoVirtual (Buy)', ImoVirtualScraper, IMOVIRTUAL_URLS_BUY, None, 'buy'),
+            'idealista_buy': ('Idealista (Buy)', IdealistaScraper, IDEALISTA_URLS_BUY, SCRAPER_API_KEY, 'buy'),
+            'remax_buy': ('Remax (Buy)', RemaxScraper, REMAX_URLS_BUY, None, 'buy'),
+            'era_buy': ('ERA (Buy)', EraScraper, ERA_URL_BUY, None, 'buy'),
+            'casasapo_buy': ('CasaSapo (Buy)', CasaSapoScraper, CASA_SAPO_URLS_BUY, None, 'buy'),
+            'supercasa_buy': ('SuperCasa (Buy)', SuperCasaScraper, SUPER_CASA_URLS_BUY, None, 'buy')
+        })
+    
+    # Merge all configs
+    merged = {}
+    for config in configs:
+        merged.update(config)
+    
+    return merged
+
+
 class Command(BaseCommand):
     help = 'Run house scrapers and save results directly to the database'
 
@@ -123,6 +174,13 @@ class Command(BaseCommand):
             '--all',
             action='store_true',
             help='Run all available scrapers'
+        )
+        parser.add_argument(
+            '--type',
+            type=str,
+            choices=['rent', 'buy', 'all'],
+            default='rent',
+            help='Type of listing to scrape: rent (arrendar), buy (comprar), or all'
         )
         parser.add_argument(
             '--force',
@@ -191,42 +249,32 @@ class Command(BaseCommand):
         
         try:
             main_start_time = timezone.now()
-            # Available scrapers - map both display names and lowercase keys
-            available_scrapers = {
-                'imovirtual': ('ImoVirtual', ImoVirtualScraper, IMOVIRTUAL_URLS, None),
-                'idealista': ('Idealista', IdealistaScraper, IDEALISTA_URLS, SCRAPER_API_KEY),
-                'remax': ('Remax', RemaxScraper, REMAX_URLS, None),
-                'era': ('ERA', EraScraper, ERA_URL, None),
-                'casasapo': ('CasaSapo', CasaSapoScraper, CASA_SAPO_URLS, None),
-                'supercasa': ('SuperCasa', SuperCasaScraper, SUPER_CASA_URLS, None)
-            }
             
-            # Create a mapping from display names to keys (case-insensitive)
-            name_to_key = {
-                'imovirtual': 'imovirtual',
-                'idealista': 'idealista',
-                'remax': 'remax',
-                'era': 'era',
-                'casasapo': 'casasapo',
-                'supercasa': 'supercasa',
-            }
+            # Get listing type from options
+            listing_type = options.get('type', 'rent')
+            self.stdout.write(f"Scraping for listing type: {listing_type}")
+            
+            # Get available scrapers based on listing type
+            available_scrapers = get_scraper_config(listing_type)
 
             # Determine which scrapers to run
             selected_scrapers = {}
             if options.get('all') or not options.get('scrapers') or 'all' in (options.get('scrapers') or []):
                 selected_scrapers = available_scrapers
-                self.stdout.write("Running all scrapers...")
+                self.stdout.write(f"Running all scrapers for {listing_type}...")
             else:
+                # Filter selected scrapers
                 for scraper in options['scrapers']:
                     scraper_lower = scraper.lower()
-                    if scraper_lower in name_to_key:
-                        key = name_to_key[scraper_lower]
-                        selected_scrapers[key] = available_scrapers[key]
-                        self.stdout.write(f"Selected scraper: {available_scrapers[key][0]}")
+                    # Try both regular and _buy suffixed keys
+                    for key in [scraper_lower, f"{scraper_lower}_buy"]:
+                        if key in available_scrapers:
+                            selected_scrapers[key] = available_scrapers[key]
+                            self.stdout.write(f"Selected scraper: {available_scrapers[key][0]}")
+                            break
                     else:
                         self.stdout.write(self.style.WARNING(
-                            f"Unknown scraper: {scraper}. "
-                            f"Available: {', '.join([v[0] for v in available_scrapers.values()])}"
+                            f"Unknown scraper: {scraper} for listing type {listing_type}"
                         ))
 
             if not selected_scrapers:
@@ -239,11 +287,11 @@ class Command(BaseCommand):
 
             # Create scraper instances with database saver
             scrapers = {}
-            for key, (name, scraper_class, urls, api_key) in selected_scrapers.items():
+            for key, (name, scraper_class, urls, api_key, scraper_listing_type) in selected_scrapers.items():
                 if api_key:
-                    scrapers[name] = scraper_class(logger, urls, api_key)
+                    scrapers[name] = scraper_class(logger, urls, api_key, scraper_listing_type)
                 else:
-                    scrapers[name] = scraper_class(logger, urls)
+                    scrapers[name] = scraper_class(logger, urls, scraper_listing_type)
                     
                 # Set the main run for each scraper
                 scrapers[name].set_main_run(main_run)

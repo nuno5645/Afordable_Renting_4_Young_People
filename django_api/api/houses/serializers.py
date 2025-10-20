@@ -41,7 +41,7 @@ class HouseSerializer(serializers.ModelSerializer):
         model = House
         fields = [
             'name', 'zone', 'price', 'url', 'bedrooms', 'area', 'floor',
-            'description', 'parish', 'county', 'district', 'source', 'scraped_at',
+            'description', 'listing_type', 'parish', 'county', 'district', 'source', 'scraped_at',
             'house_id', 'is_favorite', 'is_contacted', 'is_discarded', 'photos'
         ]
     

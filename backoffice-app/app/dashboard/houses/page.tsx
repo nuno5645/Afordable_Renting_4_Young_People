@@ -37,6 +37,7 @@ export default function HousesPage() {
   
   const [filters, setFilters] = useState({
     source: 'all',
+    listing_type: 'all' as 'all' | 'rent' | 'buy',
     district: undefined as number | undefined,
     county: undefined as number | undefined,
     parish: undefined as number | undefined,
@@ -70,7 +71,7 @@ export default function HousesPage() {
 
   useEffect(() => {
     loadHouses();
-  }, [currentPage, filters.district, filters.county, filters.parish, filters.source, activeSearch]);
+  }, [currentPage, filters.district, filters.county, filters.parish, filters.source, filters.listing_type, activeSearch]);
 
   // Load counties when district changes
   useEffect(() => {
@@ -98,7 +99,7 @@ export default function HousesPage() {
     if (currentPage !== 1) {
       setCurrentPage(1);
     }
-  }, [filters.district, filters.county, filters.parish, filters.source, activeSearch]);
+  }, [filters.district, filters.county, filters.parish, filters.source, filters.listing_type, activeSearch]);
 
   const loadLocations = async () => {
     try {
@@ -137,6 +138,7 @@ export default function HousesPage() {
         county: filters.county,
         parish: filters.parish,
         source: filters.source !== 'all' ? filters.source : undefined,
+        listing_type: filters.listing_type !== 'all' ? filters.listing_type : undefined,
         search: activeSearch || undefined,
       });
       setHouses(response.results);
@@ -336,6 +338,15 @@ export default function HousesPage() {
                 </option>
               ))}
             </select>
+            <select
+              value={filters.listing_type}
+              onChange={(e) => setFilters({ ...filters, listing_type: e.target.value as 'all' | 'rent' | 'buy' })}
+              className="h-10 rounded-md border border-gray-300 px-3 text-sm"
+            >
+              <option value="all">All Types</option>
+              <option value="rent">🏠 For Rent</option>
+              <option value="buy">💰 For Sale</option>
+            </select>
           </div>
           
           {/* Location Filters */}
@@ -519,9 +530,18 @@ export default function HousesPage() {
                         <p className="text-2xl font-bold text-gray-900">
                           {formatCurrency(house.price)}
                         </p>
-                        <span className="inline-block px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 mt-1">
-                          {house.source}
-                        </span>
+                        <div className="flex gap-2 justify-end mt-1">
+                          <span className="inline-block px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                            {house.source}
+                          </span>
+                          <span className={`inline-block px-2 py-1 text-xs rounded-full ${
+                            house.listing_type === 'buy' 
+                              ? 'bg-purple-100 text-purple-800' 
+                              : 'bg-green-100 text-green-800'
+                          }`}>
+                            {house.listing_type === 'buy' ? '💰 For Sale' : '🏠 For Rent'}
+                          </span>
+                        </div>
                       </div>
                     </div>
 

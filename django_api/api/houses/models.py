@@ -36,6 +36,11 @@ class Parish(models.Model):
         return f"{self.name} ({self.county.name})"
 
 class House(models.Model):
+    LISTING_TYPE_CHOICES = [
+        ('rent', 'For Rent'),
+        ('buy', 'For Sale'),
+    ]
+    
     name = models.CharField(max_length=255)
     zone = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -44,6 +49,7 @@ class House(models.Model):
     area = models.DecimalField(max_digits=8, decimal_places=2)
     floor = models.CharField(max_length=50, null=True, blank=True)
     description = models.TextField()
+    listing_type = models.CharField(max_length=10, choices=LISTING_TYPE_CHOICES, default='rent')
     # Foreign key relationships
     parish = models.ForeignKey(Parish, on_delete=models.SET_NULL, null=True, blank=True, related_name='houses')
     county = models.ForeignKey(County, on_delete=models.SET_NULL, null=True, blank=True, related_name='houses')

@@ -20,8 +20,8 @@ import os
 from houses.models import House
 
 class CasaSapoScraper(BaseScraper):
-    def __init__(self, logger, urls):
-        super().__init__(logger)
+    def __init__(self, logger, urls, listing_type='rent'):
+        super().__init__(logger, listing_type)
         self.urls = urls if isinstance(urls, list) else [urls]
         self.source = "Casa SAPO"
         self.location_manager = LocationManager()

@@ -18,8 +18,8 @@ import json
 import re
 
 class SuperCasaScraper(BaseScraper):
-    def __init__(self, logger, urls):
-        super().__init__(logger)
+    def __init__(self, logger, urls, listing_type='rent'):
+        super().__init__(logger, listing_type)
         self.urls = urls if isinstance(urls, list) else [urls]
         self.source = "SuperCasa"
         self.location_manager = LocationManager()
@@ -122,20 +122,26 @@ class SuperCasaScraper(BaseScraper):
         if page_num == 1:
             current_url = url
         else:
-            # Use the "/pagina-X" format for pagination instead of "?page=X"
-            if url.endswith('/'):
-                current_url = f"{url}pagina-{page_num}"
+            # Insert pagination before query parameters
+            # Split URL at the '?' to separate base URL from query params
+            if '?' in url:
+                base_url, query_params = url.split('?', 1)
+                current_url = f"{base_url}/pagina-{page_num}?{query_params}"
             else:
-                current_url = f"{url}/pagina-{page_num}"
+                # No query params, just append pagination
+                if url.endswith('/'):
+                    current_url = f"{url}pagina-{page_num}"
+                else:
+                    current_url = f"{url}/pagina-{page_num}"
 
         try:
             self._log('info', f"Processing page {page_num}...")
             if page_num > 1:
-                time.sleep(2)  # Reduced wait between pages
+                time.sleep(random.uniform(3, 6))  # Random wait between pages (3-6 seconds)
                 
             self.driver.get(current_url)
             self._log('info', f"Navigated to URL: {current_url}")
-            
+
             # Wait for property listings to be present (explicit wait instead of sleep)
             try:
                 property_items = WebDriverWait(self.driver, 15).until(
@@ -146,7 +152,7 @@ class SuperCasaScraper(BaseScraper):
                 self._log('warning', f"No property items found on page {page_num}: {str(e)}")
                 return False
 
-            found_new_listing = False
+            found_new_listing = True
 
             for property_item in property_items:
                 try:
@@ -163,7 +169,7 @@ class SuperCasaScraper(BaseScraper):
                     
                     # Skip if URL already exists in our database
                     if self.url_exists(url):
-                        self._log('info', f"Skipping already processed property: {url}")
+                        # self._log('info', f"Skipping already processed property: {url}")
                         continue
                     
                     found_new_listing = True
@@ -227,11 +233,11 @@ class SuperCasaScraper(BaseScraper):
                         # Find swiper container in the property
                         swiper_container = property_item.find_element(By.CSS_SELECTOR, ".property-media.swiper-container")
                         
-                        # Scroll to the swiper container
-                        self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'instant', block: 'center'});", swiper_container)
+                        # Scroll to the swiper container with human-like behavior
+                        self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", swiper_container)
                         
                         # Wait briefly for initial image
-                        WebDriverWait(self.driver, 3).until(
+                        WebDriverWait(self.driver, 2).until(
                             EC.presence_of_element_located((By.CSS_SELECTOR, ".swiper-slide img"))
                         )
                         
@@ -249,7 +255,7 @@ class SuperCasaScraper(BaseScraper):
                         # Get next button and click through carousel (limit to 5 images for speed)
                         try:
                             next_button = swiper_container.find_element(By.CSS_SELECTOR, ".swiper-next")
-                            max_images = 5  # Reduced from 25 for faster processing
+                            max_images = 30 
                             
                             for i in range(max_images - 1):
                                 try:
@@ -258,9 +264,8 @@ class SuperCasaScraper(BaseScraper):
                                     if "swiper-button-disabled" in button_class:
                                         break
                                         
-                                    # Click next button
+                                    # Click next button with human-like delay
                                     self.driver.execute_script("arguments[0].click();", next_button)
-                                    time.sleep(0.3)  # Reduced wait time
                                     
                                     # Get the new active image
                                     new_active_img = swiper_container.find_element(By.CSS_SELECTOR, ".swiper-slide-active img")

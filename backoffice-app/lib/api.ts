@@ -75,6 +75,7 @@ export interface House {
   area: string;
   floor: string | null;
   description: string;
+  listing_type: 'rent' | 'buy';  // Added
   parish: Parish | null;
   county: County | null;
   district: District | null;
@@ -198,6 +199,7 @@ export interface HouseFilters {
   county?: number;
   parish?: number;
   source?: string;
+  listing_type?: 'rent' | 'buy';  // Added
   favorites?: boolean;
   contacted?: boolean;
   search?: string;
@@ -257,13 +259,15 @@ export const housesAPI = {
 export interface RunScrapersRequest {
   scrapers?: string[];  // Optional: specific scrapers to run (e.g., ['ImoVirtual', 'Idealista'])
   all?: boolean;        // Optional: run all scrapers
+  listing_type?: 'rent' | 'buy' | 'all';  // Type of listing to scrape
 }
 
 export interface RunScrapersResponse {
-  status: 'success' | 'error';
+  status: 'success' | 'error' | 'info';
   output?: string;
   error?: string;
   scrapers_run?: string | string[];
+  listing_type?: string;
   message?: string;
 }
 

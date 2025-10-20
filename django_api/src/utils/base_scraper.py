@@ -46,7 +46,7 @@ import threading
 db_lock = threading.Lock()
 
 class BaseScraper(ABC):
-    def __init__(self, logger):
+    def __init__(self, logger, listing_type='rent'):
         # Store the ScraperLogger instance directly
         if hasattr(logger, 'logger'):
             # It's a ScraperLogger instance
@@ -58,6 +58,7 @@ class BaseScraper(ABC):
         # Commenting out WhatsApp 
         # self.whatsapp = WhatsAppSender() if WHATSAPP_NOTIFICATION_ENABLED else None
         self.source = "Unknown"  # Default source, should be overridden by child classes
+        self.listing_type = listing_type  # Store listing type ('rent' or 'buy')
         # Create data directory if it doesn't exist
         self.data_dir = Path("data")
         self.data_dir.mkdir(exist_ok=True)
@@ -295,6 +296,7 @@ class BaseScraper(ABC):
                         area=area,
                         floor=floor if floor and floor != 'N/A' else None,
                         description=description,
+                        listing_type=self.listing_type,  # Add listing type
                         parish_id=parish_id,
                         county_id=county_id,
                         district_id=district_id,

@@ -13,8 +13,8 @@ except Exception as e:
     from utils.location_manager import LocationManager
 
 class EraScraper(BaseScraper):
-    def __init__(self, logger, url):
-        super().__init__(logger)
+    def __init__(self, logger, url, listing_type='rent'):
+        super().__init__(logger, listing_type)
         self.url = url
         self.source = "ERA"
         self.location_manager = LocationManager()

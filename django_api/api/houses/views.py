@@ -51,6 +51,7 @@ class HouseViewSet(viewsets.ModelViewSet):
         county_id = self.request.query_params.get('county')
         parish_id = self.request.query_params.get('parish')
         source = self.request.query_params.get('source')
+        listing_type = self.request.query_params.get('listing_type')
         
         if district_id:
             queryset = queryset.filter(district_id=district_id)
@@ -60,6 +61,8 @@ class HouseViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(parish_id=parish_id)
         if source:
             queryset = queryset.filter(source=source)
+        if listing_type:
+            queryset = queryset.filter(listing_type=listing_type)
         
         # Search filter - searches across multiple fields
         search = self.request.query_params.get('search', '').strip()
@@ -199,6 +202,15 @@ class HouseViewSet(viewsets.ModelViewSet):
         # Get scrapers selection from request body
         scrapers = request.data.get('scrapers', [])
         run_all = request.data.get('all', False)
+        listing_type = request.data.get('listing_type', 'rent')  # Default to rent
+        
+        # Validate listing_type
+        valid_types = ['rent', 'buy', 'all']
+        if listing_type not in valid_types:
+            return Response({
+                'status': 'error',
+                'error': f'Invalid listing_type. Must be one of: {", ".join(valid_types)}'
+            }, status=400)
         
         # Validate scraper names
         valid_scrapers = ['ImoVirtual', 'Idealista', 'Remax', 'ERA', 'CasaSapo', 'SuperCasa']
@@ -226,13 +238,17 @@ class HouseViewSet(viewsets.ModelViewSet):
                 # Run specific scrapers
                 cmd_args.extend(['--scrapers'] + scrapers)
             
+            # Add listing type argument
+            cmd_args.extend(['--type', listing_type])
+            
             call_command('run_scrapers', *cmd_args, stdout=out)
             
             return Response({
                 'status': 'success',
                 'output': out.getvalue(),
                 'scrapers_run': scrapers if scrapers else 'all',
-                'message': f'Started {"all scrapers" if (run_all or not scrapers) else ", ".join(scrapers)}'
+                'listing_type': listing_type,
+                'message': f'Started {"all scrapers" if (run_all or not scrapers) else ", ".join(scrapers)} for {listing_type}'
             })
         except Exception as e:
             print(f"Error running scrapers: {e}")

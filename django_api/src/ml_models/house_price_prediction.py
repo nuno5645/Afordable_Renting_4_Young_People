@@ -33,6 +33,19 @@ def extract_floor(floor_str):
     return 0
 
 
+def extract_property_type(name):
+    """Extract property type from name: apartamento vs moradia (house)"""
+    if pd.isna(name):
+        return 'other'
+    name_lower = str(name).lower()
+    if 'moradia' in name_lower or 'vivenda' in name_lower:
+        return 'house'
+    elif 'apartamento' in name_lower:
+        return 'apartment'
+    else:
+        return 'other'
+
+
 def load_data(db_path, district_id=22):
     """
     Load house data from SQLite database for a specific district.
@@ -96,6 +109,10 @@ def preprocess_data(df):
     # Store original categorical columns before encoding
     data['source_original'] = data['source']
     data['county_name_original'] = data['county_name'] if 'county_name' in data.columns else None
+    data['parish_name_original'] = data['parish_name'] if 'parish_name' in data.columns else None
+    
+    # Extract property type from name
+    data['property_type'] = data['name'].apply(extract_property_type)
     
     # Extract numeric features
     data['bedrooms_num'] = data['bedrooms'].apply(extract_bedrooms)
@@ -110,10 +127,20 @@ def preprocess_data(df):
     
     # One-hot encode categorical features
     data = pd.get_dummies(data, columns=['source'], prefix='source')
+    data = pd.get_dummies(data, columns=['property_type'], prefix='type')
     
     # Handle county encoding (one-hot)
     if 'county_name' in data.columns:
         data = pd.get_dummies(data, columns=['county_name'], prefix='county')
+    
+    # Handle parish encoding (one-hot) - using parish_id for better granularity
+    if 'parish_id' in data.columns:
+        # Create dummy variables for parish_id
+        data['parish_id'] = data['parish_id'].fillna(0).astype(int)
+        # Only create dummies if there are parishes
+        if data['parish_id'].nunique() > 1:
+            parish_dummies = pd.get_dummies(data['parish_id'], prefix='parish')
+            data = pd.concat([data, parish_dummies], axis=1)
     
     # Remove rows with missing critical values
     data = data.dropna(subset=['price', 'area', 'bedrooms_num'])
@@ -143,10 +170,17 @@ def train_lightgbm_model(df):
     Returns:
         Trained model, test data, predictions, and feature importance
     """
-    # Select features for training (exclude _original columns used only for display)
+    # Select features for training (exclude _original columns and string columns used only for display)
+    exclude_cols = ['id', 'name', 'zone', 'price', 'bedrooms', 'floor', 'listing_type', 
+                    'county_id', 'district_id', 'parish_id', 'county_name', 'district_name', 
+                    'parish_name', 'price_per_sqm', 'source_original', 'county_name_original', 
+                    'parish_name_original']
     feature_cols = [col for col in df.columns if (col.startswith('source_') or 
-                    col.startswith('county_') or 
+                    col.startswith('county_') or
+                    col.startswith('parish_') or
+                    col.startswith('type_') or
                     col in ['bedrooms_num', 'area', 'floor_num']) and 
+                    col not in exclude_cols and
                     not col.endswith('_original')]
     
     X = df[feature_cols]
@@ -317,9 +351,17 @@ def main():
     # Get the indices from the test set
     test_indices = X_test.index
     
-    # Create full predictions for all data (exclude _original columns)
+    # Create full predictions for all data (exclude _original columns and string columns)
+    exclude_cols = ['id', 'name', 'zone', 'price', 'bedrooms', 'floor', 'listing_type', 
+                    'county_id', 'district_id', 'parish_id', 'county_name', 'district_name', 
+                    'parish_name', 'price_per_sqm', 'source_original', 'county_name_original', 
+                    'parish_name_original', 'predicted_price', 'price_difference', 'price_difference_pct']
     all_features = [col for col in df_processed.columns if (col.startswith('source_') or 
-                    col.startswith('county_') or col in ['bedrooms_num', 'area', 'floor_num']) and 
+                    col.startswith('county_') or
+                    col.startswith('parish_') or
+                    col.startswith('type_') or
+                    col in ['bedrooms_num', 'area', 'floor_num']) and 
+                    col not in exclude_cols and
                     not col.endswith('_original')]
     X_all = df_processed[all_features]
     all_predictions = model.predict(X_all, num_iteration=model.best_iteration)

@@ -83,6 +83,9 @@ def setup_logger(name):
     """Setup and return a logger instance with both file and console handlers"""
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
+    
+    # Disable propagation to prevent duplicate logs from parent loggers
+    logger.propagate = False
 
     # Remove any existing handlers
     logger.handlers = []

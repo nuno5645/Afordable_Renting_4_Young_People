@@ -42,7 +42,7 @@ class CasaSapoScraper(BaseScraper):
         for site_url in self.urls:
             self._log('initializing', f"Starting scrape for Casa SAPO URL: {site_url}")
             page_num = 1
-            max_pages = 2  # Safety limit
+            max_pages = 10  # Safety limit
 
             while page_num <= max_pages:
                 # Stop if page processing returns False (no properties found)
@@ -60,7 +60,7 @@ class CasaSapoScraper(BaseScraper):
         try:
             # Navigate to detail page
             driver.get(property_url)
-            time.sleep(random.uniform(2, 3))
+            time.sleep(random.uniform(0.5, 0.8))
             
             # Extract area from detailed features
             try:
@@ -128,8 +128,6 @@ class CasaSapoScraper(BaseScraper):
 
         try:
             self._log('scraping', f"Processing page {page_num}...")
-            if page_num > 1:
-                time.sleep(5)  # Wait between pages
                 
             # Configure Chrome
             chrome_options = Options()
@@ -173,7 +171,7 @@ class CasaSapoScraper(BaseScraper):
                 self._log('initializing', "Chrome driver initialized successfully")
                 driver.get(current_url)
                 self._log('loading', f"Navigated to URL: {current_url}")
-                time.sleep(random.uniform(8, 12))  # Randomized wait
+                time.sleep(random.uniform(2, 3))  # Randomized wait
                 
                 # Wait for property items to be present
                 try:
@@ -324,7 +322,7 @@ class CasaSapoScraper(BaseScraper):
                     
                     # Go back to the listing page
                     driver.back()
-                    time.sleep(random.uniform(1, 2))
+                    time.sleep(random.uniform(0.5, 0.8))
                     
                     # Wait for the property list to be present again
                     WebDriverWait(driver, 10).until(
@@ -342,48 +340,22 @@ class CasaSapoScraper(BaseScraper):
                             self._log('debug', f"Error extracting bedrooms: {str(bedroom_error)}")
                             bedrooms = "N/A"
                     
-                    self._log('debug', "Building info_list...")
-                    # Check if we have the new format (IDs) or old format (names)
-                    if parish_id is not None:
-                        # New format: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Parish_ID, County_ID, District_ID, Source, ScrapedAt, ImageURLs
-                        self._log('debug', "Using new format with Parish/County/District IDs")
-                        info_list = [
-                            name,           # Name
-                            zone,           # Zone
-                            price,          # Price
-                            property_url,   # URL
-                            bedrooms,       # Bedrooms
-                            area,           # Area
-                            "N/A",          # Floor (not available in Casa SAPO)
-                            description,    # Description
-                            parish_id,      # Parish ID
-                            county_id,      # County ID
-                            district_id,    # District ID
-                            "Casa SAPO",    # Source
-                            None,           # ScrapedAt (will be filled by save_to_excel)
-                            image_urls      # Image URLs as list
-                        ]
-                    else:
-                        # Old format fallback: Name, Zone, Price, URL, Bedrooms, Area, Floor, Description, Freguesia, Concelho, Source, ScrapedAt, ImageURLs
-                        self._log('debug', "Using old format with Freguesia/Concelho names")
-                        info_list = [
-                            name,           # Name
-                            zone,           # Zone
-                            price,          # Price
-                            property_url,   # URL
-                            bedrooms,       # Bedrooms
-                            area,           # Area
-                            "N/A",          # Floor (not available in Casa SAPO)
-                            description,    # Description
-                            freguesia if freguesia else "N/A",  # Freguesia
-                            concelho if concelho else "N/A",    # Concelho
-                            "Casa SAPO",    # Source
-                            None,           # ScrapedAt (will be filled by save_to_excel)
-                            image_urls      # Image URLs as list
-                        ]
-                    
-                    self._log('debug', f"info_list created with {len(info_list)} elements: {[type(x).__name__ for x in info_list]}")
-                    self._log('debug', f"Attempting to save to database...")
+                    info_list = [
+                        name,           # Name
+                        zone,           # Zone
+                        price,          # Price
+                        property_url,   # URL
+                        bedrooms,       # Bedrooms
+                        area,           # Area
+                        "N/A",          # Floor (not available in Casa SAPO)
+                        description,    # Description
+                        parish_id,      # Parish ID
+                        county_id,      # County ID
+                        district_id,    # District ID
+                        "Casa SAPO",    # Source
+                        None,           # ScrapedAt (will be filled by save_to_excel)
+                        image_urls      # Image URLs as list
+                    ]
                     
                     if self.save_to_database(info_list):
                         # Add the URL to our existing URLs set to avoid duplicates in the same run

@@ -245,8 +245,6 @@ class BaseScraper(ABC):
     def save_to_database(self, info_list):
         """Save house information to database"""
         
-        self._log('debug', f"Saving house information to database: {info_list}")
-        
         try:
             # Extract and clean data
             name = str(info_list[0]).strip() if len(info_list) > 0 and info_list[0] is not None else ''

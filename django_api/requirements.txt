@@ -25,3 +25,7 @@ Werkzeug==3.0.1
 djangorestframework-simplejwt 
 Pillow
 drf-spectacular
+lightgbm>=4.0.0
+scikit-learn>=1.3.0
+pandas>=2.0.0
+numpy>=1.24.0

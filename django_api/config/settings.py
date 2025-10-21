@@ -51,7 +51,7 @@ IMOVIRTUAL_URLS = [
     f'https://www.imovirtual.com/pt/resultados/arrendar/apartamento/lisboa/amadora?limit=36&priceMax={MAX_PRICE}&roomsNumber=%5BTWO%2CTHREE%2CFOUR%2CFIVE%2CSIX_OR_MORE%5D&by=LATEST&direction=DESC&viewType=listing',
     f'https://www.imovirtual.com/pt/resultados/arrendar/apartamento/lisboa/cascais?limit=36&priceMax={MAX_PRICE}&roomsNumber=%5BTWO%2CTHREE%2CFOUR%2CFIVE%2CSIX_OR_MORE%5D&by=LATEST&direction=DESC&viewType=listing',
     f'https://www.imovirtual.com/pt/resultados/arrendar/apartamento/lisboa/oeiras?limit=36&priceMax={MAX_PRICE}&roomsNumber=%5BTWO%2CTHREE%2CFOUR%2CFIVE%2CSIX_OR_MORE%5D&by=LATEST&direction=DESC&viewType=listing',
-#    f'https://www.imovirtual.com/pt/resultados/arrendar/apartamento/lisboa/sintra?limit=36&priceMax={MAX_PRICE}&roomsNumber=%5BTWO%2CTHREE%2CFOUR%2CFIVE%2CSIX_OR_MORE%5D&by=LATEST&direction=DESC&viewType=listing',
+   f'https://www.imovirtual.com/pt/resultados/arrendar/apartamento/lisboa/sintra?limit=36&priceMax={MAX_PRICE}&roomsNumber=%5BTWO%2CTHREE%2CFOUR%2CFIVE%2CSIX_OR_MORE%5D&by=LATEST&direction=DESC&viewType=listing',
     f'https://www.imovirtual.com/pt/resultados/arrendar/apartamento/lisboa/loures?limit=36&priceMax={MAX_PRICE}&roomsNumber=%5BTWO%2CTHREE%2CFOUR%2CFIVE%2CSIX_OR_MORE%5D&by=LATEST&direction=DESC&viewType=listing',
     f'https://www.imovirtual.com/pt/resultados/arrendar/apartamento/lisboa/odivelas?limit=36&priceMax={MAX_PRICE}&roomsNumber=%5BTWO%2CTHREE%2CFOUR%2CFIVE%2CSIX_OR_MORE%5D&by=LATEST&direction=DESC&viewType=listing',
 ]
@@ -77,7 +77,7 @@ CASA_SAPO_URLS = [
     f'https://casa.sapo.pt/alugar-apartamentos/t1,t2,t3,t4,t5,t6-ou-superior/mais-recentes/amadora/?gp={MAX_PRICE}',
     f'https://casa.sapo.pt/alugar-apartamentos/t1,t2,t3,t4,t5,t6-ou-superior/mais-recentes/cascais/?gp={MAX_PRICE}',
     f'https://casa.sapo.pt/alugar-apartamentos/t1,t2,t3,t4,t5,t6-ou-superior/mais-recentes/oeiras/?gp={MAX_PRICE}',
-#    f'https://casa.sapo.pt/alugar-apartamentos/t1,t2,t3,t4,t5,t6-ou-superior/mais-recentes/sintra/?gp={MAX_PRICE}',
+   f'https://casa.sapo.pt/alugar-apartamentos/t1,t2,t3,t4,t5,t6-ou-superior/mais-recentes/sintra/?gp={MAX_PRICE}',
     f'https://casa.sapo.pt/alugar-apartamentos/t1,t2,t3,t4,t5,t6-ou-superior/mais-recentes/loures/?gp={MAX_PRICE}',
     f'https://casa.sapo.pt/alugar-apartamentos/t1,t2,t3,t4,t5,t6-ou-superior/mais-recentes/odivelas/?gp={MAX_PRICE}',
 ]
@@ -87,7 +87,7 @@ SUPER_CASA_URLS = [
     f'https://supercasa.pt/arrendar-casas/amadora/com-t1,t2,t3,t4,preco-max-{MAX_PRICE}?ordem=atualizado-desc',
     f'https://supercasa.pt/arrendar-casas/cascais/com-t1,t2,t3,t4,preco-max-{MAX_PRICE}?ordem=atualizado-desc',
     f'https://supercasa.pt/arrendar-casas/oeiras/com-t1,t2,t3,t4,preco-max-{MAX_PRICE}?ordem=atualizado-desc',
-#    f'https://supercasa.pt/arrendar-casas/sintra/com-t1,t2,t3,t4,preco-max-{MAX_PRICE}?ordem=atualizado-desc',
+   f'https://supercasa.pt/arrendar-casas/sintra/com-t1,t2,t3,t4,preco-max-{MAX_PRICE}?ordem=atualizado-desc',
     f'https://supercasa.pt/arrendar-casas/loures/com-t1,t2,t3,t4,preco-max-{MAX_PRICE}?ordem=atualizado-desc',
     f'https://supercasa.pt/arrendar-casas/odivelas/com-t1,t2,t3,t4,preco-max-{MAX_PRICE}?ordem=atualizado-desc',
 ]
@@ -122,13 +122,13 @@ CASA_SAPO_URLS_BUY = [
 ]
 
 SUPER_CASA_URLS_BUY = [
-    # f'https://supercasa.pt/comprar-casas/lisboa/com-t1,t2,t3,t4,preco-max-{MAX_PRICE_BUY}?ordem=atualizado-desc',
-    # f'https://supercasa.pt/comprar-casas/amadora/com-t1,t2,t3,t4,preco-max-{MAX_PRICE_BUY}?ordem=atualizado-desc',
-    # f'https://supercasa.pt/comprar-casas/cascais/com-t1,t2,t3,t4,preco-max-{MAX_PRICE_BUY}?ordem=atualizado-desc',
+    f'https://supercasa.pt/comprar-casas/lisboa/com-t1,t2,t3,t4,preco-max-{MAX_PRICE_BUY}?ordem=atualizado-desc',
+    f'https://supercasa.pt/comprar-casas/amadora/com-t1,t2,t3,t4,preco-max-{MAX_PRICE_BUY}?ordem=atualizado-desc',
+    f'https://supercasa.pt/comprar-casas/cascais/com-t1,t2,t3,t4,preco-max-{MAX_PRICE_BUY}?ordem=atualizado-desc',
     f'https://supercasa.pt/comprar-casas/sintra/com-t1,t2,t3,t4,preco-max-{MAX_PRICE_BUY}?ordem=atualizado-desc',
-    # f'https://supercasa.pt/comprar-casas/oeiras/com-t1,t2,t3,t4,preco-max-{MAX_PRICE_BUY}?ordem=atualizado-desc',
-    # f'https://supercasa.pt/comprar-casas/loures/com-t1,t2,t3,t4,preco-max-{MAX_PRICE_BUY}?ordem=atualizado-desc',
-    # f'https://supercasa.pt/comprar-casas/odivelas/com-t1,t2,t3,t4,preco-max-{MAX_PRICE_BUY}?ordem=atualizado-desc',
+    f'https://supercasa.pt/comprar-casas/oeiras/com-t1,t2,t3,t4,preco-max-{MAX_PRICE_BUY}?ordem=atualizado-desc',
+    f'https://supercasa.pt/comprar-casas/loures/com-t1,t2,t3,t4,preco-max-{MAX_PRICE_BUY}?ordem=atualizado-desc',
+    f'https://supercasa.pt/comprar-casas/odivelas/com-t1,t2,t3,t4,preco-max-{MAX_PRICE_BUY}?ordem=atualizado-desc',
 ]
 
 # API Keys

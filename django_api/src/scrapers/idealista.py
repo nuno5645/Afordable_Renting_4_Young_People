@@ -230,7 +230,12 @@ class IdealistaScraper(BaseScraper):
                 self._log('debug', f"Trying gallery URL: {gallery_url}")
                 
                 # Use ScraperAPI for gallery requests too
-                payload = {"api_key": self.api_key, "url": gallery_url, "autoparse": "true"}
+                payload = {
+                    "api_key": self.api_key, 
+                    "url": gallery_url, 
+                    "autoparse": "true",
+                    "premium": "true"  # Use premium proxies for protected domains
+                }
                 
                 # Track the request
                 self.track_request()
@@ -279,7 +284,12 @@ class IdealistaScraper(BaseScraper):
             self._log('debug', f"Fetching images from property page: {property_url}")
             
             # Use ScraperAPI to get the property page
-            payload = {"api_key": self.api_key, "url": property_url, "autoparse": "true"}
+            payload = {
+                "api_key": self.api_key, 
+                "url": property_url, 
+                "autoparse": "true",
+                "premium": "true"  # Use premium proxies for protected domains
+            }
             
             # Track the request
             self.track_request()
@@ -340,8 +350,13 @@ class IdealistaScraper(BaseScraper):
         try:
             self._log('info', f"Processing page {page_num}...")
            
-            payload = {"api_key": self.api_key, "url": current_url, "autoparse": "true"}
-            self._log('info', "Making request to ScraperAPI...")
+            payload = {
+                "api_key": self.api_key, 
+                "url": current_url, 
+                "autoparse": "true",
+                "premium": "true"  # Use premium proxies for protected domains like Idealista
+            }
+            self._log('info', "Making request to ScraperAPI with premium proxies...")
             
             # Track the request before making it
             self.track_request()
@@ -356,15 +371,6 @@ class IdealistaScraper(BaseScraper):
 
             soup = BeautifulSoup(r.text, "html.parser")
             self._log('info', "Successfully parsed page content with BeautifulSoup")
-
-            # Save page source to file for debugging
-            debug_file = "/tmp/idealista_debug.html"
-            try:
-                with open(debug_file, 'w', encoding='utf-8') as f:
-                    f.write(r.text)
-                self._log('info', f"Page source saved to: {debug_file}")
-            except Exception as save_error:
-                self._log('error', f"Could not save page source: {str(save_error)}")
 
             houses = soup.find_all("article", class_="item")
             self._log('info', f"Found {len(houses)} house listings on page {page_num}")

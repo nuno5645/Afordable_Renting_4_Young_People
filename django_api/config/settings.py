@@ -132,7 +132,7 @@ SUPER_CASA_URLS_BUY = [
 ]
 
 # API Keys
-SCRAPER_API_KEY = 'e0c9203edd30d2e5c624f841b9c4e0b4'  # For Idealista scraping
+SCRAPER_API_KEY = 'ebe877384fd8936805b9332cfb7d1613'  # For Idealista scraping
 
 # Excel Settings
 EXCEL_FILENAME = 'houses.xlsx'

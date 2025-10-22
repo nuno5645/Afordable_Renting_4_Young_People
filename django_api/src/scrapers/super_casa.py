@@ -144,10 +144,28 @@ class SuperCasaScraper(BaseScraper):
 
             # Wait for property listings to be present (explicit wait instead of sleep)
             try:
+                # First, wait for the container to exist
+                WebDriverWait(self.driver, 15).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, "div.list-properties"))
+                )
+                
+                # Then wait for property items
                 property_items = WebDriverWait(self.driver, 15).until(
                     EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.list-properties > .property"))
                 )
-                self._log('info', f"Found {len(property_items)} property items")
+                
+                # Wait a bit for lazy-loaded content (prices, images)
+                time.sleep(2)
+                
+                # Scroll to bottom to trigger lazy loading
+                self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(1)
+                
+                # Scroll back to top
+                self.driver.execute_script("window.scrollTo(0, 0);")
+                time.sleep(1)
+                
+                self._log('info', f"Found {len(property_items)} property items after lazy load")
             except Exception as e:
                 self._log('warning', f"No property items found on page {page_num}: {str(e)}")
                 return False
@@ -183,8 +201,8 @@ class SuperCasaScraper(BaseScraper):
                     try:
                         title_elem = property_item.find_element(By.CSS_SELECTOR, ".property-list-title a")
                         title_text = title_elem.get_attribute("title")
-                        # Extract T0, T1, T2, etc. from the title
-                        bedrooms_match = re.search(r'(T\d+)', title_text) if title_text else None
+                        # Extract just the number from T0, T1, T2, etc.
+                        bedrooms_match = re.search(r'T(\d+)', title_text) if title_text else None
                         bedrooms = bedrooms_match.group(1) if bedrooms_match else "N/A"
                     except:
                         bedrooms = "N/A"
@@ -200,21 +218,49 @@ class SuperCasaScraper(BaseScraper):
                     # Extract parish, county and district IDs from address
                     parish_id, county_id, district_id = self.location_manager.extract_location(zone)
                     
+                    # Extract price
                     try:
                         price_elem = property_item.find_element(By.CSS_SELECTOR, ".property-price span")
-                        price = price_elem.text.strip()
-                    except:
+                        price_text = price_elem.text.strip()
+                        
+                        # If text is empty, try innerHTML
+                        if not price_text:
+                            price_innerHTML = price_elem.get_attribute('innerHTML')
+                            if price_innerHTML:
+                                price_text = price_innerHTML.strip()
+                        
+                        # Extract numeric value only
+                        if price_text:
+                            price_match = re.search(r'[\d\.,]+', price_text.replace('€', '').replace('EUR', '').strip())
+                            if price_match:
+                                price = price_match.group(0).replace('.', '').replace(',', '.').strip()
+                            else:
+                                price = "N/A"
+                        else:
+                            price = "N/A"
+                    except Exception as e:
                         price = "N/A"
                         
                     # Get area from property-features spans
                     try:
                         feature_spans = property_item.find_elements(By.CSS_SELECTOR, ".property-features span")
-                        area_span = next((span.text for span in feature_spans if "m²" in span.text), None)
-                        if area_span:
-                            match = re.search(r'(\d+)', area_span)
-                            area = match.group(1) if match else "0"
-                        else:
-                            area = "0"
+                        area = "0"
+                        
+                        for span in feature_spans:
+                            span_text = span.text.strip()
+                            
+                            # If text is empty, try innerHTML
+                            if not span_text:
+                                span_innerHTML = span.get_attribute('innerHTML')
+                                if span_innerHTML:
+                                    span_text = span_innerHTML.strip()
+                            
+                            # Check if this span contains area info (m²)
+                            if span_text and "m²" in span_text:
+                                match = re.search(r'(\d+)', span_text)
+                                if match:
+                                    area = match.group(1)
+                                    break
                     except:
                         area = "0"
                         

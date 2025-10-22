@@ -1,9 +1,5 @@
-import requests
 from bs4 import BeautifulSoup
 import time
-import json
-import os
-from datetime import datetime, timedelta
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 try:
@@ -12,8 +8,6 @@ try:
 except Exception as e:
     from utils.base_scraper import BaseScraper
     from utils.location_manager import LocationManager
-from config.settings import IDEALISTA_MAX_REQUESTS_PER_HOUR
-from houses.models import House
 
 
 class IdealistaScraper(BaseScraper):
